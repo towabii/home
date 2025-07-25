@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>スタートメニュー風サイト（拡張版）</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap');
+
+  /* --- 全体 --- */
+  body {
+    margin: 0;
+    font-family: 'Roboto Slab', serif;
+    background-color: #121212;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* --- タスクバー --- */
+  #taskbar {
+    height: 50px;
+    background: #222;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    border-bottom: 1px solid #444;
+    position: relative;
+    flex-shrink: 0;
+  }
+  #taskbar .task-icon, #taskbar #add-taskbar-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.25s;
+    color: white;
+    font-weight: 600;
+    font-size: 24px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  #taskbar .task-icon:hover, #taskbar #add-taskbar-btn:hover {
+    background: #666;
+  }
+  #taskbar .task-icon .delete-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    background: #e53935;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    border-radius: 50%;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    display: none;
+    transition: background-color 0.3s;
+  }
+  #taskbar .task-icon:hover .delete-btn {
+    display: block;
+  }
+
+  /* --- ハンバーガーボタン --- */
+  #hamburger-btn {
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 7px;
+    box-sizing: border-box;
+    margin-right: 12px;
+  }
+  #hamburger-btn div {
+    background: #eee;
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  /* --- メイン領域 --- */
+  #main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* --- 左パネル --- */
+  #left-panel {
+    flex: 1.3;
+    background: #1f1f1f;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    user-select: none;
+  }
+
+  /* --- ジャンル名 --- */
+  #genre-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #444;
+    user-select: none;
+    transition: opacity 0.4s ease;
+  }
+
+  /* --- ページ切り替えボタン --- */
+  #page-left-btn, #page-right-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    background: #444;
+    color: white;
+    border-radius: 8px;
+    font-size: 24px;
+    line-height: 36px;
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.3s;
+  }
+  #page-left-btn:hover, #page-right-btn:hover {
+    background: #666;
+  }
+  #page-left-btn {
+    left: 10px;
+  }
+  #page-right-btn {
+    right: 10px;
+  }
+
+  /* --- ページインジケーター --- */
+  #page-indicator {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    user-select: none;
+  }
+  .indicator-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #555;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .indicator-dot.active {
+    background: #fff;
+  }
+
+  /* --- サイトページコンテナ --- */
+  #site-pages {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-container {
+    display: flex;
+    height: 100%;
+    position: relative;
+  }
+  .site-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1f1f1f;
+    padding: 20px 60px; /* 左右の矢印ボタンと被らないように余白を調整 */
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    justify-content: flex-start;
+    align-content: flex-start;
+    overflow-y: auto;
+    transition: transform 0.5s ease;
+    will-change: transform;
+  }
+
+  /* --- サイトアイコン --- */
+  .site-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 14px;
+    background: #444;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ddd;
+    font-size: 14px;
+    text-align: center;
+    cursor: grab;
+    user-select: none;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.7);
+    transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s;
+  }
+  .site-icon.dragging {
+    opacity: 0.4;
+    cursor: grabbing;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.9);
+  }
+  /* ドラッグ中のプレースホルダー */
+  .drag-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed #888;
+    box-sizing: border-box;
+  }
+  .site-icon img {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    pointer-events: none; /* ドラッグ操作の邪魔にならないように */
+  }
+  .site-icon .site-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 78px;
+    pointer-events: none;
+  }
+  .site-icon .delete-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    background: #e53935;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 50%;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    display: none;
+    transition: background-color 0.3s;
+    z-index: 5;
+  }
+  .site-icon:hover {
+    background-color: #555;
+    box-shadow: 0 4px 12px rgba(255,255,255,0.2);
+  }
+  .site-icon:hover .delete-btn {
+    display: block;
+  }
+
+  /* --- サイト追加ボタン --- */
+  #add-site-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 14px;
+    background: #ddd; /* 変更: 青から白系の色へ */
+    color: #333; /* 変更: 文字色を暗く */
+    font-size: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+  #add-site-btn:hover {
+    background: #fff; /* 変更 */
+    box-shadow: 0 6px 14px rgba(0,0,0,0.7);
+  }
+
+  /* --- 右パネル --- */
+  #right-panel {
+    flex: 0.75;
+    background: #181818;
+    padding: 28px 32px;
+    box-sizing: border-box;
+    color: #ccc;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    user-select: none;
+  }
+
+  /* --- Google検索 (サイズアップ) --- */
+  #google-search {
+    width: 100%;
+    margin-bottom: 28px;
+    display: flex;
+  }
+  #google-search input[type="text"] {
+    flex-grow: 1;
+    padding: 18px 22px; /* 変更: サイズアップ */
+    font-size: 20px; /* 変更: サイズアップ */
+    border-radius: 8px 0 0 8px;
+    border: none;
+    box-sizing: border-box;
+    outline: none;
+    background: #292929;
+    color: #eee;
+  }
+  #google-search button {
+    flex-shrink: 0;
+    width: 120px;
+    font-size: 20px; /* 変更: サイズアップ */
+    border: none;
+    border-radius: 0 8px 8px 0;
+    background-color: #ddd; /* 変更 */
+    color: #333; /* 変更 */
+    cursor: pointer;
+    padding: 18px 0; /* 変更: サイズアップ */
+    transition: background-color 0.3s;
+  }
+  #google-search button:hover {
+    background-color: #fff; /* 変更 */
+  }
+
+  /* --- カレンダー --- */
+  #calendar {
+    width: 100%;
+    background: #222;
+    border-radius: 8px;
+    padding: 12px;
+    box-sizing: border-box;
+    margin-bottom: 30px;
+    text-align: center;
+    user-select: none;
+  }
+  #calendar table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #ccc;
+  }
+  #calendar th, #calendar td {
+    padding: 10px 6px;
+    text-align: center;
+    border-radius: 6px;
+    font-weight: 600;
+    user-select: none;
+  }
+  #calendar th {
+    color: #fff;
+  }
+  #calendar td.today {
+    background: #444;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  /* --- 時刻表示 --- */
+  #clock {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  #date {
+    margin-top: 14px;
+    font-size: 1.5rem;
+  }
+
+  /* --- ハンバーガーメニュー --- */
+  #hamburger-menu {
+    position: fixed;
+    top: 50px;
+    left: 0;
+    width: 280px;
+    height: calc(100vh - 50px);
+    background: #222;
+    border-right: 1px solid #333;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.8);
+    transform: translateX(-300px);
+    transition: transform 0.3s ease;
+    padding: 15px 16px;
+    box-sizing: border-box;
+    color: #eee;
+    overflow-y: auto;
+    z-index: 100;
+  }
+  #hamburger-menu.open {
+    transform: translateX(0);
+  }
+  #hamburger-menu h2 {
+    margin-top: 0;
+    margin-bottom: 14px;
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+  #hamburger-menu label {
+    display: block;
+    margin: 12px 0 6px;
+    font-weight: 600;
+  }
+  #hamburger-menu textarea {
+    width: 100%;
+    height: 120px;
+    background: #333;
+    color: #eee;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    box-sizing: border-box;
+    font-family: monospace;
+    resize: vertical;
+  }
+  #hamburger-menu button {
+    margin-top: 10px;
+    background: #ddd; /* 変更 */
+    border: none;
+    color: #333; /* 変更 */
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  #hamburger-menu button:hover {
+    background: #fff; /* 変更 */
+  }
+  #hamburger-menu input[type="text"] {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .genre-list {
+    margin-top: 10px;
+  }
+  .genre-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #333;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .genre-list-item button {
+    background: #e53935;
+    border: none;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.3s;
+  }
+  .genre-list-item button:hover {
+    background: #b71c1c;
+  }
+</style>
+</head>
+<body>
+
+  <div id="taskbar" title="タスクバー">
+    <div id="hamburger-btn" title="設定メニュー開閉" aria-label="設定メニュー開閉" tabindex="0">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <!-- タスクバーサイトアイコンここに動的追加 -->
+    <div id="add-taskbar-btn" title="タスクバーにサイト追加">＋</div>
+  </div>
+
+  <div id="main">
+    <div id="left-panel" tabindex="0" aria-label="サイトジャンル一覧">
+      <div id="genre-title" aria-live="polite" aria-atomic="true" aria-relevant="text">ジャンル名</div>
+
+      <div id="page-left-btn" title="前のジャンル" role="button" tabindex="0" aria-label="前のジャンル">◀</div>
+      <div id="site-pages">
+        <div class="page-container"></div>
+      </div>
+      <div id="page-right-btn" title="次のジャンル" role="button" tabindex="0" aria-label="次のジャンル">▶</div>
+
+      <div id="page-indicator" aria-label="ジャンルページ数"></div>
+    </div>
+
+    <div id="right-panel">
+      <form id="google-search" onsubmit="event.preventDefault(); googleSearch();" role="search" aria-label="Google検索フォーム">
+        <input type="text" id="google-search-input" placeholder="Google検索またはURL入力" aria-label="Google検索入力欄" autocomplete="off" />
+        <button type="submit" aria-label="検索実行">検索</button>
+      </form>
+
+      <div id="calendar" aria-label="カレンダー"></div>
+      <div id="clock" aria-label="現在時刻"></div>
+      <div id="date" aria-label="現在日付"></div>
+    </div>
+  </div>
+
+  <div id="hamburger-menu" aria-hidden="true" role="region" aria-label="設定メニュー">
+    <h2>設定</h2>
+
+    <label for="new-genre-name">ジャンル追加</label>
+    <input type="text" id="new-genre-name" placeholder="ジャンル名を入力" aria-label="ジャンル名入力" />
+    <button id="add-genre-btn" aria-label="ジャンル追加">追加</button>
+
+    <div class="genre-list" aria-live="polite" aria-atomic="true"></div>
+
+    <label for="import-data">データインポート・エクスポート</label>
+    <textarea id="import-data" aria-label="設定データインポート"></textarea>
+    <button id="load-import-btn" aria-label="データ読み込み">読み込み</button>
+    <button id="copy-export-btn" aria-label="設定データコピー">コピー</button>
+    <textarea id="export-data" readonly aria-label="設定データエクスポート"></textarea>
+  </div>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'startpage-data-v2';
+
+  // ★ 追加: アニメーション実行中フラグ (バグ修正のため)
+  let isAnimating = false;
+  let draggedItem = null; // ドラッグ中のアイテムを保持
+
+  // 初期データ
+  let data = {
+    genres: [
+      {
+        id: 1,
+        name: 'Google',
+        sites: [
+          { id: 101, name: 'Google', url: 'https://www.google.com', icon: '' },
+          { id: 102, name: 'Gmail', url: 'https://mail.google.com', icon: '' },
+        ]
+      },
+      {
+        id: 2,
+        name: 'AI',
+        sites: [
+          { id: 201, name: 'ChatGPT', url: 'https://chat.openai.com', icon: '' },
+          { id: 202, name: 'Hugging Face', url: 'https://huggingface.co', icon: '' },
+        ]
+      }
+    ],
+    currentGenreIndex: 0,
+    taskbarSites: [],
+  };
+
+  // 要素取得
+  const genreTitleDiv = document.getElementById('genre-title');
+  const sitePagesContainer = document.getElementById('site-pages');
+  const pageContainer = document.querySelector('.page-container');
+  const pageLeftBtn = document.getElementById('page-left-btn');
+  const pageRightBtn = document.getElementById('page-right-btn');
+  const pageIndicatorDiv = document.getElementById('page-indicator');
+  const taskbar = document.getElementById('taskbar');
+  const addTaskbarBtn = document.getElementById('add-taskbar-btn');
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const hamburgerMenu = document.getElementById('hamburger-menu');
+  const addGenreBtn = document.getElementById('add-genre-btn');
+  const newGenreNameInput = document.getElementById('new-genre-name');
+  const genreListDiv = hamburgerMenu.querySelector('.genre-list');
+  const importDataArea = document.getElementById('import-data');
+  const loadImportBtn = document.getElementById('load-import-btn');
+  const copyExportBtn = document.getElementById('copy-export-btn');
+  const exportDataArea = document.getElementById('export-data');
+  const googleSearchInput = document.getElementById('google-search-input');
+
+  // ★ 改善: URL正規化 (https付与)
+  function normalizeUrl(url) {
+    url = url.trim();
+    if (!url) return '';
+    if (!/^(https?:\/\/|mailto:)/i.test(url)) {
+      url = 'https://' + url;
+    }
+    return url;
+  }
+
+  // ファビコンURL取得
+  function getFaviconUrl(siteUrl) {
+    try {
+      const url = new URL(siteUrl);
+      return `https://www.google.com/s2/favicons?sz=64&domain=${url.hostname}`;
+    } catch {
+      return 'https://via.placeholder.com/64?text=X';
+    }
+  }
+
+  // データ保存
+  function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    updateExportArea();
+  }
+
+  // データ読み込み
+  function loadData() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsedData = JSON.parse(saved);
+        // データ構造の検証
+        if (parsedData && Array.isArray(parsedData.genres)) {
+          data = parsedData;
+          if (typeof data.currentGenreIndex !== 'number' || data.currentGenreIndex >= data.genres.length) {
+            data.currentGenreIndex = 0;
+          }
+          if (!Array.isArray(data.taskbarSites)) {
+             data.taskbarSites = [];
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load data from localStorage", e);
+      }
+    }
+  }
+
+  // ★ 改善: サイトアイコンDOM作成 (ドラッグ&ドロップ対応)
+  function createSiteIcon(site) {
+    const div = document.createElement('div');
+    div.className = 'site-icon';
+    div.dataset.siteId = site.id;
+    div.setAttribute('draggable', true);
+    div.setAttribute('title', site.name);
+
+    const iconUrl = site.icon || getFaviconUrl(site.url);
+    div.innerHTML = `
+      <img src="${iconUrl}" alt="${site.name}のアイコン">
+      <div class="site-label">${site.name}</div>
+      <div class="delete-btn" title="削除">×</div>
+    `;
+
+    div.addEventListener('click', () => {
+      window.open(site.url, '_blank');
+    });
+
+    div.querySelector('.delete-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      if (confirm(`「${site.name}」を削除しますか？`)) {
+        const currentGenre = data.genres[data.currentGenreIndex];
+        currentGenre.sites = currentGenre.sites.filter(s => s.id !== site.id);
+        renderCurrentPage();
+        saveData();
+      }
+    });
+
+    // ドラッグ＆ドロップイベント
+    div.addEventListener('dragstart', e => {
+        draggedItem = div;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', site.id);
+        setTimeout(() => {
+            div.classList.add('dragging');
+        }, 0);
+    });
+
+    div.addEventListener('dragend', () => {
+        draggedItem.classList.remove('dragging');
+        draggedItem = null;
+        // プレースホルダーを削除
+        const placeholder = document.querySelector('.drag-placeholder');
+        if (placeholder) {
+            placeholder.remove();
+        }
+    });
+
+    return div;
+  }
+  
+    // ★ 追加: ドラッグオーバー処理
+    function handleDragOver(e) {
+        e.preventDefault();
+        const page = e.currentTarget;
+        if (!draggedItem) return;
+
+        const afterElement = getDragAfterElement(page, e.clientY);
+        let placeholder = page.querySelector('.drag-placeholder');
+
+        if (!placeholder) {
+            placeholder = document.createElement('div');
+            placeholder.className = 'drag-placeholder';
+        }
+        
+        if (afterElement == null) {
+            page.appendChild(placeholder);
+        } else {
+            page.insertBefore(placeholder, afterElement);
+        }
+    }
+
+    // ★ 追加: ドロップ後の要素位置を取得
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.site-icon:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // ★ 追加: ドロップ処理
+    function handleDrop(e) {
+        e.preventDefault();
+        const page = e.currentTarget;
+        const placeholder = page.querySelector('.drag-placeholder');
+        if (!placeholder) return;
+
+        const draggedId = Number(e.dataTransfer.getData('text/plain'));
+        const currentGenre = data.genres[data.currentGenreIndex];
+        const draggedIndex = currentGenre.sites.findIndex(s => s.id === draggedId);
+        
+        if(draggedIndex === -1) return;
+
+        const [draggedSite] = currentGenre.sites.splice(draggedIndex, 1);
+        
+        const children = Array.from(page.children);
+        const newIndex = children.indexOf(placeholder);
+
+        currentGenre.sites.splice(newIndex, 0, draggedSite);
+
+        placeholder.remove();
+        renderCurrentPage();
+        saveData();
+    }
+
+
+  // タスクバー表示
+  function renderTaskbar() {
+    [...taskbar.querySelectorAll('.task-icon')].forEach(el => el.remove());
+    data.taskbarSites.forEach(site => {
+      const iconDiv = document.createElement('div');
+      iconDiv.className = 'task-icon';
+      iconDiv.title = site.name;
+      const iconUrl = site.icon || getFaviconUrl(site.url);
+      iconDiv.style.backgroundImage = `url('${iconUrl}')`;
+      iconDiv.style.backgroundSize = 'cover';
+      iconDiv.style.backgroundPosition = 'center';
+      iconDiv.tabIndex = 0;
+
+      iconDiv.addEventListener('click', () => window.open(site.url, '_blank'));
+
+      const delBtn = document.createElement('div');
+      delBtn.className = 'delete-btn';
+      delBtn.textContent = '×';
+      delBtn.title = '削除';
+      delBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (confirm(`「${site.name}」をタスクバーから削除しますか？`)) {
+          data.taskbarSites = data.taskbarSites.filter(s => s.id !== site.id);
+          renderTaskbar();
+          saveData();
+        }
+      });
+      iconDiv.appendChild(delBtn);
+      taskbar.insertBefore(iconDiv, addTaskbarBtn);
+    });
+  }
+  
+  // ★ 改善: 現在のジャンルページを描画する関数
+  function renderCurrentPage() {
+    const currentGenre = data.genres[data.currentGenreIndex];
+    const currentPage = pageContainer.querySelector('.site-page');
+    if (!currentPage) return;
+    
+    currentPage.innerHTML = ''; // 中身をクリア
+    currentGenre.sites.forEach(site => {
+        const iconDiv = createSiteIcon(site);
+        currentPage.appendChild(iconDiv);
+    });
+    
+    // サイト追加ボタン
+    const addBtn = document.createElement('div');
+    addBtn.id = 'add-site-btn';
+    addBtn.textContent = '+';
+    addBtn.title = 'サイトを追加';
+    addBtn.addEventListener('click', openAddSiteDialog);
+    currentPage.appendChild(addBtn);
+  }
+
+
+  // ★ 改善: ジャンルページを作成する関数
+  function createPage(genreIndex) {
+    const pageDiv = document.createElement('div');
+    pageDiv.className = 'site-page';
+    pageDiv.dataset.genreIndex = genreIndex;
+    
+    // ドラッグ＆ドロップイベントをページに追加
+    pageDiv.addEventListener('dragover', handleDragOver);
+    pageDiv.addEventListener('drop', handleDrop);
+
+    const genre = data.genres[genreIndex];
+    if (genre) {
+        genre.sites.forEach(site => {
+            const iconDiv = createSiteIcon(site);
+            pageDiv.appendChild(iconDiv);
+        });
+    }
+
+    const addBtn = document.createElement('div');
+    addBtn.id = 'add-site-btn';
+    addBtn.textContent = '+';
+    addBtn.title = 'サイトを追加';
+    addBtn.addEventListener('click', openAddSiteDialog);
+    pageDiv.appendChild(addBtn);
+
+    return pageDiv;
+  }
+
+  // ★ 改善: ページ切り替えアニメーション
+  function changeGenre(newIndex) {
+    if (newIndex === data.currentGenreIndex || isAnimating) return;
+    isAnimating = true;
+
+    const oldIndex = data.currentGenreIndex;
+    const direction = newIndex > oldIndex ? 1 : -1; // 1:次へ, -1:前へ
+
+    const oldPage = pageContainer.querySelector(`[data-genre-index="${oldIndex}"]`);
+    const newPage = createPage(newIndex);
+    
+    // 新しいページをスライドイン前の位置に配置
+    newPage.style.transform = `translateX(${direction * 100}%)`;
+    pageContainer.appendChild(newPage);
+
+    // アニメーション実行
+    requestAnimationFrame(() => {
+        if(oldPage) oldPage.style.transform = `translateX(${-direction * 100}%)`;
+        newPage.style.transform = 'translateX(0)';
+    });
+
+    genreTitleDiv.textContent = data.genres[newIndex].name;
+    data.currentGenreIndex = newIndex;
+    updatePageIndicator();
+    saveData();
+
+    setTimeout(() => {
+        if (oldPage && oldPage.parentNode) {
+            oldPage.parentNode.removeChild(oldPage);
+        }
+        isAnimating = false;
+    }, 500); // CSSのtransition時間と合わせる
+  }
+
+  // 初期ページ表示
+  function initPages() {
+    pageContainer.innerHTML = '';
+    const initialPage = createPage(data.currentGenreIndex);
+    pageContainer.appendChild(initialPage);
+    genreTitleDiv.textContent = data.genres[data.currentGenreIndex].name;
+    updatePageIndicator();
+  }
+  
+  // ページインジケーター更新
+  function updatePageIndicator() {
+    pageIndicatorDiv.innerHTML = '';
+    data.genres.forEach((g, i) => {
+      const dot = document.createElement('div');
+      dot.className = `indicator-dot ${i === data.currentGenreIndex ? 'active' : ''}`;
+      dot.title = g.name;
+      dot.addEventListener('click', () => changeGenre(i));
+      pageIndicatorDiv.appendChild(dot);
+    });
+  }
+
+  // イベントリスナー
+  pageLeftBtn.addEventListener('click', () => {
+    if (data.currentGenreIndex > 0) changeGenre(data.currentGenreIndex - 1);
+  });
+  pageRightBtn.addEventListener('click', () => {
+    if (data.currentGenreIndex < data.genres.length - 1) changeGenre(data.currentGenreIndex + 1);
+  });
+  
+  // ★ 追加: トラックパッド/マウスホイール対応
+  let wheelTimeout;
+  sitePagesContainer.addEventListener('wheel', e => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+          e.preventDefault();
+          if (wheelTimeout) return;
+          if (e.deltaX > 20) {
+              if (data.currentGenreIndex < data.genres.length - 1) changeGenre(data.currentGenreIndex + 1);
+          } else if (e.deltaX < -20) {
+              if (data.currentGenreIndex > 0) changeGenre(data.currentGenreIndex - 1);
+          }
+          wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 300);
+      }
+  }, { passive: false });
+
+  // タスクバーにサイト追加UI
+  addTaskbarBtn.addEventListener('click', () => {
+    const currentGenre = data.genres[data.currentGenreIndex];
+    if (!currentGenre || !currentGenre.sites.length) {
+      alert('追加可能なサイトがありません。');
+      return;
+    }
+    const siteName = prompt(`現在のジャンル「${currentGenre.name}」から追加するサイト名を入力してください:\n` + currentGenre.sites.map(s => s.name).join(', '));
+    if (!siteName) return;
+
+    const foundSite = currentGenre.sites.find(s => s.name.toLowerCase() === siteName.trim().toLowerCase());
+    if (!foundSite) {
+      alert('サイトが見つかりませんでした。');
+      return;
+    }
+    if (data.taskbarSites.some(s => s.id === foundSite.id)) {
+      alert('既にタスクバーに追加されています。');
+      return;
+    }
+    data.taskbarSites.push(JSON.parse(JSON.stringify(foundSite))); // deep copy
+    renderTaskbar();
+    saveData();
+  });
+
+  // ★ 改善: Google検索処理
+  window.googleSearch = () => {
+    let query = googleSearchInput.value.trim();
+    if (!query) return;
+
+    // URL形式か簡易判定 (ドットが含まれ、スペースがない)
+    if (query.includes('.') && !query.includes(' ')) {
+      window.open(normalizeUrl(query), '_blank');
+    } else {
+      const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+      window.open(url, '_blank');
+    }
+    googleSearchInput.value = '';
+  };
+
+  // ハンバーガーメニュー開閉
+  hamburgerBtn.addEventListener('click', () => {
+    hamburgerMenu.classList.toggle('open');
+  });
+
+  // ジャンル追加
+  addGenreBtn.addEventListener('click', () => {
+    const name = newGenreNameInput.value.trim();
+    if (!name) return alert('ジャンル名を入力してください。');
+    if (data.genres.some(g => g.name === name)) {
+      return alert('同じ名前のジャンルが既に存在します。');
+    }
+    data.genres.push({ id: Date.now(), name, sites: [] });
+    newGenreNameInput.value = '';
+    renderGenresList();
+    updatePageIndicator();
+    saveData();
+  });
+  
+  // 設定のジャンルリスト表示
+  function renderGenresList() {
+    genreListDiv.innerHTML = '';
+    data.genres.forEach((genre, index) => {
+      const div = document.createElement('div');
+      div.className = 'genre-list-item';
+      div.textContent = genre.name;
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '削除';
+      delBtn.title = `ジャンル「${genre.name}」を削除`;
+      delBtn.addEventListener('click', () => {
+        if (data.genres.length <= 1) {
+            alert('最後のジャンルは削除できません。');
+            return;
+        }
+        if (confirm(`ジャンル「${genre.name}」を削除しますか？`)) {
+          data.genres.splice(index, 1);
+          if (data.currentGenreIndex >= index) {
+            data.currentGenreIndex = Math.max(0, data.currentGenreIndex - 1);
+          }
+          renderGenresList();
+          initPages(); // ページを再初期化
+          saveData();
+        }
+      });
+      div.appendChild(delBtn);
+      genreListDiv.appendChild(div);
+    });
+  }
+
+  // データインポート/エクスポート
+  loadImportBtn.addEventListener('click', () => {
+    try {
+      const importedData = JSON.parse(importDataArea.value);
+      if (importedData && Array.isArray(importedData.genres)) {
+        data = importedData;
+        saveData();
+        alert('データを読み込みました。ページを再読み込みします。');
+        location.reload();
+      } else {
+        alert('無効なデータ形式です。');
+      }
+    } catch (e) {
+      alert('JSONデータの解析に失敗しました。');
+    }
+  });
+
+  copyExportBtn.addEventListener('click', () => {
+    exportDataArea.select();
+    navigator.clipboard.writeText(exportDataArea.value).then(() => {
+        alert('設定データをクリップボードにコピーしました。');
+    });
+  });
+
+  function updateExportArea() {
+    exportDataArea.value = JSON.stringify(data, null, 2);
+  }
+
+  // サイト追加ダイアログ
+  function openAddSiteDialog() {
+    const siteName = prompt('サイト名を入力してください:');
+    if (!siteName) return;
+    const siteUrlInput = prompt('URLを入力してください (例: google.com):');
+    if (!siteUrlInput) return;
+
+    const siteUrl = normalizeUrl(siteUrlInput);
+    data.genres[data.currentGenreIndex].sites.push({
+      id: Date.now(),
+      name: siteName,
+      url: siteUrl,
+      icon: getFaviconUrl(siteUrl)
+    });
+    
+    renderCurrentPage();
+    saveData();
+  }
+
+  // 時計・カレンダー
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('date').textContent = now.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+  }
+  
+  function renderCalendar() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const today = now.getDate();
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+    
+    let html = '<table><thead><tr>' + ['日','月','火','水','木','金','土'].map(d => `<th>${d}</th>`).join('') + '</tr></thead><tbody>';
+    let date = 1;
+    for (let i = 0; i < 6; i++) {
+        html += '<tr>';
+        for (let j = 0; j < 7; j++) {
+            if (i === 0 && j < firstDay) {
+                html += '<td></td>';
+            } else if (date > lastDate) {
+                html += '<td></td>';
+            } else {
+                html += `<td class="${date === today ? 'today' : ''}">${date}</td>`;
+                date++;
+            }
+        }
+        html += '</tr>';
+        if (date > lastDate) break;
+    }
+    html += '</tbody></table>';
+    document.getElementById('calendar').innerHTML = html;
+  }
+
+  // 初期化処理
+  loadData();
+  renderTaskbar();
+  renderGenresList();
+  initPages();
+  updateExportArea();
+  updateTime();
+  setInterval(updateTime, 1000);
+  renderCalendar();
+})();
+</script>
+
+</body>
+</html>
