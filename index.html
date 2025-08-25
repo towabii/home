@@ -93,10 +93,92 @@
     border-radius: 2px;
   }
 
+  /* --- 検索バーエリア --- */
+  #search-area {
+    background: #222;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 10;
+  }
+  #google-search {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    position: relative;
+  }
+  #google-search-input {
+    flex-grow: 1;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 24px;
+    border: 1px solid #555;
+    box-sizing: border-box;
+    outline: none;
+    background: #333;
+    color: #eee;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  #google-search-input:focus {
+    background-color: #444;
+    border-color: #777;
+  }
+  #google-search button {
+    display: none;
+  }
+
+  /* --- 検索候補・履歴の表示エリア --- */
+  #search-suggestions {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #333;
+    border: 1px solid #555;
+    border-top: none;
+    border-radius: 0 0 24px 24px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .suggestion-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #eee;
+    font-size: 15px;
+  }
+  .suggestion-item:hover, .suggestion-item.selected {
+    background-color: #444;
+  }
+  .suggestion-item .icon {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+    color: #aaa;
+  }
+  .suggestion-item .text {
+    flex-grow: 1;
+  }
+  .suggestion-item .remove-history {
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 5px;
+  }
+  .suggestion-item .remove-history:hover {
+    color: #fff;
+  }
+
   /* --- メイン領域 --- */
   #main {
     flex: 1;
     display: flex;
+    height: calc(100vh - 50px - 62px);
     overflow: hidden;
   }
 
@@ -109,8 +191,6 @@
     position: relative;
     user-select: none;
   }
-
-  /* --- ジャンル名 --- */
   #genre-title {
     font-size: 2rem;
     font-weight: 700;
@@ -121,8 +201,6 @@
     user-select: none;
     transition: opacity 0.4s ease;
   }
-
-  /* --- ページ切り替えボタン --- */
   #page-left-btn, #page-right-btn {
     position: absolute;
     top: 50%;
@@ -143,14 +221,8 @@
   #page-left-btn:hover, #page-right-btn:hover {
     background: #666;
   }
-  #page-left-btn {
-    left: 10px;
-  }
-  #page-right-btn {
-    right: 10px;
-  }
-
-  /* --- ページインジケーター --- */
+  #page-left-btn { left: 10px; }
+  #page-right-btn { right: 10px; }
   #page-indicator {
     position: absolute;
     bottom: 10px;
@@ -168,11 +240,7 @@
     cursor: pointer;
     transition: background-color 0.3s;
   }
-  .indicator-dot.active {
-    background: #fff;
-  }
-
-  /* --- サイトページコンテナ --- */
+  .indicator-dot.active { background: #fff; }
   #site-pages {
     flex: 1;
     position: relative;
@@ -190,7 +258,7 @@
     width: 100%;
     height: 100%;
     background: #1f1f1f;
-    padding: 20px 60px; /* 左右の矢印ボタンと被らないように余白を調整 */
+    padding: 20px 60px;
     box-sizing: border-box;
     display: flex;
     flex-wrap: wrap;
@@ -201,8 +269,6 @@
     transition: transform 0.5s ease;
     will-change: transform;
   }
-
-  /* --- サイトアイコン --- */
   .site-icon {
     width: 80px;
     height: 80px;
@@ -226,7 +292,6 @@
     cursor: grabbing;
     box-shadow: 0 6px 15px rgba(0,0,0,0.9);
   }
-  /* ドラッグ中のプレースホルダー */
   .drag-placeholder {
     width: 80px;
     height: 80px;
@@ -242,7 +307,7 @@
     border-radius: 12px;
     object-fit: cover;
     box-shadow: 0 1px 3px rgba(0,0,0,0.7);
-    pointer-events: none; /* ドラッグ操作の邪魔にならないように */
+    pointer-events: none;
   }
   .site-icon .site-label {
     white-space: nowrap;
@@ -274,17 +339,13 @@
     background-color: #555;
     box-shadow: 0 4px 12px rgba(255,255,255,0.2);
   }
-  .site-icon:hover .delete-btn {
-    display: block;
-  }
-
-  /* --- サイト追加ボタン --- */
+  .site-icon:hover .delete-btn { display: block; }
   #add-site-btn {
     width: 80px;
     height: 80px;
     border-radius: 14px;
-    background: #ddd; /* 変更: 青から白系の色へ */
-    color: #333; /* 変更: 文字色を暗く */
+    background: #ddd;
+    color: #333;
     font-size: 48px;
     display: flex;
     justify-content: center;
@@ -295,7 +356,7 @@
     transition: background-color 0.3s, box-shadow 0.3s;
   }
   #add-site-btn:hover {
-    background: #fff; /* 変更 */
+    background: #fff;
     box-shadow: 0 6px 14px rgba(0,0,0,0.7);
   }
 
@@ -303,795 +364,529 @@
   #right-panel {
     flex: 0.75;
     background: #181818;
-    padding: 28px 32px;
+    padding: 20px;
     box-sizing: border-box;
     color: #ccc;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
+    flex-direction: column; /* ★ 変更: 縦並びのレイアウトに */
     user-select: none;
   }
-
-  /* --- Google検索 (サイズアップ) --- */
-  #google-search {
-    width: 100%;
-    margin-bottom: 28px;
+  /* ★ 追加: ウィジェットエリア */
+  #widget-area {
+    flex-grow: 1; /* 残りのスペースを埋める */
     display: flex;
+    flex-direction: column;
+    min-height: 0; /* flexアイテムの縮小を許可 */
   }
-  #google-search input[type="text"] {
-    flex-grow: 1;
-    padding: 18px 22px; /* 変更: サイズアップ */
-    font-size: 20px; /* 変更: サイズアップ */
-    border-radius: 8px 0 0 8px;
-    border: none;
-    box-sizing: border-box;
-    outline: none;
-    background: #292929;
-    color: #eee;
-  }
-  #google-search button {
+  #widget-tabs {
+    display: flex;
+    border-bottom: 1px solid #444;
+    margin-bottom: 15px;
     flex-shrink: 0;
-    width: 120px;
-    font-size: 20px; /* 変更: サイズアップ */
-    border: none;
-    border-radius: 0 8px 8px 0;
-    background-color: #ddd; /* 変更 */
-    color: #333; /* 変更 */
-    cursor: pointer;
-    padding: 18px 0; /* 変更: サイズアップ */
-    transition: background-color 0.3s;
   }
-  #google-search button:hover {
-    background-color: #fff; /* 変更 */
+  .widget-tab {
+    padding: 8px 15px; cursor: pointer; border-bottom: 3px solid transparent;
+    transition: color 0.3s, border-color 0.3s; color: #aaa; font-weight: 600;
+  }
+  .widget-tab.active, .widget-tab:hover {
+    color: #fff; border-bottom-color: #fff;
+  }
+  .widget-content {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1; /* 残りのスペースを埋める */
+    overflow: hidden; /* コンテンツのはみ出し防止 */
+  }
+  .widget-content.active {
+    display: flex;
   }
 
   /* --- カレンダー --- */
-  #calendar {
-    width: 100%;
-    background: #222;
-    border-radius: 8px;
-    padding: 12px;
-    box-sizing: border-box;
-    margin-bottom: 30px;
-    text-align: center;
-    user-select: none;
+  .calendar-widget {
+    width: 100%; background: #222; border-radius: 8px; padding: 12px;
+    box-sizing: border-box; margin-bottom: 10px;
   }
-  #calendar table {
-    width: 100%;
-    border-collapse: collapse;
-    color: #ccc;
+  .calendar-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 5px 10px; font-size: 1.1rem; font-weight: bold;
   }
-  #calendar th, #calendar td {
-    padding: 10px 6px;
-    text-align: center;
-    border-radius: 6px;
-    font-weight: 600;
-    user-select: none;
+  .calendar-header button {
+    background: none; border: none; color: #eee; cursor: pointer;
+    font-size: 1.2rem; padding: 5px 10px; border-radius: 4px;
   }
-  #calendar th {
-    color: #fff;
+  .calendar-header button:hover { background-color: #555; }
+  .calendar-table-container table {
+    width: 100%; border-collapse: collapse; color: #ccc;
   }
-  #calendar td.today {
-    background: #444;
-    color: #fff;
-    font-weight: 700;
+  .calendar-table-container th, .calendar-table-container td {
+    text-align: center; border-radius: 50%; font-weight: 600; cursor: pointer;
+    position: relative; transition: background-color 0.2s;
   }
+  #right-panel-calendar td, #right-panel-calendar th { padding: 8px 4px; }
+  .calendar-table-container td:hover { background-color: #555; }
+  .calendar-table-container th { color: #fff; }
+  .calendar-table-container td.today { background: #444; color: #fff; font-weight: 700; }
+  .calendar-table-container td.has-event::after {
+    content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+    width: 5px; height: 5px; border-radius: 50%; background-color: #e53935;
+  }
+  #event-display {
+    width: 100%; background: #222; border-radius: 8px; padding: 12px;
+    box-sizing: border-box; margin-bottom: 10px; min-height: 80px; flex-shrink: 0;
+  }
+  #event-display h4 { margin: 0 0 8px; }
+  #event-list { list-style: none; padding: 0; margin: 0; max-height: 100px; overflow-y: auto; }
+  #event-list li {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 4px 0; border-bottom: 1px solid #333;
+  }
+  #event-list li:last-child { border: none; }
+  #event-list button { background: none; border: none; color: #e53935; cursor: pointer; font-size: 1rem; }
 
-  /* --- 時刻表示 --- */
+  /* --- ★ 変更: 時計エリアを分離 */
+  #clock-area {
+    flex-shrink: 0; /* 縮まないように */
+    padding-top: 15px;
+    text-align: center;
+    border-top: 1px solid #333;
+  }
   #clock {
-    font-size: 3rem;
-    font-weight: 700;
-    letter-spacing: 2px;
+    font-size: 2.8rem; font-weight: 700; letter-spacing: 2px;
     font-family: 'Courier New', Courier, monospace;
   }
-  #date {
-    margin-top: 14px;
-    font-size: 1.5rem;
+  #date { margin-top: 10px; font-size: 1.3rem; }
+
+  /* ウィジェット共通 */
+  .widget-container { width: 100%; text-align: center; background: #222; border-radius: 8px; padding: 20px; box-sizing: border-box; }
+  .widget-display { font-size: 3rem; font-family: 'Courier New', Courier, monospace; margin-bottom: 20px; }
+  .widget-controls button { background: #444; border: none; color: #eee; padding: 10px 20px; margin: 0 5px; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
+  .widget-controls button:hover { background: #666; }
+  .widget-input { background: #333; border: 1px solid #555; color: #eee; padding: 8px; border-radius: 6px; width: 60px; text-align: center; font-size: 1rem; }
+  #lap-list, #alarm-list { list-style: none; padding: 0; margin-top: 20px; max-height: 200px; overflow-y: auto; text-align: left; }
+  #lap-list li, #alarm-list li { padding: 8px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+
+  /* カレンダーモーダル */
+  #calendar-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.8); z-index: 200; display: none;
+    justify-content: center; align-items: center;
   }
+  #calendar-modal-content {
+    width: 90%; max-width: 1000px; height: 90%; max-height: 800px;
+    background-color: #181818; border-radius: 12px; padding: 20px;
+    box-sizing: border-box; position: relative; display: flex; flex-direction: column;
+  }
+  #modal-close-btn { position: absolute; top: 10px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
+  #modal-calendar-widget { flex-grow: 1; display: flex; flex-direction: column; }
+  #modal-calendar-widget .calendar-widget { flex-grow: 1; display: flex; flex-direction: column; }
+  #modal-calendar-widget .calendar-table-container { flex-grow: 1; }
+  #modal-calendar-widget .calendar-table-container table { height: 100%; }
+  /* ★ 追加: モーダルカレンダー内の予定表示スタイル */
+  #modal-calendar td { vertical-align: top; padding: 4px; border: 1px solid #333; }
+  #modal-calendar .date-number { font-weight: bold; text-align: right; margin-bottom: 3px; }
+  #modal-calendar ul.modal-event-list { list-style: none; padding: 0; margin: 0; text-align: left; font-size: 11px; }
+  #modal-calendar ul.modal-event-list li { background-color: #333; border-radius: 3px; padding: 2px 4px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* --- ハンバーガーメニュー --- */
   #hamburger-menu {
-    position: fixed;
-    top: 50px;
-    left: 0;
-    width: 280px;
-    height: calc(100vh - 50px);
-    background: #222;
-    border-right: 1px solid #333;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.8);
-    transform: translateX(-300px);
-    transition: transform 0.3s ease;
-    padding: 15px 16px;
-    box-sizing: border-box;
-    color: #eee;
-    overflow-y: auto;
-    z-index: 100;
+    position: fixed; top: 50px; left: 0; width: 280px; height: calc(100vh - 50px);
+    background: #222; border-right: 1px solid #333; box-shadow: 2px 0 8px rgba(0,0,0,0.8);
+    transform: translateX(-300px); transition: transform 0.3s ease; padding: 15px 16px;
+    box-sizing: border-box; color: #eee; overflow-y: auto; z-index: 100;
   }
-  #hamburger-menu.open {
-    transform: translateX(0);
-  }
-  #hamburger-menu h2 {
-    margin-top: 0;
-    margin-bottom: 14px;
-    font-weight: 700;
-    font-size: 1.5rem;
-  }
-  #hamburger-menu label {
-    display: block;
-    margin: 12px 0 6px;
-    font-weight: 600;
-  }
-  #hamburger-menu textarea {
-    width: 100%;
-    height: 120px;
-    background: #333;
-    color: #eee;
-    border: none;
-    border-radius: 6px;
-    padding: 8px;
-    box-sizing: border-box;
-    font-family: monospace;
-    resize: vertical;
-  }
-  #hamburger-menu button {
-    margin-top: 10px;
-    background: #ddd; /* 変更 */
-    border: none;
-    color: #333; /* 変更 */
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: background-color 0.3s;
-  }
-  #hamburger-menu button:hover {
-    background: #fff; /* 変更 */
-  }
-  #hamburger-menu input[type="text"] {
-    background: #444;
-    color: white;
-    border: none;
-    padding: 8px;
-    border-radius: 6px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  .genre-list {
-    margin-top: 10px;
-  }
-  .genre-list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #333;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-  .genre-list-item button {
-    background: #e53935;
-    border: none;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: background-color 0.3s;
-  }
-  .genre-list-item button:hover {
-    background: #b71c1c;
-  }
+  #hamburger-menu.open { transform: translateX(0); }
+  #hamburger-menu h2 { margin: 0 0 14px; font-weight: 700; font-size: 1.5rem; }
+  #hamburger-menu label { display: block; margin: 12px 0 6px; font-weight: 600; }
+  #hamburger-menu textarea { width: 100%; height: 120px; background: #333; color: #eee; border: none; border-radius: 6px; padding: 8px; box-sizing: border-box; font-family: monospace; resize: vertical; }
+  #hamburger-menu button { margin-top: 10px; background: #ddd; border: none; color: #333; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; transition: background-color 0.3s; }
+  #hamburger-menu button:hover { background: #fff; }
+  #hamburger-menu input[type="text"] { background: #444; color: white; border: none; padding: 8px; border-radius: 6px; width: 100%; box-sizing: border-box; }
+  .genre-list { margin-top: 10px; }
+  .genre-list-item { display: flex; justify-content: space-between; align-items: center; background: #333; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-weight: 600; }
+  .genre-list-item button { background: #e53935; border: none; color: white; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: background-color 0.3s; }
+  .genre-list-item button:hover { background: #b71c1c; }
 </style>
 </head>
 <body>
 
   <div id="taskbar" title="タスクバー">
-    <div id="hamburger-btn" title="設定メニュー開閉" aria-label="設定メニュー開閉" tabindex="0">
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-    <!-- タスクバーサイトアイコンここに動的追加 -->
+    <div id="hamburger-btn" title="設定メニュー開閉"><div></div><div></div><div></div></div>
     <div id="add-taskbar-btn" title="タスクバーにサイト追加">＋</div>
+  </div>
+  
+  <div id="search-area">
+    <form id="google-search" onsubmit="event.preventDefault(); googleSearch();" role="search">
+      <input type="text" id="google-search-input" placeholder="Google検索またはURL入力" autocomplete="off" />
+      <button type="submit">検索</button>
+      <div id="search-suggestions"></div>
+    </form>
   </div>
 
   <div id="main">
-    <div id="left-panel" tabindex="0" aria-label="サイトジャンル一覧">
-      <div id="genre-title" aria-live="polite" aria-atomic="true" aria-relevant="text">ジャンル名</div>
-
-      <div id="page-left-btn" title="前のジャンル" role="button" tabindex="0" aria-label="前のジャンル">◀</div>
-      <div id="site-pages">
-        <div class="page-container"></div>
-      </div>
-      <div id="page-right-btn" title="次のジャンル" role="button" tabindex="0" aria-label="次のジャンル">▶</div>
-
-      <div id="page-indicator" aria-label="ジャンルページ数"></div>
+    <div id="left-panel" tabindex="0">
+      <div id="genre-title">ジャンル名</div>
+      <div id="page-left-btn">◀</div>
+      <div id="site-pages"><div class="page-container"></div></div>
+      <div id="page-right-btn">▶</div>
+      <div id="page-indicator"></div>
     </div>
 
     <div id="right-panel">
-      <form id="google-search" onsubmit="event.preventDefault(); googleSearch();" role="search" aria-label="Google検索フォーム">
-        <input type="text" id="google-search-input" placeholder="Google検索またはURL入力" aria-label="Google検索入力欄" autocomplete="off" />
-        <button type="submit" aria-label="検索実行">検索</button>
-      </form>
+      <!-- ★ 変更: ウィジェットと時計を分離 -->
+      <div id="widget-area">
+        <div id="widget-tabs">
+          <div class="widget-tab active" data-tab="clock">カレンダー</div>
+          <div class="widget-tab" data-tab="timer">タイマー</div>
+          <div class="widget-tab" data-tab="stopwatch">ストップウォッチ</div>
+          <div class="widget-tab" data-tab="alarm">アラーム</div>
+        </div>
 
-      <div id="calendar" aria-label="カレンダー"></div>
-      <div id="clock" aria-label="現在時刻"></div>
-      <div id="date" aria-label="現在日付"></div>
+        <div id="widget-clock" class="widget-content active">
+          <div id="calendar-widget" class="calendar-widget">
+              <div class="calendar-header">
+                  <button class="prev-month-btn">◀</button>
+                  <h4 class="calendar-month-year"></h4>
+                  <button class="next-month-btn">▶</button>
+                  <button class="fullscreen-calendar-btn">↗</button>
+              </div>
+              <div id="right-panel-calendar" class="calendar-table-container"></div>
+          </div>
+          <div id="event-display">
+              <h4 id="event-date"></h4>
+              <ul id="event-list"></ul>
+          </div>
+        </div>
+        <div id="widget-timer" class="widget-content"><div class="widget-container">...</div></div>
+        <div id="widget-stopwatch" class="widget-content"><div class="widget-container">...</div></div>
+        <div id="widget-alarm" class="widget-content"><div class="widget-container">...</div></div>
+      </div>
+
+      <div id="clock-area">
+        <div id="clock"></div>
+        <div id="date"></div>
+      </div>
     </div>
   </div>
 
-  <div id="hamburger-menu" aria-hidden="true" role="region" aria-label="設定メニュー">
-    <h2>設定</h2>
-
-    <label for="new-genre-name">ジャンル追加</label>
-    <input type="text" id="new-genre-name" placeholder="ジャンル名を入力" aria-label="ジャンル名入力" />
-    <button id="add-genre-btn" aria-label="ジャンル追加">追加</button>
-
-    <div class="genre-list" aria-live="polite" aria-atomic="true"></div>
-
-    <label for="import-data">データインポート・エクスポート</label>
-    <textarea id="import-data" aria-label="設定データインポート"></textarea>
-    <button id="load-import-btn" aria-label="データ読み込み">読み込み</button>
-    <button id="copy-export-btn" aria-label="設定データコピー">コピー</button>
-    <textarea id="export-data" readonly aria-label="設定データエクスポート"></textarea>
-  </div>
+  <div id="hamburger-menu">...</div>
+  <div id="calendar-modal">...</div>
 
 <script>
 (() => {
-  const STORAGE_KEY = 'startpage-data-v2';
+  // === 全ての要素を最初に取得 ===
+  const getElement = id => document.getElementById(id);
+  const query = sel => document.querySelector(sel);
+  const queryAll = sel => document.querySelectorAll(sel);
+  
+  const elements = {
+    taskbar: getElement('taskbar'),
+    addTaskbarBtn: getElement('add-taskbar-btn'),
+    hamburgerBtn: getElement('hamburger-btn'),
+    hamburgerMenu: getElement('hamburger-menu'),
+    googleSearchInput: getElement('google-search-input'),
+    searchSuggestions: getElement('search-suggestions'),
+    genreTitle: getElement('genre-title'),
+    pageContainer: query('.page-container'),
+    pageLeftBtn: getElement('page-left-btn'),
+    pageRightBtn: getElement('page-right-btn'),
+    pageIndicator: getElement('page-indicator'),
+    sitePages: getElement('site-pages'),
+    clock: getElement('clock'),
+    date: getElement('date'),
+    newGenreNameInput: getElement('new-genre-name'),
+    addGenreBtn: getElement('add-genre-btn'),
+    genreList: query('#hamburger-menu .genre-list'),
+    importDataArea: getElement('import-data'),
+    loadImportBtn: getElement('load-import-btn'),
+    copyExportBtn: getElement('copy-export-btn'),
+    exportDataArea: getElement('export-data'),
+    calendarModal: getElement('calendar-modal'),
+    modalCloseBtn: getElement('modal-close-btn'),
+    rightPanelCalendar: getElement('right-panel-calendar'),
+    modalCalendar: getElement('modal-calendar'),
+    eventDate: getElement('event-date'),
+    eventList: getElement('event-list'),
+    timerDisplay: getElement('timer-display'),
+    timerStartBtn: getElement('timer-start'),
+    timerStopBtn: getElement('timer-stop'),
+    timerResetBtn: getElement('timer-reset'),
+    timerMinutesInput: getElement('timer-minutes'),
+    timerSecondsInput: getElement('timer-seconds'),
+    stopwatchDisplay: getElement('stopwatch-display'),
+    stopwatchStartBtn: getElement('stopwatch-start'),
+    stopwatchStopBtn: getElement('stopwatch-stop'),
+    stopwatchLapBtn: getElement('stopwatch-lap'),
+    stopwatchResetBtn: getElement('stopwatch-reset'),
+    lapList: getElement('lap-list'),
+    alarmTimeInput: getElement('alarm-time'),
+    alarmAddBtn: getElement('alarm-add'),
+    alarmList: getElement('alarm-list')
+  };
 
-  // ★ 追加: アニメーション実行中フラグ (バグ修正のため)
-  let isAnimating = false;
-  let draggedItem = null; // ドラッグ中のアイテムを保持
-
-  // 初期データ
+  // === 初期状態と定数 ===
+  const STORAGE_KEY = 'startpage-data-v5';
+  const HISTORY_KEY = 'startpage-search-history';
+  const MAX_HISTORY_COUNT = 10;
+  
   let data = {
-    genres: [
-      {
-        id: 1,
-        name: 'Google',
-        sites: [
-          { id: 101, name: 'Google', url: 'https://www.google.com', icon: '' },
-          { id: 102, name: 'Gmail', url: 'https://mail.google.com', icon: '' },
-        ]
-      },
-      {
-        id: 2,
-        name: 'AI',
-        sites: [
-          { id: 201, name: 'ChatGPT', url: 'https://chat.openai.com', icon: '' },
-          { id: 202, name: 'Hugging Face', url: 'https://huggingface.co', icon: '' },
-        ]
-      }
-    ],
+    genres: [ { id: 1, name: 'Links', sites: [ { id: 101, name: 'Google', url: 'https://www.google.com', icon: '' } ] } ],
     currentGenreIndex: 0,
     taskbarSites: [],
+    events: {},
+    alarms: [],
   };
+  let searchHistory = [];
+  let currentDisplayDate = new Date();
+  
+  let isAnimating = false, draggedItem = null, suggestionFetchTimer, selectedSuggestionIndex = -1;
+  let timerInterval, timerTotalSeconds = 0;
+  let stopwatchInterval, stopwatchTime = 0, lapNumber = 1;
+  let audioContext;
 
-  // 要素取得
-  const genreTitleDiv = document.getElementById('genre-title');
-  const sitePagesContainer = document.getElementById('site-pages');
-  const pageContainer = document.querySelector('.page-container');
-  const pageLeftBtn = document.getElementById('page-left-btn');
-  const pageRightBtn = document.getElementById('page-right-btn');
-  const pageIndicatorDiv = document.getElementById('page-indicator');
-  const taskbar = document.getElementById('taskbar');
-  const addTaskbarBtn = document.getElementById('add-taskbar-btn');
-  const hamburgerBtn = document.getElementById('hamburger-btn');
-  const hamburgerMenu = document.getElementById('hamburger-menu');
-  const addGenreBtn = document.getElementById('add-genre-btn');
-  const newGenreNameInput = document.getElementById('new-genre-name');
-  const genreListDiv = hamburgerMenu.querySelector('.genre-list');
-  const importDataArea = document.getElementById('import-data');
-  const loadImportBtn = document.getElementById('load-import-btn');
-  const copyExportBtn = document.getElementById('copy-export-btn');
-  const exportDataArea = document.getElementById('export-data');
-  const googleSearchInput = document.getElementById('google-search-input');
+  // === 初期化処理 ===
+  function initialize() {
+    // HTMLテンプレートの展開
+    fillTemplates();
+    
+    // イベントリスナーの一括設定
+    setupEventListeners();
 
-  // ★ 改善: URL正規化 (https付与)
-  function normalizeUrl(url) {
-    url = url.trim();
-    if (!url) return '';
-    if (!/^(https?:\/\/|mailto:)/i.test(url)) {
-      url = 'https://' + url;
-    }
-    return url;
-  }
-
-  // ファビコンURL取得
-  function getFaviconUrl(siteUrl) {
-    try {
-      const url = new URL(siteUrl);
-      return `https://www.google.com/s2/favicons?sz=64&domain=${url.hostname}`;
-    } catch {
-      return 'https://via.placeholder.com/64?text=X';
-    }
-  }
-
-  // データ保存
-  function saveData() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    loadData();
+    renderTaskbar();
+    renderGenresList();
+    initPages();
     updateExportArea();
+    updateTime();
+    setInterval(updateTime, 1000);
+    renderAllCalendars();
+    renderAlarms();
   }
 
-  // データ読み込み
+  // === HTMLテンプレート ===
+  function fillTemplates() {
+    getElement('widget-timer').innerHTML = `<div class="widget-container"><div id="timer-display" class="widget-display">00:00</div><div><input type="number" id="timer-minutes" class="widget-input" min="0" max="99" placeholder="分"><input type="number" id="timer-seconds" class="widget-input" min="0" max="59" placeholder="秒"></div><div class="widget-controls" style="margin-top: 15px;"><button id="timer-start">スタート</button><button id="timer-stop">ストップ</button><button id="timer-reset">リセット</button></div></div>`;
+    getElement('widget-stopwatch').innerHTML = `<div class="widget-container"><div id="stopwatch-display" class="widget-display">00:00.00</div><div class="widget-controls"><button id="stopwatch-start">スタート</button><button id="stopwatch-stop">ストップ</button><button id="stopwatch-lap">ラップ</button><button id="stopwatch-reset">リセット</button></div><ul id="lap-list"></ul></div>`;
+    getElement('widget-alarm').innerHTML = `<div class="widget-container"><p>アラーム設定</p><input type="time" id="alarm-time" class="widget-input" style="width: 100px;"><button id="alarm-add" style="background: #444; border: none; color: #eee; padding: 8px 12px; margin-left: 10px; border-radius: 6px; cursor: pointer;">追加</button><ul id="alarm-list"></ul></div>`;
+    getElement('hamburger-menu').innerHTML = `<h2>設定</h2><label for="new-genre-name">ジャンル追加</label><input type="text" id="new-genre-name" placeholder="ジャンル名を入力" /><button id="add-genre-btn">追加</button><div class="genre-list"></div><label for="import-data">データインポート・エクスポート</label><textarea id="import-data"></textarea><button id="load-import-btn">読み込み</button><button id="copy-export-btn">コピー</button><textarea id="export-data" readonly></textarea>`;
+    getElement('calendar-modal').innerHTML = `<div id="calendar-modal-content"><button id="modal-close-btn">×</button><div id="modal-calendar-widget" class="calendar-widget"><div class="calendar-header"><button class="prev-month-btn">◀</button><h4 class="calendar-month-year"></h4><button class="next-month-btn">▶</button></div><div id="modal-calendar" class="calendar-table-container"></div></div></div>`;
+
+    // テンプレート展開後に要素を再取得
+    Object.assign(elements, {
+      timerDisplay: getElement('timer-display'), timerStartBtn: getElement('timer-start'), timerStopBtn: getElement('timer-stop'), timerResetBtn: getElement('timer-reset'), timerMinutesInput: getElement('timer-minutes'), timerSecondsInput: getElement('timer-seconds'),
+      stopwatchDisplay: getElement('stopwatch-display'), stopwatchStartBtn: getElement('stopwatch-start'), stopwatchStopBtn: getElement('stopwatch-stop'), stopwatchLapBtn: getElement('stopwatch-lap'), stopwatchResetBtn: getElement('stopwatch-reset'), lapList: getElement('lap-list'),
+      alarmTimeInput: getElement('alarm-time'), alarmAddBtn: getElement('alarm-add'), alarmList: getElement('alarm-list'),
+      newGenreNameInput: getElement('new-genre-name'), addGenreBtn: getElement('add-genre-btn'), genreList: query('#hamburger-menu .genre-list'), importDataArea: getElement('import-data'), loadImportBtn: getElement('load-import-btn'), copyExportBtn: getElement('copy-export-btn'), exportDataArea: getElement('export-data'),
+      modalCloseBtn: getElement('modal-close-btn'), modalCalendar: getElement('modal-calendar')
+    });
+  }
+  
+  // === イベントリスナー設定 ===
+  function setupEventListeners() {
+    document.body.addEventListener('click', initAudio, { once: true });
+    elements.hamburgerBtn.onclick = () => elements.hamburgerMenu.classList.toggle('open');
+    elements.pageLeftBtn.onclick = () => changeGenre(data.currentGenreIndex - 1);
+    elements.pageRightBtn.onclick = () => changeGenre(data.currentGenreIndex + 1);
+    elements.sitePages.addEventListener('wheel', handleWheelScroll, { passive: false });
+    elements.addTaskbarBtn.onclick = handleAddTaskbar;
+    elements.googleSearchInput.onfocus = handleSearchFocus;
+    elements.googleSearchInput.oninput = handleSearchInput;
+    elements.googleSearchInput.onkeydown = handleSearchKeyDown;
+    document.onclick = (e) => { if(!getElement('google-search').contains(e.target)) hideSuggestions(); };
+    queryAll('.widget-tab').forEach(tab => tab.onclick = handleTabClick);
+    queryAll('.prev-month-btn').forEach(btn => btn.onclick = () => { currentDisplayDate.setMonth(currentDisplayDate.getMonth() - 1); renderAllCalendars(); });
+    queryAll('.next-month-btn').forEach(btn => btn.onclick = () => { currentDisplayDate.setMonth(currentDisplayDate.getMonth() + 1); renderAllCalendars(); });
+    query('.fullscreen-calendar-btn').onclick = () => elements.calendarModal.style.display = 'flex';
+    elements.modalCloseBtn.onclick = () => elements.calendarModal.style.display = 'none';
+    elements.calendarModal.onclick = (e) => { if(e.target === elements.calendarModal) elements.calendarModal.style.display = 'none'; };
+    elements.timerStartBtn.onclick = startTimer;
+    elements.timerStopBtn.onclick = stopTimer;
+    elements.timerResetBtn.onclick = resetTimer;
+    elements.stopwatchStartBtn.onclick = startStopwatch;
+    elements.stopwatchStopBtn.onclick = stopStopwatch;
+    elements.stopwatchLapBtn.onclick = lapStopwatch;
+    elements.stopwatchResetBtn.onclick = resetStopwatch;
+    elements.alarmAddBtn.onclick = addAlarm;
+    elements.addGenreBtn.onclick = addGenre;
+    elements.loadImportBtn.onclick = loadImportData;
+    elements.copyExportBtn.onclick = copyExportData;
+  }
+  
+  // === 機能別関数 ===
+
+  // データ管理
   function loadData() {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsedData = JSON.parse(saved);
-        // データ構造の検証
-        if (parsedData && Array.isArray(parsedData.genres)) {
-          data = parsedData;
-          if (typeof data.currentGenreIndex !== 'number' || data.currentGenreIndex >= data.genres.length) {
-            data.currentGenreIndex = 0;
-          }
-          if (!Array.isArray(data.taskbarSites)) {
-             data.taskbarSites = [];
-          }
-        }
-      } catch (e) {
-        console.error("Failed to load data from localStorage", e);
-      }
-    }
+    if (saved) { try { const p = JSON.parse(saved); if (p && Array.isArray(p.genres)) { data = { ...data, ...p }; } } catch (e) { console.error("Data Load Error", e); } }
+    const savedHistory = localStorage.getItem(HISTORY_KEY);
+    if(savedHistory) { try { searchHistory = JSON.parse(savedHistory); } catch (e) { searchHistory = []; } }
   }
+  function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); updateExportArea(); }
+  function saveSearchHistory() { localStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory)); }
+  function updateExportArea() { elements.exportDataArea.value = JSON.stringify(data, null, 2); }
 
-  // ★ 改善: サイトアイコンDOM作成 (ドラッグ&ドロップ対応)
-  function createSiteIcon(site) {
-    const div = document.createElement('div');
-    div.className = 'site-icon';
-    div.dataset.siteId = site.id;
-    div.setAttribute('draggable', true);
-    div.setAttribute('title', site.name);
+  // 音声・通知
+  function initAudio() { if (!audioContext) { try { audioContext = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} } }
+  function playBeep() { if (!audioContext) return; const o=audioContext.createOscillator(),g=audioContext.createGain();o.connect(g);g.connect(audioContext.destination);o.type='sine';o.frequency.setValueAtTime(880,audioContext.currentTime);g.gain.setValueAtTime(0.5,audioContext.currentTime);o.start();o.stop(audioContext.currentTime+0.5); }
+  async function checkNotificationPermission() { if (!("Notification" in window)) { return false; } if (Notification.permission === "granted") return true; if (Notification.permission !== "denied") { const p = await Notification.requestPermission(); return p === "granted"; } return false; }
 
-    const iconUrl = site.icon || getFaviconUrl(site.url);
-    div.innerHTML = `
-      <img src="${iconUrl}" alt="${site.name}のアイコン">
-      <div class="site-label">${site.name}</div>
-      <div class="delete-btn" title="削除">×</div>
-    `;
-
-    div.addEventListener('click', () => {
-      window.open(site.url, '_blank');
-    });
-
-    div.querySelector('.delete-btn').addEventListener('click', e => {
-      e.stopPropagation();
-      if (confirm(`「${site.name}」を削除しますか？`)) {
-        const currentGenre = data.genres[data.currentGenreIndex];
-        currentGenre.sites = currentGenre.sites.filter(s => s.id !== site.id);
-        renderCurrentPage();
-        saveData();
-      }
-    });
-
-    // ドラッグ＆ドロップイベント
-    div.addEventListener('dragstart', e => {
-        draggedItem = div;
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', site.id);
-        setTimeout(() => {
-            div.classList.add('dragging');
-        }, 0);
-    });
-
-    div.addEventListener('dragend', () => {
-        draggedItem.classList.remove('dragging');
-        draggedItem = null;
-        // プレースホルダーを削除
-        const placeholder = document.querySelector('.drag-placeholder');
-        if (placeholder) {
-            placeholder.remove();
-        }
-    });
-
-    return div;
-  }
-  
-    // ★ 追加: ドラッグオーバー処理
-    function handleDragOver(e) {
-        e.preventDefault();
-        const page = e.currentTarget;
-        if (!draggedItem) return;
-
-        const afterElement = getDragAfterElement(page, e.clientY);
-        let placeholder = page.querySelector('.drag-placeholder');
-
-        if (!placeholder) {
-            placeholder = document.createElement('div');
-            placeholder.className = 'drag-placeholder';
-        }
-        
-        if (afterElement == null) {
-            page.appendChild(placeholder);
-        } else {
-            page.insertBefore(placeholder, afterElement);
-        }
-    }
-
-    // ★ 追加: ドロップ後の要素位置を取得
-    function getDragAfterElement(container, y) {
-        const draggableElements = [...container.querySelectorAll('.site-icon:not(.dragging)')];
-        return draggableElements.reduce((closest, child) => {
-            const box = child.getBoundingClientRect();
-            const offset = y - box.top - box.height / 2;
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
-            } else {
-                return closest;
-            }
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
-    }
-
-    // ★ 追加: ドロップ処理
-    function handleDrop(e) {
-        e.preventDefault();
-        const page = e.currentTarget;
-        const placeholder = page.querySelector('.drag-placeholder');
-        if (!placeholder) return;
-
-        const draggedId = Number(e.dataTransfer.getData('text/plain'));
-        const currentGenre = data.genres[data.currentGenreIndex];
-        const draggedIndex = currentGenre.sites.findIndex(s => s.id === draggedId);
-        
-        if(draggedIndex === -1) return;
-
-        const [draggedSite] = currentGenre.sites.splice(draggedIndex, 1);
-        
-        const children = Array.from(page.children);
-        const newIndex = children.indexOf(placeholder);
-
-        currentGenre.sites.splice(newIndex, 0, draggedSite);
-
-        placeholder.remove();
-        renderCurrentPage();
-        saveData();
-    }
-
-
-  // タスクバー表示
-  function renderTaskbar() {
-    [...taskbar.querySelectorAll('.task-icon')].forEach(el => el.remove());
-    data.taskbarSites.forEach(site => {
-      const iconDiv = document.createElement('div');
-      iconDiv.className = 'task-icon';
-      iconDiv.title = site.name;
-      const iconUrl = site.icon || getFaviconUrl(site.url);
-      iconDiv.style.backgroundImage = `url('${iconUrl}')`;
-      iconDiv.style.backgroundSize = 'cover';
-      iconDiv.style.backgroundPosition = 'center';
-      iconDiv.tabIndex = 0;
-
-      iconDiv.addEventListener('click', () => window.open(site.url, '_blank'));
-
-      const delBtn = document.createElement('div');
-      delBtn.className = 'delete-btn';
-      delBtn.textContent = '×';
-      delBtn.title = '削除';
-      delBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        if (confirm(`「${site.name}」をタスクバーから削除しますか？`)) {
-          data.taskbarSites = data.taskbarSites.filter(s => s.id !== site.id);
-          renderTaskbar();
-          saveData();
-        }
-      });
-      iconDiv.appendChild(delBtn);
-      taskbar.insertBefore(iconDiv, addTaskbarBtn);
-    });
-  }
-  
-  // ★ 改善: 現在のジャンルページを描画する関数
-  function renderCurrentPage() {
-    const currentGenre = data.genres[data.currentGenreIndex];
-    const currentPage = pageContainer.querySelector('.site-page');
-    if (!currentPage) return;
-    
-    currentPage.innerHTML = ''; // 中身をクリア
-    currentGenre.sites.forEach(site => {
-        const iconDiv = createSiteIcon(site);
-        currentPage.appendChild(iconDiv);
-    });
-    
-    // サイト追加ボタン
-    const addBtn = document.createElement('div');
-    addBtn.id = 'add-site-btn';
-    addBtn.textContent = '+';
-    addBtn.title = 'サイトを追加';
-    addBtn.addEventListener('click', openAddSiteDialog);
-    currentPage.appendChild(addBtn);
-  }
-
-
-  // ★ 改善: ジャンルページを作成する関数
-  function createPage(genreIndex) {
-    const pageDiv = document.createElement('div');
-    pageDiv.className = 'site-page';
-    pageDiv.dataset.genreIndex = genreIndex;
-    
-    // ドラッグ＆ドロップイベントをページに追加
-    pageDiv.addEventListener('dragover', handleDragOver);
-    pageDiv.addEventListener('drop', handleDrop);
-
-    const genre = data.genres[genreIndex];
-    if (genre) {
-        genre.sites.forEach(site => {
-            const iconDiv = createSiteIcon(site);
-            pageDiv.appendChild(iconDiv);
-        });
-    }
-
-    const addBtn = document.createElement('div');
-    addBtn.id = 'add-site-btn';
-    addBtn.textContent = '+';
-    addBtn.title = 'サイトを追加';
-    addBtn.addEventListener('click', openAddSiteDialog);
-    pageDiv.appendChild(addBtn);
-
-    return pageDiv;
-  }
-
-  // ★ 改善: ページ切り替えアニメーション
-  function changeGenre(newIndex) {
-    if (newIndex === data.currentGenreIndex || isAnimating) return;
-    isAnimating = true;
-
-    const oldIndex = data.currentGenreIndex;
-    const direction = newIndex > oldIndex ? 1 : -1; // 1:次へ, -1:前へ
-
-    const oldPage = pageContainer.querySelector(`[data-genre-index="${oldIndex}"]`);
-    const newPage = createPage(newIndex);
-    
-    // 新しいページをスライドイン前の位置に配置
-    newPage.style.transform = `translateX(${direction * 100}%)`;
-    pageContainer.appendChild(newPage);
-
-    // アニメーション実行
-    requestAnimationFrame(() => {
-        if(oldPage) oldPage.style.transform = `translateX(${-direction * 100}%)`;
-        newPage.style.transform = 'translateX(0)';
-    });
-
-    genreTitleDiv.textContent = data.genres[newIndex].name;
-    data.currentGenreIndex = newIndex;
-    updatePageIndicator();
-    saveData();
-
-    setTimeout(() => {
-        if (oldPage && oldPage.parentNode) {
-            oldPage.parentNode.removeChild(oldPage);
-        }
-        isAnimating = false;
-    }, 500); // CSSのtransition時間と合わせる
-  }
-
-  // 初期ページ表示
-  function initPages() {
-    pageContainer.innerHTML = '';
-    const initialPage = createPage(data.currentGenreIndex);
-    pageContainer.appendChild(initialPage);
-    genreTitleDiv.textContent = data.genres[data.currentGenreIndex].name;
-    updatePageIndicator();
-  }
-  
-  // ページインジケーター更新
-  function updatePageIndicator() {
-    pageIndicatorDiv.innerHTML = '';
-    data.genres.forEach((g, i) => {
-      const dot = document.createElement('div');
-      dot.className = `indicator-dot ${i === data.currentGenreIndex ? 'active' : ''}`;
-      dot.title = g.name;
-      dot.addEventListener('click', () => changeGenre(i));
-      pageIndicatorDiv.appendChild(dot);
-    });
-  }
-
-  // イベントリスナー
-  pageLeftBtn.addEventListener('click', () => {
-    if (data.currentGenreIndex > 0) changeGenre(data.currentGenreIndex - 1);
-  });
-  pageRightBtn.addEventListener('click', () => {
-    if (data.currentGenreIndex < data.genres.length - 1) changeGenre(data.currentGenreIndex + 1);
-  });
-  
-  // ★ 追加: トラックパッド/マウスホイール対応
-  let wheelTimeout;
-  sitePagesContainer.addEventListener('wheel', e => {
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-          e.preventDefault();
-          if (wheelTimeout) return;
-          if (e.deltaX > 20) {
-              if (data.currentGenreIndex < data.genres.length - 1) changeGenre(data.currentGenreIndex + 1);
-          } else if (e.deltaX < -20) {
-              if (data.currentGenreIndex > 0) changeGenre(data.currentGenreIndex - 1);
-          }
-          wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 300);
-      }
-  }, { passive: false });
-
-  // タスクバーにサイト追加UI
-  addTaskbarBtn.addEventListener('click', () => {
-    const currentGenre = data.genres[data.currentGenreIndex];
-    if (!currentGenre || !currentGenre.sites.length) {
-      alert('追加可能なサイトがありません。');
-      return;
-    }
-    const siteName = prompt(`現在のジャンル「${currentGenre.name}」から追加するサイト名を入力してください:\n` + currentGenre.sites.map(s => s.name).join(', '));
-    if (!siteName) return;
-
-    const foundSite = currentGenre.sites.find(s => s.name.toLowerCase() === siteName.trim().toLowerCase());
-    if (!foundSite) {
-      alert('サイトが見つかりませんでした。');
-      return;
-    }
-    if (data.taskbarSites.some(s => s.id === foundSite.id)) {
-      alert('既にタスクバーに追加されています。');
-      return;
-    }
-    data.taskbarSites.push(JSON.parse(JSON.stringify(foundSite))); // deep copy
-    renderTaskbar();
-    saveData();
-  });
-
-  // ★ 改善: Google検索処理
-  window.googleSearch = () => {
-    let query = googleSearchInput.value.trim();
-    if (!query) return;
-
-    // URL形式か簡易判定 (ドットが含まれ、スペースがない)
-    if (query.includes('.') && !query.includes(' ')) {
-      window.open(normalizeUrl(query), '_blank');
-    } else {
-      const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-      window.open(url, '_blank');
-    }
-    googleSearchInput.value = '';
-  };
-
-  // ハンバーガーメニュー開閉
-  hamburgerBtn.addEventListener('click', () => {
-    hamburgerMenu.classList.toggle('open');
-  });
-
-  // ジャンル追加
-  addGenreBtn.addEventListener('click', () => {
-    const name = newGenreNameInput.value.trim();
-    if (!name) return alert('ジャンル名を入力してください。');
-    if (data.genres.some(g => g.name === name)) {
-      return alert('同じ名前のジャンルが既に存在します。');
-    }
-    data.genres.push({ id: Date.now(), name, sites: [] });
-    newGenreNameInput.value = '';
-    renderGenresList();
-    updatePageIndicator();
-    saveData();
-  });
-  
-  // 設定のジャンルリスト表示
-  function renderGenresList() {
-    genreListDiv.innerHTML = '';
-    data.genres.forEach((genre, index) => {
-      const div = document.createElement('div');
-      div.className = 'genre-list-item';
-      div.textContent = genre.name;
-      const delBtn = document.createElement('button');
-      delBtn.textContent = '削除';
-      delBtn.title = `ジャンル「${genre.name}」を削除`;
-      delBtn.addEventListener('click', () => {
-        if (data.genres.length <= 1) {
-            alert('最後のジャンルは削除できません。');
-            return;
-        }
-        if (confirm(`ジャンル「${genre.name}」を削除しますか？`)) {
-          data.genres.splice(index, 1);
-          if (data.currentGenreIndex >= index) {
-            data.currentGenreIndex = Math.max(0, data.currentGenreIndex - 1);
-          }
-          renderGenresList();
-          initPages(); // ページを再初期化
-          saveData();
-        }
-      });
-      div.appendChild(delBtn);
-      genreListDiv.appendChild(div);
-    });
-  }
-
-  // データインポート/エクスポート
-  loadImportBtn.addEventListener('click', () => {
-    try {
-      const importedData = JSON.parse(importDataArea.value);
-      if (importedData && Array.isArray(importedData.genres)) {
-        data = importedData;
-        saveData();
-        alert('データを読み込みました。ページを再読み込みします。');
-        location.reload();
-      } else {
-        alert('無効なデータ形式です。');
-      }
-    } catch (e) {
-      alert('JSONデータの解析に失敗しました。');
-    }
-  });
-
-  copyExportBtn.addEventListener('click', () => {
-    exportDataArea.select();
-    navigator.clipboard.writeText(exportDataArea.value).then(() => {
-        alert('設定データをクリップボードにコピーしました。');
-    });
-  });
-
-  function updateExportArea() {
-    exportDataArea.value = JSON.stringify(data, null, 2);
-  }
-
-  // サイト追加ダイアログ
-  function openAddSiteDialog() {
-    const siteName = prompt('サイト名を入力してください:');
-    if (!siteName) return;
-    const siteUrlInput = prompt('URLを入力してください (例: google.com):');
-    if (!siteUrlInput) return;
-
-    const siteUrl = normalizeUrl(siteUrlInput);
-    data.genres[data.currentGenreIndex].sites.push({
-      id: Date.now(),
-      name: siteName,
-      url: siteUrl,
-      icon: getFaviconUrl(siteUrl)
-    });
-    
-    renderCurrentPage();
-    saveData();
-  }
-
-  // 時計・カレンダー
+  // 時計
   function updateTime() {
     const now = new Date();
-    document.getElementById('clock').textContent = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-    document.getElementById('date').textContent = now.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
-  }
-  
-  function renderCalendar() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const today = now.getDate();
-    const firstDay = new Date(year, month, 1).getDay();
-    const lastDate = new Date(year, month + 1, 0).getDate();
-    
-    let html = '<table><thead><tr>' + ['日','月','火','水','木','金','土'].map(d => `<th>${d}</th>`).join('') + '</tr></thead><tbody>';
-    let date = 1;
-    for (let i = 0; i < 6; i++) {
-        html += '<tr>';
-        for (let j = 0; j < 7; j++) {
-            if (i === 0 && j < firstDay) {
-                html += '<td></td>';
-            } else if (date > lastDate) {
-                html += '<td></td>';
-            } else {
-                html += `<td class="${date === today ? 'today' : ''}">${date}</td>`;
-                date++;
-            }
-        }
-        html += '</tr>';
-        if (date > lastDate) break;
-    }
-    html += '</tbody></table>';
-    document.getElementById('calendar').innerHTML = html;
+    elements.clock.textContent = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    elements.date.textContent = now.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+    checkAlarms(now);
   }
 
-  // 初期化処理
-  loadData();
-  renderTaskbar();
-  renderGenresList();
-  initPages();
-  updateExportArea();
-  updateTime();
-  setInterval(updateTime, 1000);
-  renderCalendar();
+  // カレンダー
+  function renderAllCalendars() {
+    renderCalendar(currentDisplayDate, elements.rightPanelCalendar, false);
+    renderCalendar(currentDisplayDate, elements.modalCalendar, true);
+  }
+  function renderCalendar(targetDate, containerEl, isModal) {
+    const year = targetDate.getFullYear(), month = targetDate.getMonth(), today = new Date();
+    containerEl.parentElement.querySelector('.calendar-month-year').textContent = `${year}年 ${month + 1}月`;
+    const firstDay = new Date(year, month, 1).getDay(), lastDate = new Date(year, month + 1, 0).getDate();
+    let html = '<table><thead><tr>' + ['日','月','火','水','木','金','土'].map(d => `<th>${d}</th>`).join('') + '</tr></thead><tbody>', date = 1;
+    for (let i = 0; i < 6; i++) {
+      html += '<tr>';
+      for (let j = 0; j < 7; j++) {
+        if (i === 0 && j < firstDay || date > lastDate) { html += '<td></td>'; } else {
+          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+          const isToday = date === today.getDate() && year === today.getFullYear() && month === today.getMonth();
+          const hasEvent = data.events[dateStr]?.length > 0;
+          let eventsHtml = '';
+          if (isModal && hasEvent) {
+            eventsHtml = '<ul class="modal-event-list">';
+            data.events[dateStr].slice(0, 2).forEach(event => { eventsHtml += `<li>${escapeHtml(event)}</li>`; });
+            if (data.events[dateStr].length > 2) eventsHtml += '<li>...</li>';
+            eventsHtml += '</ul>';
+          }
+          const afterClass = !isModal && hasEvent ? ' has-event' : '';
+          html += `<td data-date="${dateStr}" class="${isToday ? 'today' : ''}${afterClass}"><div class="date-number">${date}</div>${eventsHtml}</td>`;
+          date++;
+        }
+      }
+      html += '</tr>'; if (date > lastDate) break;
+    }
+    containerEl.innerHTML = html + '</tbody></table>';
+    containerEl.querySelectorAll('td[data-date]').forEach(cell => cell.onclick = () => handleDateClick(cell.dataset.date));
+  }
+  function handleDateClick(dateStr) {
+    renderEventsForDay(dateStr);
+    const eventText = prompt(`「${dateStr}」の予定を追加:`);
+    if (eventText?.trim()) {
+        if (!data.events[dateStr]) data.events[dateStr] = [];
+        data.events[dateStr].push(eventText.trim());
+        saveData(); renderAllCalendars(); renderEventsForDay(dateStr);
+    }
+  }
+  function renderEventsForDay(dateStr) {
+    elements.eventDate.textContent = `${dateStr} の予定`;
+    elements.eventList.innerHTML = '';
+    const events = data.events[dateStr] || [];
+    if (events.length === 0) { elements.eventList.innerHTML = '<li>予定はありません</li>'; return; }
+    events.forEach((event, index) => {
+        const li = document.createElement('li'); li.textContent = event;
+        const delBtn = document.createElement('button'); delBtn.textContent = '×';
+        delBtn.onclick = () => {
+            data.events[dateStr].splice(index, 1);
+            if(data.events[dateStr].length === 0) delete data.events[dateStr];
+            saveData(); renderAllCalendars(); renderEventsForDay(dateStr);
+        };
+        li.appendChild(delBtn); elements.eventList.appendChild(li);
+    });
+  }
+  function escapeHtml(str) { return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
+
+  // タイマー、ストップウォッチ、アラーム
+  function startTimer() {
+    if (timerInterval) return;
+    if (timerTotalSeconds <= 0) { timerTotalSeconds = (parseInt(elements.timerMinutesInput.value) || 0) * 60 + (parseInt(elements.timerSecondsInput.value) || 0); }
+    if (timerTotalSeconds <= 0) return;
+    timerInterval = setInterval(() => {
+        timerTotalSeconds--;
+        elements.timerDisplay.textContent = `${Math.floor(timerTotalSeconds / 60).toString().padStart(2, '0')}:${(timerTotalSeconds % 60).toString().padStart(2, '0')}`;
+        if (timerTotalSeconds <= 0) { clearInterval(timerInterval); timerInterval = null; playBeep(); alert('タイマー終了！'); }
+    }, 1000);
+  }
+  function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
+  function resetTimer() { stopTimer(); timerTotalSeconds = 0; elements.timerDisplay.textContent = '00:00'; elements.timerMinutesInput.value = ''; elements.timerSecondsInput.value = ''; }
+  function startStopwatch() { if (!stopwatchInterval) stopwatchInterval = setInterval(() => { stopwatchTime += 10; elements.stopwatchDisplay.textContent = `${Math.floor(stopwatchTime / 60000).toString().padStart(2, '0')}:${Math.floor((stopwatchTime % 60000) / 1000).toString().padStart(2, '0')}.${Math.floor((stopwatchTime % 1000) / 10).toString().padStart(2, '0')}`; }, 10); }
+  function stopStopwatch() { clearInterval(stopwatchInterval); stopwatchInterval = null; }
+  function lapStopwatch() { if (!stopwatchInterval && stopwatchTime === 0) return; const li = document.createElement('li'); li.textContent = `Lap ${lapNumber++}: ${elements.stopwatchDisplay.textContent}`; elements.lapList.prepend(li); }
+  function resetStopwatch() { stopStopwatch(); stopwatchTime = 0; lapNumber = 1; elements.stopwatchDisplay.textContent = '00:00.00'; elements.lapList.innerHTML = ''; }
+  async function addAlarm() {
+      await checkNotificationPermission();
+      const time = elements.alarmTimeInput.value;
+      if (time && !data.alarms.some(a => a.time === time)) { data.alarms.push({ time, enabled: true }); data.alarms.sort((a, b) => a.time.localeCompare(b.time)); saveData(); renderAlarms(); }
+  }
+  function renderAlarms() {
+      elements.alarmList.innerHTML = '';
+      data.alarms.forEach((alarm, index) => {
+          const li = document.createElement('li'); li.innerHTML = `<span>${alarm.time}</span><div><input type="checkbox" ${alarm.enabled ? 'checked' : ''}><button>削除</button></div>`;
+          li.querySelector('input').onchange = (e) => { data.alarms[index].enabled = e.target.checked; saveData(); };
+          li.querySelector('button').onclick = () => { data.alarms.splice(index, 1); saveData(); renderAlarms(); };
+          elements.alarmList.appendChild(li);
+      });
+  }
+  function checkAlarms(now) {
+      const currentTime = now.toTimeString().slice(0, 5);
+      data.alarms.forEach(alarm => {
+          if (alarm.enabled && alarm.time === currentTime && now.getSeconds() === 0) {
+              playBeep(); alert(`アラーム: ${alarm.time}`);
+              if (Notification.permission === "granted") new Notification("アラーム", { body: `設定時刻 ${alarm.time} になりました。`, icon: getFaviconUrl(window.location.href) });
+          }
+      });
+  }
+
+  // UI操作イベントハンドラ
+  function handleTabClick(e) { queryAll('.widget-tab, .widget-content').forEach(el => el.classList.remove('active')); e.target.classList.add('active'); getElement(`widget-${e.target.dataset.tab}`).classList.add('active'); }
+  let wheelTimeout; function handleWheelScroll(e) { if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) { e.preventDefault(); if (wheelTimeout) return; if (e.deltaX > 20) changeGenre(data.currentGenreIndex + 1); else if (e.deltaX < -20) changeGenre(data.currentGenreIndex - 1); wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 300); } }
+  function handleAddTaskbar() { const g=data.genres[data.currentGenreIndex]; if (!g||!g.sites.length)return alert('追加可能なサイトがありません。'); const n=prompt(`タスクバーに追加:\n`+g.sites.map(s=>s.name).join(', ')); if(!n)return; const s=g.sites.find(s=>s.name.toLowerCase()===n.trim().toLowerCase()); if(!s)return alert('サイトが見つかりません。'); if(data.taskbarSites.some(ts=>ts.id===s.id))return alert('既に追加済です。'); data.taskbarSites.push(JSON.parse(JSON.stringify(s))); renderTaskbar(); saveData(); }
+  function handleSearchFocus() { if(elements.googleSearchInput.value.trim() === '' && searchHistory.length > 0) window.handleSuggestions(['', searchHistory]); }
+  function handleSearchInput() { clearTimeout(suggestionFetchTimer); const q = elements.googleSearchInput.value.trim(); if(q) suggestionFetchTimer = setTimeout(() => fetchSuggestions(q), 300); else hideSuggestions(); }
+  function handleSearchKeyDown(e) {
+    const items = elements.searchSuggestions.querySelectorAll('.suggestion-item'); if (!items.length || elements.searchSuggestions.style.display === 'none') return;
+    if (e.key==='ArrowDown') { e.preventDefault(); if(selectedSuggestionIndex < items.length - 1) selectedSuggestionIndex++; }
+    else if(e.key==='ArrowUp') { e.preventDefault(); if(selectedSuggestionIndex > 0) selectedSuggestionIndex--; }
+    else if(e.key==='Enter' && selectedSuggestionIndex > -1) { e.preventDefault(); items[selectedSuggestionIndex].click(); return; }
+    else { return; }
+    items.forEach((item, index) => item.classList.toggle('selected', index === selectedSuggestionIndex));
+    if (selectedSuggestionIndex > -1) elements.googleSearchInput.value = items[selectedSuggestionIndex].querySelector('.text').textContent;
+  }
+  
+  // サイト・ジャンル管理
+  function normalizeUrl(url) { url=url.trim(); if(!url)return''; if(!/^(https?:\/\/|mailto:)/i.test(url))url='https://'+url; return url; }
+  function getFaviconUrl(siteUrl) { try {const u=new URL(siteUrl); return `https://www.google.com/s2/favicons?sz=64&domain=${u.hostname}`;} catch {return '';} }
+  function createSiteIcon(site) { const d=document.createElement('div'); d.className='site-icon'; d.dataset.siteId=site.id; d.draggable=true; d.title=site.name; d.innerHTML=`<img src="${site.icon||getFaviconUrl(site.url)}" alt=""><div class="site-label">${site.name}</div><div class="delete-btn">×</div>`; d.onclick=()=>window.open(site.url,'_blank'); d.querySelector('.delete-btn').onclick=e=>{e.stopPropagation();if(confirm(`「${site.name}」を削除しますか？`)){const g=data.genres[data.currentGenreIndex];g.sites=g.sites.filter(s=>s.id!==site.id);renderCurrentPage();saveData();}}; d.ondragstart=e=>{draggedItem=d;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',site.id);setTimeout(()=>d.classList.add('dragging'),0);}; d.ondragend=()=>{if(!draggedItem)return;draggedItem.classList.remove('dragging');draggedItem=null;const p=query('.drag-placeholder');if(p)p.remove();}; return d; }
+  function handleDragOver(e){e.preventDefault();const p=e.currentTarget;if(!draggedItem)return;const a=getDragAfterElement(p,e.clientY);let h=p.querySelector('.drag-placeholder');if(!h){h=document.createElement('div');h.className='drag-placeholder';}if(a==null)p.appendChild(h);else p.insertBefore(h,a);}
+  function getDragAfterElement(c, y){const d=[...c.querySelectorAll('.site-icon:not(.dragging)')];return d.reduce((t,h)=>{const b=h.getBoundingClientRect(),o=y-b.top-b.height/2;if(o<0&&o>t.offset)return{offset:o,element:h};else return t},{offset:Number.NEGATIVE_INFINITY}).element;}
+  function handleDrop(e){e.preventDefault();const p=e.currentTarget,h=p.querySelector('.drag-placeholder');if(!h)return;const i=Number(e.dataTransfer.getData('text/plain')),g=data.genres[data.currentGenreIndex],x=g.sites.findIndex(s=>s.id===i);if(x===-1)return;const[s]=g.sites.splice(x,1),n=Array.from(p.children).indexOf(h);g.sites.splice(n,0,s);h.remove();renderCurrentPage();saveData();}
+  function renderTaskbar() { [...elements.taskbar.querySelectorAll('.task-icon')].forEach(e=>e.remove()); data.taskbarSites.forEach(s=>{const d=document.createElement('div');d.className='task-icon';d.title=s.name;d.style.backgroundImage=`url('${s.icon||getFaviconUrl(s.url)}')`;d.style.backgroundSize='cover';d.onclick=()=>window.open(s.url,'_blank');const b=document.createElement('div');b.className='delete-btn';b.textContent='×';b.onclick=e=>{e.stopPropagation();if(confirm(`タスクバーから「${s.name}」削除しますか？`)){data.taskbarSites=data.taskbarSites.filter(ts=>ts.id!==s.id);renderTaskbar();saveData();}};d.appendChild(b);elements.taskbar.insertBefore(d,elements.addTaskbarBtn);});}
+  function renderCurrentPage() { const p = elements.pageContainer.querySelector('.site-page'); if(!p)return; p.innerHTML=''; data.genres[data.currentGenreIndex]?.sites.forEach(s=>p.appendChild(createSiteIcon(s))); const b=document.createElement('div');b.id='add-site-btn';b.textContent='+';b.onclick=openAddSiteDialog;p.appendChild(b); }
+  function createPage(index) { const d=document.createElement('div');d.className='site-page';d.dataset.genreIndex=index;d.ondragover=handleDragOver;d.ondrop=handleDrop;const g=data.genres[index];if(g)g.sites.forEach(s=>d.appendChild(createSiteIcon(s)));const b=document.createElement('div');b.id='add-site-btn';b.textContent='+';b.onclick=openAddSiteDialog;d.appendChild(b);return d; }
+  function changeGenre(newIndex) { if(newIndex===data.currentGenreIndex||isAnimating||newIndex<0||newIndex>=data.genres.length)return;isAnimating=true;const o=data.currentGenreIndex,d=newIndex>o?1:-1,p=elements.pageContainer.querySelector(`[data-genre-index="${o}"]`),n=createPage(newIndex);n.style.transform=`translateX(${d*100}%)`;elements.pageContainer.appendChild(n);requestAnimationFrame(()=>{if(p)p.style.transform=`translateX(${-d*100}%)`;n.style.transform='translateX(0)';});elements.genreTitle.textContent=data.genres[newIndex].name;data.currentGenreIndex=newIndex;updatePageIndicator();saveData();setTimeout(()=>{if(p&&p.parentNode)p.parentNode.removeChild(p);isAnimating=false;},500);}
+  function initPages() { elements.pageContainer.innerHTML=''; if(data.genres.length===0){data.genres.push({id:Date.now(),name:'default',sites:[]});data.currentGenreIndex=0;} if(data.currentGenreIndex>=data.genres.length)data.currentGenreIndex=0; const p=createPage(data.currentGenreIndex); elements.pageContainer.appendChild(p); elements.genreTitle.textContent=data.genres[data.currentGenreIndex]?.name||''; updatePageIndicator(); }
+  function updatePageIndicator() { elements.pageIndicator.innerHTML=''; data.genres.forEach((g,i)=>{const d=document.createElement('div');d.className=`indicator-dot ${i===data.currentGenreIndex?'active':''}`;d.title=g.name;d.onclick=()=>changeGenre(i);elements.pageIndicator.appendChild(d);});}
+  function openAddSiteDialog() {const n=prompt('サイト名:');if(!n)return;const u=prompt('URL:');if(!u)return;data.genres[data.currentGenreIndex].sites.push({id:Date.now(),name:n,url:normalizeUrl(u),icon:''});renderCurrentPage();saveData();}
+  
+  // 検索
+  function googleSearch(queryOverride) { let q=queryOverride||elements.googleSearchInput.value.trim();if(!q)return;addSearchHistory(q);if(q.includes('.')&&!q.includes(' ')){window.open(normalizeUrl(q),'_blank');}else{window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');}elements.googleSearchInput.value='';hideSuggestions();} window.googleSearch=googleSearch;
+  function addSearchHistory(q){searchHistory=searchHistory.filter(i=>i!==q);searchHistory.unshift(q);if(searchHistory.length>MAX_HISTORY_COUNT)searchHistory.pop();saveSearchHistory();}
+  function removeSearchHistory(q){searchHistory=searchHistory.filter(i=>i!==q);saveSearchHistory();}
+  function fetchSuggestions(q){const o=getElement('jsonp-script');if(o)o.remove();const s=document.createElement('script');s.id='jsonp-script';s.src=`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}&callback=window.handleSuggestions`;document.head.appendChild(s);}
+  window.handleSuggestions = (d) => { const s=d[1],q=elements.googleSearchInput.value.trim().toLowerCase(),h=searchHistory.filter(i=>i.toLowerCase().includes(q));elements.searchSuggestions.innerHTML='';const t=[];h.forEach(i=>t.push({type:'history',text:i}));s.forEach(i=>{if(!h.includes(i))t.push({type:'suggestion',text:i});}); if(t.length>0){t.forEach(item=>{const v=document.createElement('div');v.className='suggestion-item';v.innerHTML=`<span class="icon">${item.type==='history'?'🕒':'🔍'}</span><span class="text">${item.text}</span>${item.type==='history'?'<button class="remove-history">×</button>':''}`;v.onclick=e=>{if(e.target.classList.contains('remove-history')){e.stopPropagation();removeSearchHistory(item.text);elements.googleSearchInput.dispatchEvent(new Event('input'));}else{elements.googleSearchInput.value=item.text;googleSearch();}};elements.searchSuggestions.appendChild(v);});showSuggestions();}else hideSuggestions();const o=getElement('jsonp-script');if(o)o.remove();}
+  function showSuggestions(){elements.searchSuggestions.style.display='block';selectedSuggestionIndex=-1;}
+  function hideSuggestions(){elements.searchSuggestions.style.display='none';selectedSuggestionIndex=-1;}
+  
+  // 設定メニュー
+  function addGenre() {const n=elements.newGenreNameInput.value.trim();if(!n)return;if(data.genres.some(g=>g.name===n))return alert('同名ジャンルが存在します');data.genres.push({id:Date.now(),name:n,sites:[]});elements.newGenreNameInput.value='';renderGenresList();updatePageIndicator();saveData();}
+  function renderGenresList() { elements.genreList.innerHTML=''; data.genres.forEach((g,i)=>{const d=document.createElement('div');d.className='genre-list-item';d.textContent=g.name;const b=document.createElement('button');b.textContent='削除';b.onclick=()=>{if(data.genres.length<=1)return alert('最後のジャンルは削除できません');if(confirm(`「${g.name}」を削除しますか？`)){data.genres.splice(i,1);if(data.currentGenreIndex>=i)data.currentGenreIndex=Math.max(0,data.currentGenreIndex-1);renderGenresList();initPages();saveData();}};d.appendChild(b);elements.genreList.appendChild(d);});}
+  function loadImportData() { try{const d=JSON.parse(elements.importDataArea.value);if(d&&Array.isArray(d.genres)){data=d;saveData();alert('読込成功');location.reload();}else alert('無効な形式');}catch(e){alert('解析失敗');} }
+  function copyExportData() { elements.exportDataArea.select(); navigator.clipboard.writeText(elements.exportDataArea.value).then(()=>alert('コピーしました')); }
+  
+  initialize(); // スクリプトの最後に実行
 })();
 </script>
 
