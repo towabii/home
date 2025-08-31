@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>スタートメニュー</title>
+<title>スタートメニュー風サイト（拡張版）</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap');
 
@@ -15,12 +15,25 @@
     --bg-interactive: #444;
     --bg-hover: #666;
     --text-main: #eee;
-    --text- subdued: #ccc;
+    --text-subdued: #ccc;
     --accent-red: #e53935;
+    --accent-blue: #2196F3;
+    --font-family: 'Roboto Slab', serif;
   }
+  
+  body.light-mode {
+    --bg-main: #f0f2f5;
+    --bg-panel: #ffffff;
+    --bg-widget: #fdfdfd;
+    --bg-interactive: #e4e6eb;
+    --bg-hover: #d8dadf;
+    --text-main: #050505;
+    --text-subdued: #65676b;
+  }
+  
   body {
     margin: 0;
-    font-family: 'Roboto Slab', serif;
+    font-family: var(--font-family);
     background-color: var(--bg-main);
     color: var(--text-main);
     display: flex;
@@ -28,6 +41,7 @@
     height: 100vh;
     overflow: hidden;
     user-select: none;
+    transition: background-color 0.3s, color 0.3s;
   }
 
   /* --- タスクバー --- */
@@ -41,76 +55,45 @@
     border-bottom: 1px solid var(--bg-interactive);
     position: relative;
     flex-shrink: 0;
+    transition: background-color 0.3s, border-color 0.3s;
   }
   #taskbar .task-icon, #taskbar #add-taskbar-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
-    background: var(--bg-interactive);
+    width: 38px; height: 38px; border-radius: 8px; background: var(--bg-interactive);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    user-select: none; transition: background-color 0.25s; color: var(--text-main);
+    font-weight: 600; font-size: 24px; position: relative; overflow: hidden; flex-shrink: 0;
+  }
+  #taskbar .task-icon:hover, #taskbar #add-taskbar-btn:hover { background: var(--bg-hover); }
+  #taskbar .task-icon .delete-btn { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; background: var(--accent-red); color: white; font-weight: bold; font-size: 14px; border-radius: 50%; line-height: 18px; text-align: center; cursor: pointer; user-select: none; display: none; transition: background-color 0.3s; }
+  #taskbar .task-icon:hover .delete-btn { display: block; }
+  
+  #taskbar-widgets {
+    margin-left: auto;
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.25s;
-    color: white;
-    font-weight: 600;
-    font-size: 24px;
-    position: relative;
-    overflow: hidden;
-    flex-shrink: 0;
+    gap: 15px;
+    font-size: 0.9rem;
+    padding-right: 10px;
   }
-  #taskbar .task-icon:hover, #taskbar #add-taskbar-btn:hover {
-    background: var(--bg-hover);
-  }
-  #taskbar .task-icon .delete-btn {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 18px;
-    height: 18px;
-    background: var(--accent-red);
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-    border-radius: 50%;
-    line-height: 18px;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    display: none;
-    transition: background-color 0.3s;
-  }
-  #taskbar .task-icon:hover .delete-btn { display: block; }
+  .taskbar-widget { display: flex; align-items: center; gap: 8px; }
+  .taskbar-widget button { background: none; border: none; color: var(--text-main); cursor: pointer; font-size: 1.2rem; padding: 5px; border-radius: 4px; display: flex; align-items: center; }
+  .taskbar-widget button:hover { background-color: var(--bg-hover); }
+  #battery-widget { display: none; }
+  #theme-toggle-btn { font-size: 1.4rem; }
 
   /* --- ハンバーガーボタン --- */
-  #hamburger-btn {
-    width: 38px; height: 38px; cursor: pointer; display: flex; flex-direction: column;
-    justify-content: space-around; padding: 7px; box-sizing: border-box; margin-right: 12px;
-  }
+  #hamburger-btn { width: 38px; height: 38px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-around; padding: 7px; box-sizing: border-box; margin-right: 12px; }
   #hamburger-btn div { background: var(--text-main); height: 4px; border-radius: 2px; }
 
   /* --- 検索バーエリア --- */
-  #search-area {
-    background: var(--bg-widget); padding: 10px 20px; box-sizing: border-box;
-    position: relative; z-index: 10; flex-shrink: 0;
-  }
-  #google-search {
-    width: 100%; max-width: 800px; margin: 0 auto;
-    display: flex; position: relative;
-  }
-  #google-search-input {
-    flex-grow: 1; padding: 12px 20px; font-size: 16px; border-radius: 24px;
-    border: 1px solid #555; box-sizing: border-box; outline: none;
-    background: #333; color: var(--text-main); transition: background-color 0.3s, border-color 0.3s;
-  }
+  #search-area { background: var(--bg-widget); padding: 10px 20px; box-sizing: border-box; position: relative; z-index: 10; flex-shrink: 0; transition: background-color 0.3s; }
+  #google-search { width: 100%; max-width: 800px; margin: 0 auto; display: flex; position: relative; }
+  #google-search-input { flex-grow: 1; padding: 12px 20px; font-size: 16px; border-radius: 24px; border: 1px solid #555; box-sizing: border-box; outline: none; background: #333; color: var(--text-main); transition: all 0.3s; }
+  body.light-mode #google-search-input { background: #e4e6eb; border-color: #ced0d4; }
   #google-search-input:focus { background-color: var(--bg-interactive); border-color: #777; }
   #google-search button { display: none; }
-  #search-suggestions {
-    display: none; position: absolute; top: 100%; left: 0; right: 0;
-    background: #333; border: 1px solid #555; border-top: none;
-    border-radius: 0 0 24px 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); overflow: hidden;
-  }
+  #search-suggestions { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #333; border: 1px solid #555; border-top: none; border-radius: 0 0 24px 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); overflow: hidden; }
+  body.light-mode #search-suggestions { background: #fff; }
   .suggestion-item { display: flex; align-items: center; padding: 10px 20px; cursor: pointer; color: var(--text-main); font-size: 15px; }
   .suggestion-item:hover, .suggestion-item.selected { background-color: var(--bg-interactive); }
   .suggestion-item .icon { margin-right: 15px; width: 20px; text-align: center; color: #aaa; }
@@ -119,97 +102,94 @@
   .suggestion-item .remove-history:hover { color: #fff; }
 
   /* --- メイン領域 --- */
-  #main {
-    flex: 1; display: flex; height: calc(100vh - 50px - 62px); overflow: hidden;
-  }
+  #main { flex: 1; display: flex; height: calc(100vh - 50px - 62px); overflow: hidden; }
 
   /* --- 左パネル --- */
-  #left-panel {
-    flex: 1.3; background: var(--bg-panel); display: flex; flex-direction: column;
-    position: relative; user-select: none; min-width: 420px;
-  }
-  #genre-title {
-    font-size: 2rem; font-weight: 700; color: #fff; text-align: center;
-    padding: 16px 0; border-bottom: 1px solid var(--bg-interactive); user-select: none; transition: opacity 0.4s ease;
-  }
-  #page-left-btn, #page-right-btn {
-    position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px;
-    background: var(--bg-interactive); color: white; border-radius: 8px; font-size: 24px;
-    line-height: 36px; text-align: center; user-select: none; cursor: pointer; z-index: 10; transition: background-color 0.3s;
-  }
+  #left-panel { flex: 1.3; background: var(--bg-panel); display: flex; flex-direction: column; position: relative; user-select: none; min-width: 420px; transition: background-color 0.3s; }
+  #genre-title { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; color: var(--text-main); text-align: center; padding: 16px 0; border-bottom: 1px solid var(--bg-interactive); user-select: none; transition: all 0.3s; }
+  #page-left-btn, #page-right-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: var(--bg-interactive); color: var(--text-main); border-radius: 8px; font-size: 24px; line-height: 36px; text-align: center; user-select: none; cursor: pointer; z-index: 10; transition: background-color 0.3s; }
   #page-left-btn:hover, #page-right-btn:hover { background: var(--bg-hover); }
   #page-left-btn { left: 10px; } #page-right-btn { right: 10px; }
-  #page-indicator {
-    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 8px; user-select: none;
-  }
+  #page-indicator { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; user-select: none; }
   .indicator-dot { width: 12px; height: 12px; border-radius: 50%; background: #555; cursor: pointer; transition: background-color 0.3s; }
-  .indicator-dot.active { background: #fff; }
+  body.light-mode .indicator-dot { background: #ccc; }
+  .indicator-dot.active { background: var(--text-main); }
   #site-pages { flex: 1; position: relative; overflow: hidden; }
   .page-container { display: flex; height: 100%; position: relative; }
-  .site-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-panel); padding: 20px 60px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 18px; justify-content: flex-start; align-content: flex-start; overflow-y: auto; transition: transform 0.5s ease; will-change: transform; }
-  .site-icon { width: 80px; height: 80px; border-radius: 14px; background: var(--bg-interactive); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #ddd; font-size: 14px; text-align: center; cursor: grab; user-select: none; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.7); transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s; }
+  .site-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-panel); padding: 20px clamp(10px, 5vw, 60px); box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 18px; justify-content: flex-start; align-content: flex-start; overflow-y: auto; transition: transform 0.5s ease, background-color 0.3s; will-change: transform; }
+  .site-icon { width: 80px; height: 80px; border-radius: 14px; background: var(--bg-interactive); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-subdued); font-size: 14px; text-align: center; cursor: grab; user-select: none; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.7); transition: all 0.3s; }
+  body.light-mode .site-icon { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
   .site-icon.dragging { opacity: 0.4; cursor: grabbing; box-shadow: 0 6px 15px rgba(0,0,0,0.9); }
-  .drag-placeholder { width: 80px; height: 80px; border-radius: 14px; background: rgba(255, 255, 255, 0.1); border: 2px dashed #888; box-sizing: border-box; }
+  .drag-placeholder { width: 80px; height: 80px; border-radius: 14px; background: rgba(128,128,128, 0.1); border: 2px dashed #888; box-sizing: border-box; }
   .site-icon img { width: 44px; height: 44px; margin-bottom: 8px; border-radius: 12px; object-fit: cover; box-shadow: 0 1px 3px rgba(0,0,0,0.7); pointer-events: none; }
   .site-icon .site-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 78px; pointer-events: none; }
   .site-icon .delete-btn { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; background: var(--accent-red); color: white; font-weight: bold; font-size: 16px; border-radius: 50%; line-height: 20px; text-align: center; cursor: pointer; user-select: none; display: none; transition: background-color 0.3s; z-index: 5; }
   .site-icon:hover { background-color: #555; box-shadow: 0 4px 12px rgba(255,255,255,0.2); }
+  body.light-mode .site-icon:hover { background-color: var(--bg-hover); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
   .site-icon:hover .delete-btn { display: block; }
-  #add-site-btn { width: 80px; height: 80px; border-radius: 14px; background: #ddd; color: #333; font-size: 48px; display: flex; justify-content: center; align-items: center; cursor: pointer; user-select: none; box-shadow: 0 3px 8px rgba(0,0,0,0.5); transition: background-color 0.3s, box-shadow 0.3s; }
+  #add-site-btn { width: 80px; height: 80px; border-radius: 14px; background: #ddd; color: #333; font-size: 48px; display: flex; justify-content: center; align-items: center; cursor: pointer; user-select: none; box-shadow: 0 3px 8px rgba(0,0,0,0.5); transition: all 0.3s; }
   #add-site-btn:hover { background: #fff; box-shadow: 0 6px 14px rgba(0,0,0,0.7); }
 
   /* --- 右パネル --- */
-  #right-panel {
-    flex: 0.75; background: #181818; padding: 20px; box-sizing: border-box;
-    color: var(--text-subdued); display: flex; flex-direction: column; user-select: none; min-width: 380px;
-  }
+  #right-panel { flex: 0.75; background: #181818; padding: 20px; box-sizing: border-box; color: var(--text-subdued); display: flex; flex-direction: column; user-select: none; min-width: 380px; transition: background-color 0.3s; }
+  body.light-mode #right-panel { background: #f0f2f5; }
   #widget-area { flex-grow: 1; display: flex; flex-direction: column; min-height: 0; }
-  #widget-tabs { display: flex; border-bottom: 1px solid var(--bg-interactive); margin-bottom: 15px; flex-shrink: 0; }
-  .widget-tab { padding: 8px 15px; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.3s, border-color 0.3s; color: #aaa; font-weight: 600; }
-  .widget-tab.active, .widget-tab:hover { color: #fff; border-bottom-color: #fff; }
+  #widget-tabs { display: flex; border-bottom: 1px solid var(--bg-interactive); margin-bottom: 15px; flex-shrink: 0; transition: border-color 0.3s;}
+  .widget-tab { padding: 8px 15px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; color: #aaa; font-weight: 600; }
+  .widget-tab.active, .widget-tab:hover { color: var(--text-main); border-bottom-color: var(--text-main); }
   .widget-content { display: none; flex-direction: column; align-items: center; flex-grow: 1; overflow: hidden; }
   .widget-content.active { display: flex; }
-  .calendar-widget { width: 100%; background: var(--bg-widget); border-radius: 8px; padding: 12px; box-sizing: border-box; margin-bottom: 10px; }
+  .calendar-widget { width: 100%; background: var(--bg-widget); border-radius: 8px; padding: 12px; box-sizing: border-box; margin-bottom: 10px; flex-shrink: 0; transition: background-color 0.3s; }
   .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 0 5px 10px; font-size: 1.1rem; font-weight: bold; }
   .calendar-header button { background: none; border: none; color: var(--text-main); cursor: pointer; font-size: 1.2rem; padding: 5px 10px; border-radius: 4px; }
   .calendar-header button:hover { background-color: #555; }
   .calendar-table-container table { width: 100%; border-collapse: collapse; color: var(--text-subdued); }
   .calendar-table-container th, .calendar-table-container td { text-align: center; border-radius: 50%; font-weight: 600; cursor: pointer; position: relative; transition: background-color 0.2s; }
-  #right-panel-calendar td, #right-panel-calendar th { padding: 8px 4px; }
+  #right-panel-calendar td, #right-panel-calendar th { padding: 4px; font-size: 0.9em; }
   .calendar-table-container td:hover { background-color: #555; }
-  .calendar-table-container th { color: #fff; }
-  .calendar-table-container td.today { background: var(--bg-interactive); color: #fff; font-weight: 700; }
-  .calendar-table-container td.has-event::after { content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background-color: var(--accent-red); }
-  #event-display { width: 100%; background: var(--bg-widget); border-radius: 8px; padding: 12px; box-sizing: border-box; margin-bottom: 10px; min-height: 80px; flex-shrink: 0; }
-  #event-display h4 { margin: 0 0 8px; }
-  #event-list { list-style: none; padding: 0; margin: 0; max-height: 100px; overflow-y: auto; }
-  #event-list li { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #333; }
-  #event-list li:last-child { border: none; }
-  #event-list button { background: none; border: none; color: var(--accent-red); cursor: pointer; font-size: 1rem; }
-  #clock-area { flex-shrink: 0; padding-top: 15px; text-align: center; border-top: 1px solid #333; }
-  #clock { font-size: 2.8rem; font-weight: 700; letter-spacing: 2px; font-family: 'Courier New', Courier, monospace; }
-  #date { margin-top: 10px; font-size: 1.3rem; }
-  .widget-container { width: 100%; text-align: center; background: var(--bg-widget); border-radius: 8px; padding: 20px; box-sizing: border-box; }
+  body.light-mode .calendar-table-container td:hover { background-color: var(--bg-hover); }
+  .calendar-table-container th { color: var(--text-main); }
+  .calendar-table-container td.today { background: var(--bg-interactive); color: var(--text-main); font-weight: 700; }
+  .calendar-table-container td.has-event::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background-color: var(--accent-red); }
+  #monthly-event-display { width: 100%; background: var(--bg-widget); border-radius: 8px; padding: 12px; box-sizing: border-box; flex-grow: 1; min-height: 0; display: flex; flex-direction: column; transition: background-color 0.3s; }
+  #monthly-event-display h4 { margin: 0 0 8px; flex-shrink: 0; }
+  #monthly-event-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; }
+  #monthly-event-list li { display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; border-bottom: 1px solid #333; font-size: 0.9rem; }
+  body.light-mode #monthly-event-list li { border-bottom-color: var(--bg-interactive); }
+  #monthly-event-list li .date-tag { font-weight: bold; margin-right: 10px; }
+  #monthly-event-list li .event-text { flex-grow: 1; }
+  #monthly-event-list li:last-child { border: none; }
+  #monthly-event-list button { background: none; border: none; color: var(--accent-red); cursor: pointer; font-size: 1.1rem; padding: 0 5px; }
+
+  #clock-area { flex-shrink: 0; padding-top: 15px; text-align: center; border-top: 1px solid #333; transition: border-color 0.3s; }
+  body.light-mode #clock-area { border-top-color: var(--bg-interactive); }
+  #clock { font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 700; letter-spacing: 2px; font-family: 'Courier New', Courier, monospace; }
+  #date { margin-top: 10px; font-size: clamp(1rem, 3vw, 1.3rem); }
+  .widget-container { width: 100%; text-align: center; background: var(--bg-widget); border-radius: 8px; padding: 20px; box-sizing: border-box; transition: background-color 0.3s; }
   .widget-display { font-size: 3rem; font-family: 'Courier New', Courier, monospace; margin-bottom: 20px; }
   .widget-controls button { background: var(--bg-interactive); border: none; color: var(--text-main); padding: 10px 20px; margin: 0 5px; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
   .widget-controls button:hover { background: var(--bg-hover); }
-  .widget-input { background: #333; border: 1px solid #555; color: var(--text-main); padding: 8px; border-radius: 6px; width: 60px; text-align: center; font-size: 1rem; }
+  .widget-input { background: #333; border: 1px solid #555; color: var(--text-main); padding: 8px; border-radius: 6px; width: 60px; text-align: center; font-size: 1rem; transition: all 0.3s;}
+  body.light-mode .widget-input { background: var(--bg-interactive); border-color: #ccc; }
   #lap-list, #alarm-list { list-style: none; padding: 0; margin-top: 20px; max-height: 200px; overflow-y: auto; text-align: left; }
   #lap-list li, #alarm-list li { padding: 8px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+  body.light-mode #lap-list li, body.light-mode #alarm-list li { border-bottom-color: var(--bg-interactive); }
 
   /* カレンダーモーダル */
   #calendar-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); z-index: 200; display: none; justify-content: center; align-items: center; }
   #calendar-modal-content { width: 95%; max-width: 1000px; height: 90%; max-height: 800px; background-color: #181818; border-radius: 12px; padding: 20px; box-sizing: border-box; position: relative; display: flex; flex-direction: column; }
-  #modal-close-btn { position: absolute; top: 10px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
+  body.light-mode #calendar-modal-content { background: var(--bg-panel); }
+  #modal-close-btn { position: absolute; top: 10px; right: 20px; background: none; border: none; color: var(--text-main); font-size: 2rem; cursor: pointer; }
   #modal-calendar-widget { flex-grow: 1; display: flex; flex-direction: column; }
   #modal-calendar-widget .calendar-widget { flex-grow: 1; display: flex; flex-direction: column; }
   #modal-calendar-widget .calendar-table-container { flex-grow: 1; }
   #modal-calendar-widget .calendar-table-container table { height: 100%; }
-  #modal-calendar td { vertical-align: top; padding: 4px; border: 1px solid #333; }
+  #modal-calendar td { vertical-align: top; padding: 4px; border: 1px solid #333; transition: background-color 0.2s; }
+  body.light-mode #modal-calendar td { border-color: var(--bg-interactive); }
+  #modal-calendar td.has-event { background-color: rgba(33, 150, 243, 0.2); }
   #modal-calendar .date-number { font-weight: bold; text-align: right; margin-bottom: 3px; }
   #modal-calendar ul.modal-event-list { list-style: none; padding: 0; margin: 0; text-align: left; font-size: 11px; }
-  #modal-calendar ul.modal-event-list li { background-color: #333; border-radius: 3px; padding: 2px 4px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #modal-calendar ul.modal-event-list li { background-color: var(--accent-blue); color: #fff; border-radius: 3px; padding: 2px 4px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* ハンバーガーメニュー */
   #hamburger-menu { position: fixed; top: 50px; left: 0; width: 280px; height: calc(100vh - 50px); background: var(--bg-widget); border-right: 1px solid #333; box-shadow: 2px 0 8px rgba(0,0,0,0.8); transform: translateX(-300px); transition: transform 0.3s ease; padding: 15px 16px; box-sizing: border-box; color: var(--text-main); overflow-y: auto; z-index: 100; }
@@ -221,73 +201,35 @@
   #hamburger-menu button:hover { background: #fff; }
   #hamburger-menu input[type="text"] { background: var(--bg-interactive); color: white; border: none; padding: 8px; border-radius: 6px; width: 100%; box-sizing: border-box; }
   .genre-list { margin-top: 10px; }
-  .genre-list-item { display: flex; justify-content: space-between; align-items: center; background: #333; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-weight: 600; }
+  .genre-list-item { display: flex; justify-content: space-between; align-items: center; background: #333; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-weight: 600; cursor: grab; }
+  .genre-list-item.dragging { opacity: 0.5; }
   .genre-list-item button { background: var(--accent-red); border: none; color: white; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: background-color 0.3s; }
   .genre-list-item button:hover { background: #b71c1c; }
   
-  /* ★ 追加: モバイルナビゲーション */
-  #mobile-nav {
-    display: none; /* PCでは非表示 */
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background-color: var(--bg-widget);
-    border-top: 1px solid var(--bg-interactive);
-    z-index: 50;
-  }
-  #mobile-nav .nav-buttons {
-    display: flex;
-    height: 100%;
-  }
-  #mobile-nav button {
-    flex: 1;
-    background: none;
-    border: none;
-    border-top: 3px solid transparent;
-    color: var(--text-subdued);
-    font-size: 1rem;
-    font-family: 'Roboto Slab', serif;
-    font-weight: bold;
-    transition: color 0.3s, border-top-color 0.3s;
-  }
-  #mobile-nav button.active {
-    color: #fff;
-    border-top-color: #fff;
-  }
+  /* モバイルナビゲーション */
+  #mobile-nav { display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background-color: var(--bg-widget); border-top: 1px solid var(--bg-interactive); z-index: 50; }
+  #mobile-nav .nav-buttons { display: flex; height: 100%; }
+  #mobile-nav button { flex: 1; background: none; border: none; border-top: 3px solid transparent; color: var(--text-subdued); font-size: 1rem; font-family: var(--font-family); font-weight: bold; transition: all 0.3s; }
+  #mobile-nav button.active { color: var(--text-main); border-top-color: var(--text-main); }
 
-  /* ★ 追加: レスポンシブ対応 (スマートフォン) */
+  /* レスポンシブ対応 */
   @media (max-width: 800px) {
-    #main {
-      flex-direction: column;
-      overflow-y: auto;
+    #main { display: none; }
+    body > #left-panel, body > #right-panel {
+      position: fixed; top: 112px; left: 0;
+      width: 100%; height: calc(100% - 112px - 60px);
+      min-width: 0; transform: translateX(100%);
+      transition: transform 0.3s ease-in-out; z-index: 40;
     }
-    #left-panel, #right-panel {
-      position: fixed;
-      top: 50px;
-      left: 0;
-      width: 100%;
-      height: calc(100% - 50px - 60px); /* タスクバーとモバイルナビ分を引く */
-      min-width: 0;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease-in-out;
-      z-index: 40;
-      display: flex; /* ★ display:flex を常時有効に */
-    }
-    #left-panel.visible, #right-panel.visible {
-      transform: translateX(0);
-    }
+    body > #left-panel { transform: translateX(-100%); }
+    body > #left-panel.visible, body > #right-panel.visible { transform: translateX(0); }
     #left-panel { overflow-y: auto; }
-    .site-page { padding: 20px; }
+    .site-page { padding: 20px; justify-content: center; }
     #page-left-btn, #page-right-btn { display: none; }
     #genre-title { font-size: 1.5rem; }
     #mobile-nav { display: block; }
-
-    /* モバイル表示ではメイン領域は空にする */
-    #main > #left-panel, #main > #right-panel {
-      display: none;
-    }
+    #taskbar-widgets { gap: 8px; font-size: 0.8rem; }
+    #speed-test-widget span:first-child, #weather-widget span:first-child, #battery-widget span:first-child { font-size: 1.2rem; }
   }
 
 </style>
@@ -296,6 +238,22 @@
 
   <div id="taskbar" title="タスクバー">
     <div id="hamburger-btn" title="設定メニュー開閉"><div></div><div></div><div></div></div>
+    <div id="taskbar-widgets">
+        <div id="speed-test-widget" class="taskbar-widget">
+            <span>🛜</span>
+            <span id="speed-display">- Mbps</span>
+            <button id="speed-test-btn" title="速度テスト実行">🔄</button>
+        </div>
+        <div id="weather-widget" class="taskbar-widget">
+            <span id="weather-icon">...</span>
+            <span id="weather-temp">--°C</span>
+        </div>
+        <div id="battery-widget" class="taskbar-widget">
+            <span id="battery-icon">🔋</span>
+            <span id="battery-level">--%</span>
+        </div>
+        <button id="theme-toggle-btn" title="テーマ切替">🌙</button>
+    </div>
     <div id="add-taskbar-btn" title="タスクバーにサイト追加">＋</div>
   </div>
   
@@ -307,17 +265,9 @@
     </form>
   </div>
 
-  <div id="main">
-    <!-- PC表示用のコンテナ -->
-    <div id="left-panel-container"></div>
-    <div id="right-panel-container"></div>
-  </div>
-
-  <!-- ハンバーガーメニュー、モーダル等はbody直下に -->
+  <div id="main"></div>
   <div id="hamburger-menu"></div>
   <div id="calendar-modal"></div>
-  
-  <!-- ★ 追加: モバイルナビゲーション -->
   <div id="mobile-nav">
     <div class="nav-buttons">
       <button id="mobile-sites-btn">サイト一覧</button>
@@ -325,16 +275,16 @@
     </div>
   </div>
 
-
 <script>
 (() => {
   // === 初期状態と定数 ===
-  const STORAGE_KEY = 'startpage-data-v6';
+  const STORAGE_KEY = 'startpage-data-v9';
   const HISTORY_KEY = 'startpage-search-history';
+  const THEME_KEY = 'startpage-theme';
   const MAX_HISTORY_COUNT = 10;
   
   let data = {
-    genres: [ { id: 1, name: 'Links', sites: [ { id: 101, name: 'Google', url: 'https://www.google.com', icon: '' } ] } ],
+    genres: [ { id: Date.now(), name: 'Links', sites: [ { id: Date.now()+1, name: 'Google', url: 'https://www.google.com', icon: '' } ] } ],
     currentGenreIndex: 0,
     taskbarSites: [],
     events: {},
@@ -343,256 +293,229 @@
   let searchHistory = [];
   let currentDisplayDate = new Date();
   
-  let isAnimating = false, draggedItem = null, suggestionFetchTimer, selectedSuggestionIndex = -1;
+  let isAnimating = false, draggedItem = null, suggestionFetchTimer, selectedSuggestionIndex = -1, draggedGenre = null;
   let timerInterval, timerTotalSeconds = 0;
   let stopwatchInterval, stopwatchTime = 0, lapNumber = 1;
   let audioContext;
 
-  // === HTMLテンプレートと要素取得 ===
-  // HTMLテンプレートを<body>に挿入する
   function setupHTML() {
-    // パネルのHTML
-    const leftPanelHTML = `<div id="left-panel"><div id="genre-title">ジャンル名</div><div id="page-left-btn">◀</div><div id="site-pages"><div class="page-container"></div></div><div id="page-right-btn">▶</div><div id="page-indicator"></div></div>`;
-    const rightPanelHTML = `<div id="right-panel"><div id="widget-area"><div id="widget-tabs"><div class="widget-tab active" data-tab="clock">カレンダー</div><div class="widget-tab" data-tab="timer">タイマー</div><div class="widget-tab" data-tab="stopwatch">ストップウォッチ</div><div class="widget-tab" data-tab="alarm">アラーム</div></div><div id="widget-clock" class="widget-content active"><div id="calendar-widget" class="calendar-widget"><div class="calendar-header"><button class="prev-month-btn">◀</button><h4 class="calendar-month-year"></h4><button class="next-month-btn">▶</button><button class="fullscreen-calendar-btn">↗</button></div><div id="right-panel-calendar" class="calendar-table-container"></div></div><div id="event-display"><h4 id="event-date"></h4><ul id="event-list"></ul></div></div><div id="widget-timer" class="widget-content"></div><div id="widget-stopwatch" class="widget-content"></div><div id="widget-alarm" class="widget-content"></div></div><div id="clock-area"><div id="clock"></div><div id="date"></div></div></div>`;
-    
-    // PCとモバイルでパネルの挿入先を変える
-    if (window.innerWidth > 800) {
-        document.getElementById('main').innerHTML = leftPanelHTML + rightPanelHTML;
-    } else {
-        document.body.insertAdjacentHTML('beforeend', leftPanelHTML);
-        document.body.insertAdjacentHTML('beforeend', rightPanelHTML);
-    }
+    const mainContainer = document.getElementById('main');
+    const isMobile = window.innerWidth <= 800;
+    const panelContainer = isMobile ? document.body : mainContainer;
 
-    // 残りのHTMLテンプレート
+    const leftPanelHTML = `<div id="left-panel"><div id="genre-title"></div><div id="page-left-btn">◀</div><div id="site-pages"><div class="page-container"></div></div><div id="page-right-btn">▶</div><div id="page-indicator"></div></div>`;
+    const rightPanelHTML = `<div id="right-panel"><div id="widget-area"><div id="widget-tabs"><div class="widget-tab active" data-tab="clock">カレンダー</div><div class="widget-tab" data-tab="timer">タイマー</div><div class="widget-tab" data-tab="stopwatch">ストップウォッチ</div><div class="widget-tab" data-tab="alarm">アラーム</div></div><div id="widget-clock" class="widget-content active"><div id="calendar-widget" class="calendar-widget"><div class="calendar-header"><button class="prev-month-btn">◀</button><h4 class="calendar-month-year"></h4><button class="next-month-btn">▶</button><button class="fullscreen-calendar-btn">↗</button></div><div id="right-panel-calendar" class="calendar-table-container"></div></div><div id="monthly-event-display"><h4 id="monthly-event-title"></h4><ul id="monthly-event-list"></ul></div></div><div id="widget-timer" class="widget-content"></div><div id="widget-stopwatch" class="widget-content"></div><div id="widget-alarm" class="widget-content"></div></div><div id="clock-area"><div id="clock"></div><div id="date"></div></div></div>`;
+
+    panelContainer.insertAdjacentHTML('beforeend', leftPanelHTML);
+    panelContainer.insertAdjacentHTML('beforeend', rightPanelHTML);
+    
     document.getElementById('hamburger-menu').innerHTML = `<h2>設定</h2><label for="new-genre-name">ジャンル追加</label><input type="text" id="new-genre-name" placeholder="ジャンル名を入力" /><button id="add-genre-btn">追加</button><div class="genre-list"></div><label for="import-data">データインポート・エクスポート</label><textarea id="import-data"></textarea><button id="load-import-btn">読み込み</button><button id="copy-export-btn">コピー</button><textarea id="export-data" readonly></textarea>`;
     document.getElementById('calendar-modal').innerHTML = `<div id="calendar-modal-content"><button id="modal-close-btn">×</button><div id="modal-calendar-widget" class="calendar-widget"><div class="calendar-header"><button class="prev-month-btn">◀</button><h4 class="calendar-month-year"></h4><button class="next-month-btn">▶</button></div><div id="modal-calendar" class="calendar-table-container"></div></div></div>`;
     
-    // ウィジェットのテンプレート
-    const timerHTML = `<div class="widget-container"><div id="timer-display" class="widget-display">00:00</div><div><input type="number" id="timer-minutes" class="widget-input" min="0" max="99" placeholder="分"><input type="number" id="timer-seconds" class="widget-input" min="0" max="59" placeholder="秒"></div><div class="widget-controls" style="margin-top: 15px;"><button id="timer-start">スタート</button><button id="timer-stop">ストップ</button><button id="timer-reset">リセット</button></div></div>`;
-    const stopwatchHTML = `<div class="widget-container"><div id="stopwatch-display" class="widget-display">00:00.00</div><div class="widget-controls"><button id="stopwatch-start">スタート</button><button id="stopwatch-stop">ストップ</button><button id="stopwatch-lap">ラップ</button><button id="stopwatch-reset">リセット</button></div><ul id="lap-list"></ul></div>`;
-    const alarmHTML = `<div class="widget-container"><p>アラーム設定</p><input type="time" id="alarm-time" class="widget-input" style="width: 100px;"><button id="alarm-add" style="background: #444; border: none; color: #eee; padding: 8px 12px; margin-left: 10px; border-radius: 6px; cursor: pointer;">追加</button><ul id="alarm-list"></ul></div>`;
-    
-    const timerWidget = document.getElementById('widget-timer');
-    if (timerWidget) timerWidget.innerHTML = timerHTML;
-    const stopwatchWidget = document.getElementById('widget-stopwatch');
-    if (stopwatchWidget) stopwatchWidget.innerHTML = stopwatchHTML;
-    const alarmWidget = document.getElementById('widget-alarm');
-    if (alarmWidget) alarmWidget.innerHTML = alarmHTML;
+    document.getElementById('widget-timer').innerHTML = `<div class="widget-container"><div id="timer-display" class="widget-display">00:00</div><div><input type="number" id="timer-minutes" class="widget-input" min="0" max="99" placeholder="分"><input type="number" id="timer-seconds" class="widget-input" min="0" max="59" placeholder="秒"></div><div class="widget-controls" style="margin-top: 15px;"><button id="timer-start">スタート</button><button id="timer-stop">ストップ</button><button id="timer-reset">リセット</button></div></div>`;
+    document.getElementById('widget-stopwatch').innerHTML = `<div class="widget-container"><div id="stopwatch-display" class="widget-display">00:00.00</div><div class="widget-controls"><button id="stopwatch-start">スタート</button><button id="stopwatch-stop">ストップ</button><button id="stopwatch-lap">ラップ</button><button id="stopwatch-reset">リセット</button></div><ul id="lap-list"></ul></div>`;
+    document.getElementById('widget-alarm').innerHTML = `<div class="widget-container"><p>アラーム設定</p><input type="time" id="alarm-time" class="widget-input" style="width: 100px;"><button id="alarm-add" style="background: #444; border: none; color: #eee; padding: 8px 12px; margin-left: 10px; border-radius: 6px; cursor: pointer;">追加</button><ul id="alarm-list"></ul></div>`;
   }
 
-  // === 初期化処理 ===
   function initialize() {
-    setupHTML(); // HTMLを構築
-
-    // グローバルな要素を再定義
-    const getElement = id => document.getElementById(id);
-    const query = sel => document.querySelector(sel);
-    const queryAll = sel => document.querySelectorAll(sel);
-    
-    // イベントリスナーの一括設定
-    setupEventListeners(getElement, query, queryAll);
-
-    // データロードと描画
+    setupHTML();
+    setupEventListeners();
     loadData();
-    renderTaskbar(getElement);
-    renderGenresList(getElement, query);
-    initPages(getElement);
-    updateExportArea(getElement);
-    updateTime(getElement);
-    setInterval(() => updateTime(getElement), 1000);
-    renderAllCalendars(getElement);
-    renderAlarms(getElement);
+    loadTheme();
+    renderAll();
+    initTaskbarWidgets();
+    setInterval(updateTime, 1000);
   }
 
-  function setupEventListeners(getElement, query, queryAll) {
+  function renderAll() {
+    renderTaskbar();
+    renderGenresList();
+    initPages();
+    updateExportArea();
+    updateCalendarViews();
+    renderAlarms();
+  }
+
+  function setupEventListeners() {
     document.body.addEventListener('click', initAudio, { once: true });
-    getElement('hamburger-btn').onclick = () => getElement('hamburger-menu').classList.toggle('open');
-    getElement('page-left-btn')?.addEventListener('click', () => changeGenre(data.currentGenreIndex - 1));
-    getElement('page-right-btn')?.addEventListener('click', () => changeGenre(data.currentGenreIndex + 1));
-    getElement('site-pages')?.addEventListener('wheel', handleWheelScroll, { passive: false });
-    getElement('add-taskbar-btn').onclick = () => handleAddTaskbar(getElement);
-    getElement('google-search-input').onfocus = handleSearchFocus;
-    getElement('google-search-input').oninput = () => handleSearchInput(getElement);
-    getElement('google-search-input').onkeydown = handleSearchKeyDown;
-    document.onclick = (e) => { if(!getElement('google-search').contains(e.target)) hideSuggestions(getElement); };
-    queryAll('.widget-tab').forEach(tab => tab.onclick = (e) => handleTabClick(e, getElement));
-    queryAll('.prev-month-btn').forEach(btn => btn.onclick = () => { currentDisplayDate.setMonth(currentDisplayDate.getMonth() - 1); renderAllCalendars(getElement); });
-    queryAll('.next-month-btn').forEach(btn => btn.onclick = () => { currentDisplayDate.setMonth(currentDisplayDate.getMonth() + 1); renderAllCalendars(getElement); });
-    query('.fullscreen-calendar-btn')?.addEventListener('click', () => getElement('calendar-modal').style.display = 'flex');
-    getElement('modal-close-btn').onclick = () => getElement('calendar-modal').style.display = 'none';
-    getElement('calendar-modal').onclick = (e) => { if(e.target === getElement('calendar-modal')) getElement('calendar-modal').style.display = 'none'; };
-    getElement('timer-start').onclick = () => startTimer(getElement);
-    getElement('timer-stop').onclick = stopTimer;
-    getElement('timer-reset').onclick = () => resetTimer(getElement);
-    getElement('stopwatch-start').onclick = () => startStopwatch(getElement);
-    getElement('stopwatch-stop').onclick = stopStopwatch;
-    getElement('stopwatch-lap').onclick = () => lapStopwatch(getElement);
-    getElement('stopwatch-reset').onclick = () => resetStopwatch(getElement);
-    getElement('alarm-add').onclick = () => addAlarm(getElement);
-    getElement('add-genre-btn').onclick = () => addGenre(getElement);
-    getElement('load-import-btn').onclick = () => loadImportData(getElement);
-    getElement('copy-export-btn').onclick = () => copyExportData(getElement);
-    
-    // モバイル用イベントリスナー
-    getElement('mobile-sites-btn').onclick = () => toggleMobileView('left-panel', getElement);
-    getElement('mobile-widgets-btn').onclick = () => toggleMobileView('right-panel', getElement);
+    document.getElementById('hamburger-btn').onclick = () => document.getElementById('hamburger-menu').classList.toggle('open');
+    document.getElementById('page-left-btn').onclick = () => changeGenre(data.currentGenreIndex - 1);
+    document.getElementById('page-right-btn').onclick = () => changeGenre(data.currentGenreIndex + 1);
+    document.getElementById('site-pages').addEventListener('wheel', handleWheelScroll, { passive: false });
+    document.getElementById('add-taskbar-btn').onclick = handleAddTaskbar;
+    document.getElementById('google-search-input').onfocus = handleSearchFocus;
+    document.getElementById('google-search-input').oninput = handleSearchInput;
+    document.getElementById('google-search-input').onkeydown = handleSearchKeyDown;
+    document.onclick = (e) => { if(!document.getElementById('google-search').contains(e.target)) hideSuggestions(); };
+    document.querySelectorAll('.widget-tab').forEach(tab => tab.onclick = handleTabClick);
+    document.querySelectorAll('.prev-month-btn').forEach(btn => btn.onclick = () => { currentDisplayDate.setMonth(currentDisplayDate.getMonth() - 1); updateCalendarViews(); });
+    document.querySelectorAll('.next-month-btn').forEach(btn => btn.onclick = () => { currentDisplayDate.setMonth(currentDisplayDate.getMonth() + 1); updateCalendarViews(); });
+    document.querySelector('.fullscreen-calendar-btn').onclick = () => document.getElementById('calendar-modal').style.display = 'flex';
+    document.getElementById('modal-close-btn').onclick = () => document.getElementById('calendar-modal').style.display = 'none';
+    document.getElementById('calendar-modal').onclick = (e) => { if(e.target === document.getElementById('calendar-modal')) document.getElementById('calendar-modal').style.display = 'none'; };
+    document.getElementById('timer-start').onclick = startTimer; document.getElementById('timer-stop').onclick = stopTimer; document.getElementById('timer-reset').onclick = resetTimer;
+    document.getElementById('stopwatch-start').onclick = startStopwatch; document.getElementById('stopwatch-stop').onclick = stopStopwatch; document.getElementById('stopwatch-lap').onclick = lapStopwatch; document.getElementById('stopwatch-reset').onclick = resetStopwatch;
+    document.getElementById('alarm-add').onclick = addAlarm;
+    document.getElementById('add-genre-btn').onclick = addGenre;
+    document.getElementById('load-import-btn').onclick = loadImportData;
+    document.getElementById('copy-export-btn').onclick = copyExportData;
+    document.getElementById('mobile-sites-btn').onclick = () => toggleMobileView('left-panel');
+    document.getElementById('mobile-widgets-btn').onclick = () => toggleMobileView('right-panel');
+    document.getElementById('speed-test-btn').onclick = runSpeedTest;
+    document.getElementById('theme-toggle-btn').onclick = toggleTheme;
   }
   
-  // === 機能別関数 ===
-  function loadData() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) { try { const p = JSON.parse(saved); if (p && Array.isArray(p.genres)) { data = { ...data, ...p }; } } catch (e) { console.error("Data Load Error", e); } }
-    const savedHistory = localStorage.getItem(HISTORY_KEY);
-    if(savedHistory) { try { searchHistory = JSON.parse(savedHistory); } catch (e) { searchHistory = []; } }
-  }
-  function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); updateExportArea(document.getElementById.bind(document)); }
-  function saveSearchHistory() { localStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory)); }
-  function updateExportArea(getElement) { getElement('export-data').value = JSON.stringify(data, null, 2); }
-  function initAudio() { if (!audioContext) { try { audioContext = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} } }
-  function playBeep() { if (!audioContext) return; const o=audioContext.createOscillator(),g=audioContext.createGain();o.connect(g);g.connect(audioContext.destination);o.type='sine';o.frequency.setValueAtTime(880,audioContext.currentTime);g.gain.setValueAtTime(0.5,audioContext.currentTime);o.start();o.stop(audioContext.currentTime+0.5); }
-  async function checkNotificationPermission() { if (!("Notification" in window)) { return false; } if (Notification.permission === "granted") return true; if (Notification.permission !== "denied") { const p = await Notification.requestPermission(); return p === "granted"; } return false; }
-
-  function updateTime(getElement) {
-    const now = new Date();
-    getElement('clock').textContent = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    getElement('date').textContent = now.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
-    checkAlarms(getElement);
-  }
+  function loadData(){const s=localStorage.getItem(STORAGE_KEY);if(s){try{const p=JSON.parse(s);if(p&&Array.isArray(p.genres))data={...data,...p};}catch(e){}}const h=localStorage.getItem(HISTORY_KEY);if(h){try{searchHistory=JSON.parse(h);}catch(e){}}}
+  function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));updateExportArea();}
+  function saveSearchHistory(){localStorage.setItem(HISTORY_KEY,JSON.stringify(searchHistory));}
+  function updateExportArea(){document.getElementById('export-data').value=JSON.stringify(data,null,2);}
+  function initAudio(){if(!audioContext){try{audioContext=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}}
+  function playBeep(){if(!audioContext)return;const o=audioContext.createOscillator(),g=audioContext.createGain();o.connect(g);g.connect(audioContext.destination);o.type='sine';o.frequency.setValueAtTime(880,audioContext.currentTime);g.gain.setValueAtTime(0.5,audioContext.currentTime);o.start();o.stop(audioContext.currentTime+0.5);}
+  async function checkNotificationPermission(){if(!("Notification" in window))return false;if(Notification.permission==="granted")return true;if(Notification.permission!=="denied"){const p=await Notification.requestPermission();return p==="granted";}return false;}
+  function updateTime(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'});document.getElementById('date').textContent=n.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'long'});checkAlarms(n);}
   
-  function renderAllCalendars(getElement) {
-    renderCalendar(currentDisplayDate, getElement('right-panel-calendar'), false);
-    renderCalendar(currentDisplayDate, getElement('modal-calendar'), true);
-  }
-  function renderCalendar(targetDate, containerEl, isModal) {
-    if(!containerEl) return;
-    const year = targetDate.getFullYear(), month = targetDate.getMonth(), today = new Date();
-    containerEl.parentElement.querySelector('.calendar-month-year').textContent = `${year}年 ${month + 1}月`;
-    const firstDay = new Date(year, month, 1).getDay(), lastDate = new Date(year, month + 1, 0).getDate();
-    let html = '<table><thead><tr>' + ['日','月','火','水','木','金','土'].map(d => `<th>${d}</th>`).join('') + '</tr></thead><tbody>', date = 1;
-    for (let i = 0; i < 6; i++) {
-      html += '<tr>';
-      for (let j = 0; j < 7; j++) {
-        if (i === 0 && j < firstDay || date > lastDate) { html += '<td></td>'; } else {
-          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-          const isToday = date === today.getDate() && year === today.getFullYear() && month === today.getMonth();
-          const hasEvent = data.events[dateStr]?.length > 0;
-          let eventsHtml = '';
-          if (isModal && hasEvent) {
-            eventsHtml = '<ul class="modal-event-list">';
-            data.events[dateStr].slice(0, 2).forEach(event => { eventsHtml += `<li>${escapeHtml(event)}</li>`; });
-            if (data.events[dateStr].length > 2) eventsHtml += '<li>...</li>';
-            eventsHtml += '</ul>';
-          }
-          const afterClass = !isModal && hasEvent ? ' has-event' : '';
-          html += `<td data-date="${dateStr}" class="${isToday ? 'today' : ''}${afterClass}"><div class="date-number">${date}</div>${eventsHtml}</td>`;
-          date++;
-        }
-      }
-      html += '</tr>'; if (date > lastDate) break;
-    }
-    containerEl.innerHTML = html + '</tbody></table>';
-    containerEl.querySelectorAll('td[data-date]').forEach(cell => cell.onclick = () => handleDateClick(cell.dataset.date));
-  }
-  function handleDateClick(dateStr) {
-    const getElement = document.getElementById.bind(document);
-    renderEventsForDay(dateStr, getElement);
-    const eventText = prompt(`「${dateStr}」の予定を追加:`);
-    if (eventText?.trim()) {
-        if (!data.events[dateStr]) data.events[dateStr] = [];
-        data.events[dateStr].push(eventText.trim());
-        saveData(); renderAllCalendars(getElement); renderEventsForDay(dateStr, getElement);
-    }
-  }
-  function renderEventsForDay(dateStr, getElement) {
-    getElement('event-date').textContent = `${dateStr} の予定`;
-    const eventList = getElement('event-list');
-    eventList.innerHTML = '';
-    const events = data.events[dateStr] || [];
-    if (events.length === 0) { eventList.innerHTML = '<li>予定はありません</li>'; return; }
-    events.forEach((event, index) => {
-        const li = document.createElement('li'); li.textContent = event;
-        const delBtn = document.createElement('button'); delBtn.textContent = '×';
-        delBtn.onclick = () => {
-            data.events[dateStr].splice(index, 1);
-            if(data.events[dateStr].length === 0) delete data.events[dateStr];
-            saveData(); renderAllCalendars(getElement); renderEventsForDay(dateStr, getElement);
-        };
-        li.appendChild(delBtn); eventList.appendChild(li);
-    });
-  }
-  function escapeHtml(str) { return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
-
-  function startTimer(getElement) { if (timerInterval) return; if (timerTotalSeconds <= 0) { timerTotalSeconds = (parseInt(getElement('timer-minutes').value) || 0) * 60 + (parseInt(getElement('timer-seconds').value) || 0); } if (timerTotalSeconds <= 0) return; timerInterval = setInterval(() => { timerTotalSeconds--; getElement('timer-display').textContent = `${Math.floor(timerTotalSeconds / 60).toString().padStart(2, '0')}:${(timerTotalSeconds % 60).toString().padStart(2, '0')}`; if (timerTotalSeconds <= 0) { clearInterval(timerInterval); timerInterval = null; playBeep(); alert('タイマー終了！'); } }, 1000); }
-  function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
-  function resetTimer(getElement) { stopTimer(); timerTotalSeconds = 0; getElement('timer-display').textContent = '00:00'; getElement('timer-minutes').value = ''; getElement('timer-seconds').value = ''; }
-  function startStopwatch(getElement) { if (!stopwatchInterval) stopwatchInterval = setInterval(() => { stopwatchTime += 10; getElement('stopwatch-display').textContent = `${Math.floor(stopwatchTime / 60000).toString().padStart(2, '0')}:${Math.floor((stopwatchTime % 60000) / 1000).toString().padStart(2, '0')}.${Math.floor((stopwatchTime % 1000) / 10).toString().padStart(2, '0')}`; }, 10); }
-  function stopStopwatch() { clearInterval(stopwatchInterval); stopwatchInterval = null; }
-  function lapStopwatch(getElement) { if (!stopwatchInterval && stopwatchTime === 0) return; const li = document.createElement('li'); li.textContent = `Lap ${lapNumber++}: ${getElement('stopwatch-display').textContent}`; getElement('lap-list').prepend(li); }
-  function resetStopwatch(getElement) { stopStopwatch(); stopwatchTime = 0; lapNumber = 1; getElement('stopwatch-display').textContent = '00:00.00'; getElement('lap-list').innerHTML = ''; }
-  async function addAlarm(getElement) { await checkNotificationPermission(); const time = getElement('alarm-time').value; if (time && !data.alarms.some(a => a.time === time)) { data.alarms.push({ time, enabled: true }); data.alarms.sort((a, b) => a.time.localeCompare(b.time)); saveData(); renderAlarms(getElement); } }
-  function renderAlarms(getElement) { const alarmList = getElement('alarm-list'); alarmList.innerHTML = ''; data.alarms.forEach((alarm, index) => { const li = document.createElement('li'); li.innerHTML = `<span>${alarm.time}</span><div><input type="checkbox" ${alarm.enabled ? 'checked' : ''}><button>削除</button></div>`; li.querySelector('input').onchange = (e) => { data.alarms[index].enabled = e.target.checked; saveData(); }; li.querySelector('button').onclick = () => { data.alarms.splice(index, 1); saveData(); renderAlarms(getElement); }; alarmList.appendChild(li); }); }
-  function checkAlarms(getElement) { const now=new Date(), currentTime = now.toTimeString().slice(0, 5); data.alarms.forEach(alarm => { if (alarm.enabled && alarm.time === currentTime && now.getSeconds() === 0) { playBeep(); alert(`アラーム: ${alarm.time}`); if (Notification.permission === "granted") new Notification("アラーム", { body: `設定時刻 ${alarm.time} になりました。`, icon: getFaviconUrl(window.location.href) }); } }); }
-  
-  function handleTabClick(e, getElement) { document.querySelectorAll('.widget-tab, .widget-content').forEach(el => el.classList.remove('active')); e.target.classList.add('active'); getElement(`widget-${e.target.dataset.tab}`).classList.add('active'); }
-  let wheelTimeout; function handleWheelScroll(e) { if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) { e.preventDefault(); if (wheelTimeout) return; if (e.deltaX > 20) changeGenre(data.currentGenreIndex + 1); else if (e.deltaX < -20) changeGenre(data.currentGenreIndex - 1); wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 300); } }
-  function handleAddTaskbar(getElement) { const g=data.genres[data.currentGenreIndex]; if (!g||!g.sites.length)return alert('追加可能なサイトがありません。'); const n=prompt(`タスクバーに追加:\n`+g.sites.map(s=>s.name).join(', ')); if(!n)return; const s=g.sites.find(s=>s.name.toLowerCase()===n.trim().toLowerCase()); if(!s)return alert('サイトが見つかりません。'); if(data.taskbarSites.some(ts=>ts.id===s.id))return alert('既に追加済です。'); data.taskbarSites.push(JSON.parse(JSON.stringify(s))); renderTaskbar(getElement); saveData(); }
-  function handleSearchFocus() { if(document.getElementById('google-search-input').value.trim() === '' && searchHistory.length > 0) window.handleSuggestions(['', searchHistory]); }
-  function handleSearchInput(getElement) { clearTimeout(suggestionFetchTimer); const q = getElement('google-search-input').value.trim(); if(q) suggestionFetchTimer = setTimeout(() => fetchSuggestions(q, getElement), 300); else hideSuggestions(getElement); }
-  function handleSearchKeyDown(e) { const items=document.getElementById('search-suggestions').querySelectorAll('.suggestion-item'); if(!items.length||document.getElementById('search-suggestions').style.display==='none')return; if(e.key==='ArrowDown'){e.preventDefault();if(selectedSuggestionIndex<items.length-1)selectedSuggestionIndex++;}else if(e.key==='ArrowUp'){e.preventDefault();if(selectedSuggestionIndex>0)selectedSuggestionIndex--;}else if(e.key==='Enter'&&selectedSuggestionIndex>-1){e.preventDefault();items[selectedSuggestionIndex].click();return;}else{return;} items.forEach((item,index)=>item.classList.toggle('selected',index===selectedSuggestionIndex)); if(selectedSuggestionIndex>-1)document.getElementById('google-search-input').value=items[selectedSuggestionIndex].querySelector('.text').textContent; }
-  
-  function normalizeUrl(url) { url=url.trim(); if(!url)return''; if(!/^(https?:\/\/|mailto:)/i.test(url))url='https://'+url; return url; }
-  function getFaviconUrl(siteUrl) { try {const u=new URL(siteUrl); return `https://www.google.com/s2/favicons?sz=64&domain=${u.hostname}`;} catch {return '';} }
-  function createSiteIcon(site) { const d=document.createElement('div'); d.className='site-icon'; d.dataset.siteId=site.id; d.draggable=true; d.title=site.name; d.innerHTML=`<img src="${site.icon||getFaviconUrl(site.url)}" alt=""><div class="site-label">${site.name}</div><div class="delete-btn">×</div>`; d.onclick=()=>window.open(site.url,'_blank'); d.querySelector('.delete-btn').onclick=e=>{e.stopPropagation();if(confirm(`「${site.name}」を削除しますか？`)){const g=data.genres[data.currentGenreIndex];g.sites=g.sites.filter(s=>s.id!==site.id);renderCurrentPage();saveData();}}; d.ondragstart=e=>{draggedItem=d;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',site.id);setTimeout(()=>d.classList.add('dragging'),0);}; d.ondragend=()=>{if(!draggedItem)return;draggedItem.classList.remove('dragging');draggedItem=null;const p=document.querySelector('.drag-placeholder');if(p)p.remove();}; return d; }
+  function updateCalendarViews(){renderAllCalendars();renderMonthlyEvents(currentDisplayDate);}
+  function renderAllCalendars(){renderCalendar(currentDisplayDate,document.getElementById('right-panel-calendar'),false);renderCalendar(currentDisplayDate,document.getElementById('modal-calendar'),true);}
+  function renderCalendar(targetDate,containerEl,isModal){if(!containerEl)return;const y=targetDate.getFullYear(),m=targetDate.getMonth(),t=new Date();containerEl.parentElement.querySelector('.calendar-month-year').textContent=`${y}年 ${m+1}月`;const f=new Date(y,m,1).getDay(),l=new Date(y,m+1,0).getDate();let h='<table><thead><tr>'+['日','月','火','水','木','金','土'].map(d=>`<th>${d}</th>`).join('')+'</tr></thead><tbody>',date=1;for(let i=0;i<6;i++){h+='<tr>';for(let j=0;j<7;j++){if(i===0&&j<f||date>l){h+='<td></td>';}else{const s=`${y}-${String(m+1).padStart(2,'0')}-${String(date).padStart(2,'0')}`,iT=date===t.getDate()&&y===t.getFullYear()&&m===t.getMonth(),hE=data.events[s]?.length>0;let eH='';if(isModal&&hE){eH='<ul class="modal-event-list">';data.events[s].slice(0,2).forEach(e=>{eH+=`<li>${escapeHtml(e)}</li>`;});if(data.events[s].length>2)eH+='<li>...</li>';eH+='</ul>';}const aC=!isModal&&hE?' has-event':'';const mAC=isModal&&hE?' has-event':'';h+=`<td data-date="${s}" class="${iT?'today':''}${aC}${mAC}"><div class="date-number">${date}</div>${eH}</td>`;date++;}}h+='</tr>';if(date>l)break;}containerEl.innerHTML=h+'</tbody></table>';containerEl.querySelectorAll('td[data-date]').forEach(c=>c.onclick=()=>handleDateClick(c.dataset.date));}
+  function handleDateClick(dateStr){const e=prompt(`「${dateStr}」の予定を追加:`);if(e?.trim()){if(!data.events[dateStr])data.events[dateStr]=[];data.events[dateStr].push(e.trim());saveData();updateCalendarViews();}}
+  function renderMonthlyEvents(targetDate){const y=targetDate.getFullYear(),m=targetDate.getMonth(),s=`${y}-${String(m+1).padStart(2,'0')}`;document.getElementById('monthly-event-title').textContent=`${y}年 ${m+1}月 の予定`;const l=document.getElementById('monthly-event-list');l.innerHTML='';const e=Object.keys(data.events).filter(k=>k.startsWith(s)).sort().flatMap(d=>data.events[d].map((t,i)=>({date:d,day:parseInt(d.split('-')[2]),text:t,originalIndex:i})));if(e.length===0){l.innerHTML='<li>予定はありません</li>';return;}e.forEach(ev=>{const li=document.createElement('li');li.innerHTML=`<span class="date-tag">${ev.day}日:</span> <span class="event-text">${escapeHtml(ev.text)}</span>`;const b=document.createElement('button');b.textContent='×';b.onclick=()=>{data.events[ev.date].splice(ev.originalIndex,1);if(data.events[ev.date].length===0)delete data.events[ev.date];saveData();updateCalendarViews();};li.appendChild(b);l.appendChild(li);});}
+  function escapeHtml(str){return str.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);}
+  function startTimer(){if(timerInterval)return;if(timerTotalSeconds<=0){timerTotalSeconds=(parseInt(document.getElementById('timer-minutes').value)||0)*60+(parseInt(document.getElementById('timer-seconds').value)||0);}if(timerTotalSeconds<=0)return;timerInterval=setInterval(()=>{timerTotalSeconds--;document.getElementById('timer-display').textContent=`${Math.floor(timerTotalSeconds/60).toString().padStart(2,'0')}:${(timerTotalSeconds%60).toString().padStart(2,'0')}`;if(timerTotalSeconds<=0){clearInterval(timerInterval);timerInterval=null;playBeep();alert('タイマー終了！');}},1000);}
+  function stopTimer(){clearInterval(timerInterval);timerInterval=null;}
+  function resetTimer(){stopTimer();timerTotalSeconds=0;document.getElementById('timer-display').textContent='00:00';document.getElementById('timer-minutes').value='';document.getElementById('timer-seconds').value='';}
+  function startStopwatch(){if(!stopwatchInterval)stopwatchInterval=setInterval(()=>{stopwatchTime+=10;document.getElementById('stopwatch-display').textContent=`${Math.floor(stopwatchTime/60000).toString().padStart(2,'0')}:${Math.floor((stopwatchTime%60000)/1000).toString().padStart(2,'0')}.${Math.floor((stopwatchTime%1000)/10).toString().padStart(2,'0')}`;},10);}
+  function stopStopwatch(){clearInterval(stopwatchInterval);stopwatchInterval=null;}
+  function lapStopwatch(){if(!stopwatchInterval&&stopwatchTime===0)return;const l=document.createElement('li');l.textContent=`Lap ${lapNumber++}: ${document.getElementById('stopwatch-display').textContent}`;document.getElementById('lap-list').prepend(l);}
+  function resetStopwatch(){stopStopwatch();stopwatchTime=0;lapNumber=1;document.getElementById('stopwatch-display').textContent='00:00.00';document.getElementById('lap-list').innerHTML='';}
+  async function addAlarm(){await checkNotificationPermission();const t=document.getElementById('alarm-time').value;if(t&&!data.alarms.some(a=>a.time===t)){data.alarms.push({time:t,enabled:true});data.alarms.sort((a,b)=>a.time.localeCompare(b.time));saveData();renderAlarms();}}
+  function renderAlarms(){const l=document.getElementById('alarm-list');l.innerHTML='';data.alarms.forEach((a,i)=>{const li=document.createElement('li');li.innerHTML=`<span>${a.time}</span><div><input type="checkbox" ${a.enabled?'checked':''}/><button>削除</button></div>`;li.querySelector('input').onchange=e=>{data.alarms[i].enabled=e.target.checked;saveData();};li.querySelector('button').onclick=()=>{data.alarms.splice(i,1);saveData();renderAlarms();};l.appendChild(li);});}
+  function checkAlarms(n){const c=n.toTimeString().slice(0,5);data.alarms.forEach(a=>{if(a.enabled&&a.time===c&&n.getSeconds()===0){playBeep();alert(`アラーム: ${a.time}`);if(Notification.permission==="granted")new Notification("アラーム",{body:`設定時刻 ${a.time} になりました。`,icon:getFaviconUrl(window.location.href)});}});}
+  function handleTabClick(e){document.querySelectorAll('.widget-tab, .widget-content').forEach(el=>el.classList.remove('active'));e.target.classList.add('active');document.getElementById(`widget-${e.target.dataset.tab}`).classList.add('active');}
+  let wheelTimeout;function handleWheelScroll(e){if(Math.abs(e.deltaX)>Math.abs(e.deltaY)){e.preventDefault();if(wheelTimeout)return;if(e.deltaX>20)changeGenre(data.currentGenreIndex+1);else if(e.deltaX<-20)changeGenre(data.currentGenreIndex-1);wheelTimeout=setTimeout(()=>{wheelTimeout=null;},300);}}
+  function handleAddTaskbar(){const g=data.genres[data.currentGenreIndex];if(!g||!g.sites.length)return alert('追加可能なサイトがありません');const n=prompt(`タスクバーに追加:\n`+g.sites.map(s=>s.name).join(', '));if(!n)return;const s=g.sites.find(s=>s.name.toLowerCase()===n.trim().toLowerCase());if(!s)return alert('サイトが見つかりません');if(data.taskbarSites.some(ts=>ts.id===s.id))return alert('既に追加済です');data.taskbarSites.push(JSON.parse(JSON.stringify(s)));renderTaskbar();saveData();}
+  function handleSearchFocus(){if(document.getElementById('google-search-input').value.trim()===''&&searchHistory.length>0)window.handleSuggestions(['',searchHistory]);}
+  function handleSearchInput(){clearTimeout(suggestionFetchTimer);const q=document.getElementById('google-search-input').value.trim();if(q)suggestionFetchTimer=setTimeout(()=>fetchSuggestions(q),300);else hideSuggestions();}
+  function handleSearchKeyDown(e){const i=document.getElementById('search-suggestions').querySelectorAll('.suggestion-item');if(!i.length||document.getElementById('search-suggestions').style.display==='none')return;if(e.key==='ArrowDown'){e.preventDefault();if(selectedSuggestionIndex<i.length-1)selectedSuggestionIndex++;}else if(e.key==='ArrowUp'){e.preventDefault();if(selectedSuggestionIndex>0)selectedSuggestionIndex--;}else if(e.key==='Enter'&&selectedSuggestionIndex>-1){e.preventDefault();i[selectedSuggestionIndex].click();return;}else{return;}i.forEach((item,index)=>item.classList.toggle('selected',index===selectedSuggestionIndex));if(selectedSuggestionIndex>-1)document.getElementById('google-search-input').value=i[selectedSuggestionIndex].querySelector('.text').textContent;}
+  function normalizeUrl(u){u=u.trim();if(!u)return'';if(!/^(https?:\/\/|mailto:)/i.test(u))u='https://'+u;return u;}
+  function getFaviconUrl(u){try{const p=new URL(u);return`https://www.google.com/s2/favicons?sz=64&domain=${p.hostname}`}catch{return''}}
+  function createSiteIcon(s){const d=document.createElement('div');d.className='site-icon';d.dataset.siteId=s.id;d.draggable=true;d.title=s.name;d.innerHTML=`<img src="${s.icon||getFaviconUrl(s.url)}" alt=""><div class="site-label">${s.name}</div><div class="delete-btn">×</div>`;
+  d.addEventListener('click', () => { window.location.href = s.url; }); // ★ 変更: タブ内遷移
+  d.querySelector('.delete-btn').onclick=e=>{e.stopPropagation();if(confirm(`「${s.name}」を削除しますか？`)){const g=data.genres[data.currentGenreIndex];g.sites=g.sites.filter(i=>i.id!==s.id);renderCurrentPage();saveData();}};d.ondragstart=e=>{draggedItem=d;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',s.id);setTimeout(()=>d.classList.add('dragging'),0);};d.ondragend=()=>{if(!draggedItem)return;draggedItem.classList.remove('dragging');draggedItem=null;const p=document.querySelector('.drag-placeholder');if(p)p.remove();};return d;}
   function handleDragOver(e){e.preventDefault();const p=e.currentTarget;if(!draggedItem)return;const a=getDragAfterElement(p,e.clientY);let h=p.querySelector('.drag-placeholder');if(!h){h=document.createElement('div');h.className='drag-placeholder';}if(a==null)p.appendChild(h);else p.insertBefore(h,a);}
-  function getDragAfterElement(c, y){const d=[...c.querySelectorAll('.site-icon:not(.dragging)')];return d.reduce((t,h)=>{const b=h.getBoundingClientRect(),o=y-b.top-b.height/2;if(o<0&&o>t.offset)return{offset:o,element:h};else return t},{offset:Number.NEGATIVE_INFINITY}).element;}
+  function getDragAfterElement(c,y){const d=[...c.querySelectorAll('.site-icon:not(.dragging)')];return d.reduce((t,h)=>{const b=h.getBoundingClientRect(),o=y-b.top-b.height/2;if(o<0&&o>t.offset)return{offset:o,element:h};else return t},{offset:Number.NEGATIVE_INFINITY}).element;}
   function handleDrop(e){e.preventDefault();const p=e.currentTarget,h=p.querySelector('.drag-placeholder');if(!h)return;const i=Number(e.dataTransfer.getData('text/plain')),g=data.genres[data.currentGenreIndex],x=g.sites.findIndex(s=>s.id===i);if(x===-1)return;const[s]=g.sites.splice(x,1),n=Array.from(p.children).indexOf(h);g.sites.splice(n,0,s);h.remove();renderCurrentPage();saveData();}
-  function renderTaskbar(getElement) { const taskbar=getElement('taskbar');[...taskbar.querySelectorAll('.task-icon')].forEach(e=>e.remove()); data.taskbarSites.forEach(s=>{const d=document.createElement('div');d.className='task-icon';d.title=s.name;d.style.backgroundImage=`url('${s.icon||getFaviconUrl(s.url)}')`;d.style.backgroundSize='cover';d.onclick=()=>window.open(s.url,'_blank');const b=document.createElement('div');b.className='delete-btn';b.textContent='×';b.onclick=e=>{e.stopPropagation();if(confirm(`タスクバーから「${s.name}」削除しますか？`)){data.taskbarSites=data.taskbarSites.filter(ts=>ts.id!==s.id);renderTaskbar(getElement);saveData();}};d.appendChild(b);taskbar.insertBefore(d,getElement('add-taskbar-btn'));});}
-  function renderCurrentPage() { const p=document.querySelector('.page-container')?.querySelector('.site-page');if(!p)return;p.innerHTML='';data.genres[data.currentGenreIndex]?.sites.forEach(s=>p.appendChild(createSiteIcon(s))); const b=document.createElement('div');b.id='add-site-btn';b.textContent='+';b.onclick=openAddSiteDialog;p.appendChild(b);}
-  function createPage(index) { const d=document.createElement('div');d.className='site-page';d.dataset.genreIndex=index;d.ondragover=handleDragOver;d.ondrop=handleDrop;const g=data.genres[index];if(g)g.sites.forEach(s=>d.appendChild(createSiteIcon(s)));const b=document.createElement('div');b.id='add-site-btn';b.textContent='+';b.onclick=openAddSiteDialog;d.appendChild(b);return d; }
-  function changeGenre(newIndex) { if(newIndex===data.currentGenreIndex||isAnimating||newIndex<0||newIndex>=data.genres.length)return;isAnimating=true;const o=data.currentGenreIndex,d=newIndex>o?1:-1,p=document.querySelector('.page-container').querySelector(`[data-genre-index="${o}"]`),n=createPage(newIndex);n.style.transform=`translateX(${d*100}%)`;document.querySelector('.page-container').appendChild(n);requestAnimationFrame(()=>{if(p)p.style.transform=`translateX(${-d*100}%)`;n.style.transform='translateX(0)';});document.getElementById('genre-title').textContent=data.genres[newIndex].name;data.currentGenreIndex=newIndex;updatePageIndicator();saveData();setTimeout(()=>{if(p&&p.parentNode)p.parentNode.removeChild(p);isAnimating=false;},500);}
-  function initPages(getElement) { const pageContainer=getElement('page-container');if(!pageContainer)return;pageContainer.innerHTML=''; if(data.genres.length===0){data.genres.push({id:Date.now(),name:'default',sites:[]});data.currentGenreIndex=0;} if(data.currentGenreIndex>=data.genres.length)data.currentGenreIndex=0; const p=createPage(data.currentGenreIndex); pageContainer.appendChild(p); getElement('genre-title').textContent=data.genres[data.currentGenreIndex]?.name||''; updatePageIndicator(); }
-  function updatePageIndicator() { const pageIndicator=document.getElementById('page-indicator');if(!pageIndicator)return;pageIndicator.innerHTML=''; data.genres.forEach((g,i)=>{const d=document.createElement('div');d.className=`indicator-dot ${i===data.currentGenreIndex?'active':''}`;d.title=g.name;d.onclick=()=>changeGenre(i);pageIndicator.appendChild(d);});}
-  function openAddSiteDialog() {const n=prompt('サイト名:');if(!n)return;const u=prompt('URL:');if(!u)return;data.genres[data.currentGenreIndex].sites.push({id:Date.now(),name:n,url:normalizeUrl(u),icon:''});renderCurrentPage();saveData();}
-  
-  function googleSearch(queryOverride) { let q=queryOverride||document.getElementById('google-search-input').value.trim();if(!q)return;addSearchHistory(q);if(q.includes('.')&&!q.includes(' ')){window.open(normalizeUrl(q),'_blank');}else{window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');}document.getElementById('google-search-input').value='';hideSuggestions(document.getElementById.bind(document));} window.googleSearch=googleSearch;
+  function renderTaskbar(){const t=document.getElementById('taskbar');[...t.querySelectorAll('.task-icon')].forEach(e=>e.remove());data.taskbarSites.forEach(s=>{const d=document.createElement('div');d.className='task-icon';d.title=s.name;d.style.backgroundImage=`url('${s.icon||getFaviconUrl(s.url)}')`;d.style.backgroundSize='cover';
+  d.addEventListener('click', () => { window.location.href = s.url; }); // ★ 変更: タブ内遷移
+  const b=document.createElement('div');b.className='delete-btn';b.textContent='×';b.onclick=e=>{e.stopPropagation();if(confirm(`タスクバーから「${s.name}」削除しますか？`)){data.taskbarSites=data.taskbarSites.filter(ts=>ts.id!==s.id);renderTaskbar();saveData();}};d.appendChild(b);t.insertBefore(d,document.getElementById('add-taskbar-btn'));});}
+  function renderCurrentPage(){const p=document.querySelector('.page-container')?.querySelector('.site-page');if(!p)return;p.innerHTML='';data.genres[data.currentGenreIndex]?.sites.forEach(s=>p.appendChild(createSiteIcon(s)));const b=document.createElement('div');b.id='add-site-btn';b.textContent='+';b.onclick=openAddSiteDialog;p.appendChild(b);}
+  function createPage(i){const d=document.createElement('div');d.className='site-page';d.dataset.genreIndex=i;d.ondragover=handleDragOver;d.ondrop=handleDrop;const g=data.genres[i];if(g)g.sites.forEach(s=>d.appendChild(createSiteIcon(s)));const b=document.createElement('div');b.id='add-site-btn';b.textContent='+';b.onclick=openAddSiteDialog;d.appendChild(b);return d;}
+  function changeGenre(i){if(i===data.currentGenreIndex||isAnimating||i<0||i>=data.genres.length)return;isAnimating=true;const o=data.currentGenreIndex,d=i>o?1:-1,p=document.querySelector('.page-container').querySelector(`[data-genre-index="${o}"]`),n=createPage(i);n.style.transform=`translateX(${d*100}%)`;document.querySelector('.page-container').appendChild(n);requestAnimationFrame(()=>{if(p)p.style.transform=`translateX(${-d*100}%)`;n.style.transform='translateX(0)';});document.getElementById('genre-title').textContent=data.genres[i].name;data.currentGenreIndex=i;updatePageIndicator();saveData();setTimeout(()=>{if(p&&p.parentNode)p.parentNode.removeChild(p);isAnimating=false;},500);}
+  function initPages(){const p=document.querySelector('.page-container');if(!p)return;p.innerHTML='';if(data.genres.length===0){data.genres.push({id:Date.now(),name:'default',sites:[]});data.currentGenreIndex=0;}if(data.currentGenreIndex>=data.genres.length||data.currentGenreIndex<0)data.currentGenreIndex=0;const i=createPage(data.currentGenreIndex);p.appendChild(i);document.getElementById('genre-title').textContent=data.genres[data.currentGenreIndex]?.name||'';updatePageIndicator();}
+  function updatePageIndicator(){const p=document.getElementById('page-indicator');if(!p)return;p.innerHTML='';data.genres.forEach((g,i)=>{const d=document.createElement('div');d.className=`indicator-dot ${i===data.currentGenreIndex?'active':''}`;d.title=g.name;d.onclick=()=>changeGenre(i);p.appendChild(d);});}
+  function openAddSiteDialog(){const n=prompt('サイト名:');if(!n)return;const u=prompt('URL:');if(!u)return;data.genres[data.currentGenreIndex].sites.push({id:Date.now(),name:n,url:normalizeUrl(u),icon:''});renderCurrentPage();saveData();}
+  function googleSearch(q){let v=q||document.getElementById('google-search-input').value.trim();if(!v)return;addSearchHistory(v);if(v.includes('.')&&!v.includes(' ')){window.location.href = normalizeUrl(v);}else{window.location.href = `https://www.google.com/search?q=${encodeURIComponent(v)}`;}document.getElementById('google-search-input').value='';hideSuggestions();} window.googleSearch=googleSearch; // ★ 変更: タブ内遷移
   function addSearchHistory(q){searchHistory=searchHistory.filter(i=>i!==q);searchHistory.unshift(q);if(searchHistory.length>MAX_HISTORY_COUNT)searchHistory.pop();saveSearchHistory();}
   function removeSearchHistory(q){searchHistory=searchHistory.filter(i=>i!==q);saveSearchHistory();}
-  function fetchSuggestions(q, getElement){const o=getElement('jsonp-script');if(o)o.remove();const s=document.createElement('script');s.id='jsonp-script';s.src=`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}&callback=window.handleSuggestions`;document.head.appendChild(s);}
-  window.handleSuggestions = (d) => { const getElement = document.getElementById.bind(document); const s=d[1],q=getElement('google-search-input').value.trim().toLowerCase(),h=searchHistory.filter(i=>i.toLowerCase().includes(q));getElement('search-suggestions').innerHTML='';const t=[];h.forEach(i=>t.push({type:'history',text:i}));s.forEach(i=>{if(!h.includes(i))t.push({type:'suggestion',text:i});}); if(t.length>0){t.forEach(item=>{const v=document.createElement('div');v.className='suggestion-item';v.innerHTML=`<span class="icon">${item.type==='history'?'🕒':'🔍'}</span><span class="text">${item.text}</span>${item.type==='history'?'<button class="remove-history">×</button>':''}`;v.onclick=e=>{if(e.target.classList.contains('remove-history')){e.stopPropagation();removeSearchHistory(item.text);getElement('google-search-input').dispatchEvent(new Event('input'));}else{getElement('google-search-input').value=item.text;googleSearch();}};getElement('search-suggestions').appendChild(v);});showSuggestions(getElement);}else hideSuggestions(getElement);const o=getElement('jsonp-script');if(o)o.remove();}
-  function showSuggestions(getElement){getElement('search-suggestions').style.display='block';selectedSuggestionIndex=-1;}
-  function hideSuggestions(getElement){getElement('search-suggestions').style.display='none';selectedSuggestionIndex=-1;}
+  function fetchSuggestions(q){const o=document.getElementById('jsonp-script');if(o)o.remove();const s=document.createElement('script');s.id='jsonp-script';s.src=`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}&callback=window.handleSuggestions`;document.head.appendChild(s);}
+  window.handleSuggestions=(d)=>{const s=d[1],q=document.getElementById('google-search-input').value.trim().toLowerCase(),h=searchHistory.filter(i=>i.toLowerCase().includes(q));document.getElementById('search-suggestions').innerHTML='';const t=[];h.forEach(i=>t.push({type:'history',text:i}));s.forEach(i=>{if(!h.includes(i))t.push({type:'suggestion',text:i});});if(t.length>0){t.forEach(item=>{const v=document.createElement('div');v.className='suggestion-item';v.innerHTML=`<span class="icon">${item.type==='history'?'🕒':'🔍'}</span><span class="text">${item.text}</span>${item.type==='history'?'<button class="remove-history">×</button>':''}`;v.onclick=e=>{if(e.target.classList.contains('remove-history')){e.stopPropagation();removeSearchHistory(item.text);document.getElementById('google-search-input').dispatchEvent(new Event('input'));}else{document.getElementById('google-search-input').value=item.text;googleSearch();}};document.getElementById('search-suggestions').appendChild(v);});showSuggestions();}else hideSuggestions();const o=document.getElementById('jsonp-script');if(o)o.remove();}
+  function showSuggestions(){document.getElementById('search-suggestions').style.display='block';selectedSuggestionIndex=-1;}
+  function hideSuggestions(){document.getElementById('search-suggestions').style.display='none';selectedSuggestionIndex=-1;}
+  function addGenre(){const n=document.getElementById('new-genre-name').value.trim();if(!n)return;if(data.genres.some(g=>g.name===n))return alert('同名ジャンルが存在します');data.genres.push({id:Date.now(),name:n,sites:[]});document.getElementById('new-genre-name').value='';renderGenresList();updatePageIndicator();saveData();}
+  function renderGenresList(){const l=document.querySelector('#hamburger-menu .genre-list');l.innerHTML='';data.genres.forEach((g)=>{const d=document.createElement('div');d.className='genre-list-item';d.textContent=g.name;d.draggable=true;d.dataset.genreId=g.id;d.addEventListener('dragstart',handleGenreDragStart);d.addEventListener('dragover',handleGenreDragOver);d.addEventListener('drop',handleGenreDrop);d.addEventListener('dragend',handleGenreDragEnd);const b=document.createElement('button');b.textContent='削除';b.onclick=()=>{if(data.genres.length<=1)return alert('最後のジャンルは削除できません');if(confirm(`「${g.name}」を削除しますか？`)){const i=data.genres.findIndex(genre=>genre.id===g.id);data.genres.splice(i,1);if(data.currentGenreIndex>=i)data.currentGenreIndex=Math.max(0,data.currentGenreIndex-1);renderGenresList();initPages();saveData();}};d.appendChild(b);l.appendChild(d);});}
+  function handleGenreDragStart(e){draggedGenre=e.target;setTimeout(()=>e.target.classList.add('dragging'),0);}
+  function handleGenreDragOver(e){e.preventDefault();const t=e.target.closest('.genre-list-item');if(t&&t!==draggedGenre){const r=t.getBoundingClientRect(),o=e.clientY-r.top-r.height/2;if(o<0){t.parentNode.insertBefore(draggedGenre,t);}else{t.parentNode.insertBefore(draggedGenre,t.nextSibling);}}}
+  function handleGenreDragEnd(e){if(draggedGenre)draggedGenre.classList.remove('dragging');draggedGenre=null;}
+  function handleGenreDrop(e){e.preventDefault();if(!draggedGenre)return;const n=[...document.querySelectorAll('#hamburger-menu .genre-list-item')].map(d=>d.dataset.genreId);const o=[];n.forEach(id=>{const g=data.genres.find(g=>g.id==id);if(g)o.push(g);});data.genres=o;if(data.genres[data.currentGenreIndex]){const cI=data.genres.findIndex(g=>g.id==data.genres[data.currentGenreIndex].id);if(cI!==-1)data.currentGenreIndex=cI;}else{data.currentGenreIndex=0;}saveData();updatePageIndicator();initPages();}
+  function loadImportData(){try{const d=JSON.parse(document.getElementById('import-data').value);if(d&&Array.isArray(d.genres)){data=d;saveData();alert('読込成功');location.reload();}else alert('無効な形式');}catch(e){alert('解析失敗');}}
+  function copyExportData(){const a=document.getElementById('export-data');a.select();navigator.clipboard.writeText(a.value).then(()=>alert('コピーしました'));}
+  function toggleMobileView(p){const panel=document.getElementById(p),other=document.getElementById(p==='left-panel'?'right-panel':'left-panel'),sitesBtn=document.getElementById('mobile-sites-btn'),widgetsBtn=document.getElementById('mobile-widgets-btn');if(panel.classList.contains('visible')){panel.classList.remove('visible');sitesBtn.classList.remove('active');widgetsBtn.classList.remove('active');}else{panel.classList.add('visible');other.classList.remove('visible');if(p==='left-panel'){sitesBtn.classList.add('active');widgetsBtn.classList.remove('active');}else{sitesBtn.classList.remove('active');widgetsBtn.classList.add('active');}}}
+
+  function initTaskbarWidgets() {
+    initWeather();
+    initBattery();
+    runSpeedTest();
+    setInterval(runSpeedTest, 10 * 60 * 1000);
+  }
   
-  function addGenre(getElement) {const n=getElement('new-genre-name').value.trim();if(!n)return;if(data.genres.some(g=>g.name===n))return alert('同名ジャンルが存在します');data.genres.push({id:Date.now(),name:n,sites:[]});getElement('new-genre-name').value='';renderGenresList(getElement, document.querySelector.bind(document));updatePageIndicator();saveData();}
-  function renderGenresList(getElement, query) { const genreList=query('#hamburger-menu .genre-list');genreList.innerHTML=''; data.genres.forEach((g,i)=>{const d=document.createElement('div');d.className='genre-list-item';d.textContent=g.name;const b=document.createElement('button');b.textContent='削除';b.onclick=()=>{if(data.genres.length<=1)return alert('最後のジャンルは削除できません');if(confirm(`「${g.name}」を削除しますか？`)){data.genres.splice(i,1);if(data.currentGenreIndex>=i)data.currentGenreIndex=Math.max(0,data.currentGenreIndex-1);renderGenresList(getElement, query);initPages(getElement);saveData();}};d.appendChild(b);genreList.appendChild(d);});}
-  function loadImportData(getElement) { try{const d=JSON.parse(getElement('import-data').value);if(d&&Array.isArray(d.genres)){data=d;saveData();alert('読込成功');location.reload();}else alert('無効な形式');}catch(e){alert('解析失敗');} }
-  function copyExportData(getElement) { const area = getElement('export-data'); area.select(); navigator.clipboard.writeText(area.value).then(()=>alert('コピーしました')); }
-
-  // ★ 追加: モバイルビューの切り替え
-  function toggleMobileView(panelId, getElement) {
-      const panel = getElement(panelId);
-      const otherPanelId = panelId === 'left-panel' ? 'right-panel' : 'left-panel';
-      const otherPanel = getElement(otherPanelId);
-      const sitesBtn = getElement('mobile-sites-btn');
-      const widgetsBtn = getElement('mobile-widgets-btn');
-
-      if (panel.classList.contains('visible')) {
-          panel.classList.remove('visible');
-          sitesBtn.classList.remove('active');
-          widgetsBtn.classList.remove('active');
-      } else {
-          panel.classList.add('visible');
-          otherPanel.classList.remove('visible');
-          if (panelId === 'left-panel') {
-              sitesBtn.classList.add('active');
-              widgetsBtn.classList.remove('active');
-          } else {
-              sitesBtn.classList.remove('active');
-              widgetsBtn.classList.add('active');
-          }
+  function toggleTheme() {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark');
+      document.getElementById('theme-toggle-btn').textContent = isLight ? '☀️' : '🌙';
+  }
+  function loadTheme() {
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (savedTheme === 'light') {
+          document.body.classList.add('light-mode');
+          document.getElementById('theme-toggle-btn').textContent = '☀️';
+      }
+  }
+  
+  async function runSpeedTest() {
+      const display = document.getElementById('speed-display');
+      display.textContent = '...';
+      const imageUrl = `https://via.placeholder.com/500x500.png?t=${Date.now()}`;
+      try {
+          const startTime = performance.now();
+          const response = await fetch(imageUrl, { cache: "no-store" });
+          const blob = await response.blob();
+          const fileSize = blob.size;
+          const endTime = performance.now();
+          const duration = (endTime - startTime) / 1000;
+          const speedBps = fileSize / duration;
+          const speedMbps = (speedBps * 8) / 1024 / 1024;
+          display.textContent = `${speedMbps.toFixed(2)} Mbps`;
+      } catch (e) {
+          display.textContent = 'Error';
       }
   }
 
-  initialize(); // スクリプトの最後に実行
+  function initWeather() {
+      const iconEl = document.getElementById('weather-icon');
+      const tempEl = document.getElementById('weather-temp');
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          try {
+              const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+              const weatherData = await res.json();
+              const { temperature, weathercode } = weatherData.current_weather;
+              iconEl.textContent = getWeatherIcon(weathercode);
+              tempEl.textContent = `${Math.round(temperature)}°C`;
+          } catch {
+              iconEl.textContent = '⚠️';
+          }
+      }, () => {
+          iconEl.textContent = '📍';
+          tempEl.textContent = '許可なし';
+      });
+  }
+  function getWeatherIcon(code) { const icons = {'0':'☀️','1':'🌤️','2':'⛅️','3':'☁️','45':'🌫️','48':'🌫️','51':'🌦️','53':'🌦️','55':'🌦️','56':'🌨️','57':'🌨️','61':'🌧️','63':'🌧️','65':'🌧️','66':'🌨️','67':'🌨️','71':'❄️','73':'❄️','75':'❄️','77':'❄️','80':'⛈️','81':'⛈️','82':'⛈️','85':'🌨️','86':'🌨️','95':'⛈️','96':'⛈️','99':'⛈️'}; return icons[code] || '❓'; }
+
+  function initBattery() {
+      if ('getBattery' in navigator) {
+          navigator.getBattery().then(battery => {
+              document.getElementById('battery-widget').style.display = 'flex';
+              updateBatteryStatus(battery);
+              battery.addEventListener('levelchange', () => updateBatteryStatus(battery));
+              battery.addEventListener('chargingchange', () => updateBatteryStatus(battery));
+          });
+      }
+  }
+  function updateBatteryStatus(battery) {
+      const level = Math.floor(battery.level * 100);
+      const iconEl = document.getElementById('battery-icon');
+      const levelEl = document.getElementById('battery-level');
+      levelEl.textContent = `${level}%`;
+      if (battery.charging) {
+          iconEl.textContent = '⚡️';
+      } else if (level < 20) {
+          iconEl.textContent = '⚠️';
+      } else {
+          iconEl.textContent = '🔋';
+      }
+  }
+
+  initialize();
 })();
 </script>
 
