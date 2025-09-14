@@ -9,31 +9,29 @@
 
         /* --- 全体 --- */
         :root {
-            --bg-main: #121212;
-            --bg-panel: #1e1e1e;
-            --bg-widget: #252526;
-            --bg-interactive: #3c3c3c;
-            --bg-hover: #4a4a4a;
+            --bg-panel: rgba(30, 30, 30, 0.75);
+            --bg-widget: rgba(37, 37, 38, 0.8);
+            --bg-interactive: rgba(60, 60, 60, 0.8);
+            --bg-hover: rgba(74, 74, 74, 0.8);
             --text-main: #e0e0e0;
             --text-subdued: #cccccc;
             --accent-red: #e53935;
             --accent-blue: #2196F3;
             --font-family: 'Roboto Slab', serif;
-            --left-panel-bg-image: none;
-            --border-color: #333;
+            --body-bg-image: none;
+            --border-color: rgba(255, 255, 255, 0.1);
             --shadow-color-heavy: rgba(0, 0, 0, 0.7);
             --shadow-color-light: rgba(0, 0, 0, 0.5);
         }
 
         body.light-mode {
-            --bg-main: #f0f2f5;
-            --bg-panel: #ffffff;
-            --bg-widget: #fdfdfd;
-            --bg-interactive: #e4e6eb;
-            --bg-hover: #d8dadf;
+            --bg-panel: rgba(255, 255, 255, 0.75);
+            --bg-widget: rgba(245, 245, 245, 0.8);
+            --bg-interactive: rgba(228, 230, 235, 0.8);
+            --bg-hover: rgba(216, 218, 223, 0.8);
             --text-main: #050505;
             --text-subdued: #65676b;
-            --border-color: #ddd;
+            --border-color: rgba(0, 0, 0, 0.1);
             --shadow-color-heavy: rgba(0, 0, 0, 0.15);
             --shadow-color-light: rgba(0, 0, 0, 0.1);
         }
@@ -41,20 +39,47 @@
         body {
             margin: 0;
             font-family: var(--font-family);
-            background-color: var(--bg-main);
+            background-color: #121212;
             color: var(--text-main);
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
             user-select: none;
-            transition: background-color 0.3s, color 0.3s;
+            transition: color 0.3s;
         }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: var(--body-bg-image);
+            background-size: cover;
+            background-position: center;
+            filter: blur(4px);
+            transform: scale(1.05);
+            z-index: -2;
+            transition: background-image 0.5s;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+        }
+        
+        body.light-mode::after {
+             background-color: rgba(255, 255, 255, 0.1);
+        }
+
 
         /* --- タスクバー --- */
         #taskbar {
             height: 50px;
             background: var(--bg-widget);
+            backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             padding: 0 12px;
@@ -197,12 +222,14 @@
         /* --- 検索バーエリア --- */
         #search-area {
             background: var(--bg-widget);
+            backdrop-filter: blur(10px);
             padding: 10px 20px;
             box-sizing: border-box;
             position: relative;
             z-index: 10;
             flex-shrink: 0;
             transition: background-color 0.3s;
+            border-bottom: 1px solid var(--border-color);
         }
 
         #google-search {
@@ -221,7 +248,7 @@
             border: 1px solid var(--border-color);
             box-sizing: border-box;
             outline: none;
-            background: var(--bg-main);
+            background: var(--bg-panel);
             color: var(--text-main);
             transition: all 0.3s;
         }
@@ -303,41 +330,15 @@
         #left-panel {
             flex: 1.3;
             background: var(--bg-panel);
+            backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
             position: relative;
             user-select: none;
             min-width: 420px;
             transition: background-color 0.3s;
-            overflow: hidden; /* For pseudo-elements */
+            border-right: 1px solid var(--border-color);
         }
-
-        #left-panel::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: var(--left-panel-bg-image);
-            background-size: cover;
-            background-position: center;
-            filter: blur(4px);
-            transform: scale(1.05); /* ぼかしの端を隠す */
-            z-index: 1;
-            transition: background-image 0.5s;
-        }
-
-        #left-panel::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 2;
-        }
-        
-        #genre-title, #site-pages, #page-left-btn, #page-right-btn, #page-indicator {
-            position: relative;
-            z-index: 3;
-        }
-
 
         #genre-title {
             font-size: clamp(1.5rem, 4vw, 2rem);
@@ -349,6 +350,7 @@
             user-select: none;
             transition: all 0.3s;
             text-shadow: 0 2px 4px var(--shadow-color-heavy);
+            flex-shrink: 0;
         }
 
         #page-left-btn, #page-right-btn {
@@ -440,8 +442,7 @@
             width: 80px;
             height: 80px;
             border-radius: 14px;
-            background: rgba(30, 30, 30, 0.7);
-            backdrop-filter: blur(5px);
+            background: rgba(30, 30, 30, 0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -457,7 +458,7 @@
         }
 
         body.light-mode .site-icon {
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.5);
         }
         
         .site-icon.dragging {
@@ -547,7 +548,8 @@
         /* --- 右パネル --- */
         #right-panel {
             flex: 0.75;
-            background: var(--bg-main);
+            background: var(--bg-panel);
+            backdrop-filter: blur(10px);
             padding: 20px;
             box-sizing: border-box;
             color: var(--text-subdued);
@@ -664,7 +666,7 @@
         }
 
         .widget-input {
-            background: var(--bg-main);
+            background: var(--bg-panel);
             border: 1px solid var(--border-color);
             color: var(--text-main);
             padding: 8px;
@@ -706,6 +708,7 @@
             width: 300px;
             height: calc(100vh - 50px);
             background: var(--bg-widget);
+            backdrop-filter: blur(10px);
             border-right: 1px solid var(--border-color);
             box-shadow: 2px 0 8px var(--shadow-color-heavy);
             transform: translateX(-100%);
@@ -713,12 +716,18 @@
             padding: 15px 16px;
             box-sizing: border-box;
             color: var(--text-main);
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
             z-index: 100;
         }
 
         #hamburger-menu.open {
             transform: translateX(0);
+        }
+        
+        #hamburger-menu-content {
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
         #hamburger-menu h2 {
@@ -736,7 +745,7 @@
         #hamburger-menu textarea {
             width: 100%;
             height: 120px;
-            background: var(--bg-main);
+            background: var(--bg-panel);
             color: var(--text-main);
             border: 1px solid var(--border-color);
             border-radius: 6px;
@@ -769,7 +778,7 @@
         }
 
         #hamburger-menu input[type="text"] {
-            background: var(--bg-main);
+            background: var(--bg-panel);
             color: var(--text-main);
             border: 1px solid var(--border-color);
             padding: 8px;
@@ -786,7 +795,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--bg-main);
+            background: var(--bg-panel);
             padding: 8px 12px;
             border-radius: 6px;
             margin-bottom: 6px;
@@ -812,6 +821,15 @@
 
         .genre-list-item button:hover {
             background: #b71c1c;
+        }
+        
+        #hamburger-menu .copyright {
+            flex-shrink: 0;
+            padding-top: 15px;
+            margin-top: auto;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-subdued);
         }
 
     </style>
@@ -855,7 +873,7 @@
     <script>
         ( () => {
             // === 初期状態と定数 ===
-            const STORAGE_KEY = 'startpage-data-v10'; // バージョンアップ
+            const STORAGE_KEY = 'startpage-data-v11'; // バージョンアップ
             const HISTORY_KEY = 'startpage-search-history';
             const THEME_KEY = 'startpage-theme';
             const BG_IMAGE_KEY = 'startpage-bg-image';
@@ -892,28 +910,31 @@
                 mainContainer.insertAdjacentHTML('beforeend', rightPanelHTML);
 
                 document.getElementById('hamburger-menu').innerHTML = `
-                    <h2>設定</h2>
-                    <label for="new-genre-name">ジャンル追加</label>
-                    <input type="text" id="new-genre-name" placeholder="ジャンル名を入力" />
-                    <button id="add-genre-btn">追加</button>
-                    <div class="genre-list"></div>
-                    
-                    <label for="bg-image-url">左パネル背景画像</label>
-                    <input type="text" id="bg-image-url" placeholder="画像のURLを入力" />
-                    <input type="file" id="bg-image-file" accept="image/*" style="display: none;" />
-                    <div class="button-group">
-                        <button id="set-bg-url-btn">URLを設定</button>
-                        <button id="set-bg-file-btn">ファイルを選択</button>
-                        <button id="clear-bg-btn">クリア</button>
-                    </div>
+                    <div id="hamburger-menu-content">
+                        <h2>設定</h2>
+                        <label for="new-genre-name">ジャンル追加</label>
+                        <input type="text" id="new-genre-name" placeholder="ジャンル名を入力" />
+                        <button id="add-genre-btn">追加</button>
+                        <div class="genre-list"></div>
+                        
+                        <label for="bg-image-url">全体背景画像</label>
+                        <input type="text" id="bg-image-url" placeholder="画像のURLを入力" />
+                        <input type="file" id="bg-image-file" accept="image/*" style="display: none;" />
+                        <div class="button-group">
+                            <button id="set-bg-url-btn">URLを設定</button>
+                            <button id="set-bg-file-btn">ファイルを選択</button>
+                            <button id="clear-bg-btn">クリア</button>
+                        </div>
 
-                    <label for="import-data">データインポート・エクスポート</label>
-                    <textarea id="import-data"></textarea>
-                    <div class="button-group">
-                        <button id="load-import-btn">読み込み</button>
-                        <button id="copy-export-btn">コピー</button>
+                        <label for="import-data">データインポート・エクスポート</label>
+                        <textarea id="import-data"></textarea>
+                        <div class="button-group">
+                            <button id="load-import-btn">読み込み</button>
+                            <button id="copy-export-btn">コピー</button>
+                        </div>
+                        <textarea id="export-data" readonly></textarea>
                     </div>
-                    <textarea id="export-data" readonly></textarea>
+                    <div class="copyright">© 底原 永和</div>
                 `;
                 document.getElementById('widget-timer').innerHTML = `<div class="widget-container"><div id="timer-display" class="widget-display">00:00</div><div><input type="number" id="timer-minutes" class="widget-input" min="0" max="99" placeholder="分"><input type="number" id="timer-seconds" class="widget-input" min="0" max="59" placeholder="秒"></div><div class="widget-controls" style="margin-top: 15px;"><button id="timer-start">スタート</button><button id="timer-stop">ストップ</button><button id="timer-reset">リセット</button></div></div>`;
                 document.getElementById('widget-stopwatch').innerHTML = `<div class="widget-container"><div id="stopwatch-display" class="widget-display">00:00.00</div><div class="widget-controls"><button id="stopwatch-start">スタート</button><button id="stopwatch-stop">ストップ</button><button id="stopwatch-lap">ラップ</button><button id="stopwatch-reset">リセット</button></div><ul id="lap-list"></ul></div>`;
@@ -924,7 +945,7 @@
                 setupEventListeners();
                 loadData();
                 loadTheme();
-                loadLeftPanelBackground();
+                loadBodyBackground();
                 renderAll();
                 initTaskbarWidgets();
                 setInterval(updateTime, 1000);
@@ -972,18 +993,18 @@
                 // 背景画像設定イベント
                 document.getElementById('set-bg-url-btn').onclick = () => {
                     const url = document.getElementById('bg-image-url').value.trim();
-                    setLeftPanelBackground(url);
+                    setBodyBackground(url);
                 };
                 document.getElementById('set-bg-file-btn').onclick = () => document.getElementById('bg-image-file').click();
                 document.getElementById('bg-image-file').onchange = (e) => {
                     const file = e.target.files[0];
                     if (file) {
                         const reader = new FileReader();
-                        reader.onload = (event) => setLeftPanelBackground(event.target.result);
+                        reader.onload = (event) => setBodyBackground(event.target.result);
                         reader.readAsDataURL(file);
                     }
                 };
-                document.getElementById('clear-bg-btn').onclick = () => setLeftPanelBackground('none');
+                document.getElementById('clear-bg-btn').onclick = () => setBodyBackground('none');
             }
 
             function loadData() {
@@ -1507,16 +1528,16 @@
                 }
             }
             
-            function setLeftPanelBackground(imageUrl) {
+            function setBodyBackground(imageUrl) {
                 const url = (imageUrl === 'none' || !imageUrl) ? 'none' : `url(${imageUrl})`;
-                document.documentElement.style.setProperty('--left-panel-bg-image', url);
+                document.documentElement.style.setProperty('--body-bg-image', url);
                 localStorage.setItem(BG_IMAGE_KEY, imageUrl || 'none');
             }
 
-            function loadLeftPanelBackground() {
+            function loadBodyBackground() {
                 const savedBg = localStorage.getItem(BG_IMAGE_KEY);
                 if (savedBg) {
-                    setLeftPanelBackground(savedBg);
+                    setBodyBackground(savedBg);
                 }
             }
 
