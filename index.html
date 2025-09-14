@@ -1,523 +1,1688 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>スタートメニュー風サイト（拡張版）</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap');
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>スタートメニュー風サイト（拡張版）</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap'); /* --- 全体 --- */
+        :root {
+            --bg-main: #121212;
+            --bg-panel: #1f1f1f;
+            --bg-widget: #222;
+            --bg-interactive: #444;
+            --bg-hover: #666;
+            --text-main: #eee;
+            --text-subdued: #ccc;
+            --accent-red: #e53935;
+            --accent-blue: #2196F3;
+            --font-family: 'Roboto Slab', serif;
+        }
 
-  /* --- 全体 --- */
-  :root {
-    --bg-main: #121212;
-    --bg-panel: #1f1f1f;
-    --bg-widget: #222;
-    --bg-interactive: #444;
-    --bg-hover: #666;
-    --text-main: #eee;
-    --text-subdued: #ccc;
-    --accent-red: #e53935;
-    --accent-blue: #2196F3;
-    --font-family: 'Roboto Slab', serif;
-  }
-  
-  body.light-mode {
-    --bg-main: #f0f2f5;
-    --bg-panel: #ffffff;
-    --bg-widget: #fdfdfd;
-    --bg-interactive: #e4e6eb;
-    --bg-hover: #d8dadf;
-    --text-main: #050505;
-    --text-subdued: #65676b;
-  }
-  
-  body {
-    margin: 0;
-    font-family: var(--font-family);
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-    user-select: none;
-    transition: background-color 0.3s, color 0.3s;
-  }
+        body.light-mode {
+            --bg-main: #f0f2f5;
+            --bg-panel: #ffffff;
+            --bg-widget: #fdfdfd;
+            --bg-interactive: #e4e6eb;
+            --bg-hover: #d8dadf;
+            --text-main: #050505;
+            --text-subdued: #65676b;
+        }
 
-  /* --- タスクバー --- */
-  #taskbar {
-    height: 50px;
-    background: var(--bg-widget);
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    gap: 8px;
-    border-bottom: 1px solid var(--bg-interactive);
-    position: relative;
-    flex-shrink: 0;
-    transition: background-color 0.3s, border-color 0.3s;
-  }
-  #taskbar .task-icon, #taskbar #add-taskbar-btn {
-    width: 38px; height: 38px; border-radius: 8px; background: var(--bg-interactive);
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
-    user-select: none; transition: background-color 0.25s; color: var(--text-main);
-    font-weight: 600; font-size: 24px; position: relative; overflow: hidden; flex-shrink: 0;
-  }
-  #taskbar .task-icon:hover, #taskbar #add-taskbar-btn:hover { background: var(--bg-hover); }
-  #taskbar .task-icon .delete-btn { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; background: var(--accent-red); color: white; font-weight: bold; font-size: 14px; border-radius: 50%; line-height: 18px; text-align: center; cursor: pointer; user-select: none; display: none; transition: background-color 0.3s; }
-  #taskbar .task-icon:hover .delete-btn { display: block; }
-  
-  #taskbar-widgets {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-size: 0.9rem;
-    padding-right: 10px;
-  }
-  .taskbar-widget { display: flex; align-items: center; gap: 8px; }
-  .taskbar-widget button { background: none; border: none; color: var(--text-main); cursor: pointer; font-size: 1.2rem; padding: 5px; border-radius: 4px; display: flex; align-items: center; }
-  .taskbar-widget button:hover { background-color: var(--bg-hover); }
-  #battery-widget { display: none; }
-  #theme-toggle-btn { font-size: 1.4rem; }
+        body {
+            margin: 0;
+            font-family: var(--font-family);
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
 
-  /* --- ハンバーガーボタン --- */
-  #hamburger-btn { width: 38px; height: 38px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-around; padding: 7px; box-sizing: border-box; margin-right: 12px; }
-  #hamburger-btn div { background: var(--text-main); height: 4px; border-radius: 2px; }
+        /* --- タスクバー --- */
+        #taskbar {
+            height: 50px;
+            background: var(--bg-widget);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 8px;
+            border-bottom: 1px solid var(--bg-interactive);
+            position: relative;
+            flex-shrink: 0;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
 
-  /* --- 検索バーエリア --- */
-  #search-area { background: var(--bg-widget); padding: 10px 20px; box-sizing: border-box; position: relative; z-index: 10; flex-shrink: 0; transition: background-color 0.3s; }
-  #google-search { width: 100%; max-width: 800px; margin: 0 auto; display: flex; position: relative; }
-  #google-search-input { flex-grow: 1; padding: 12px 20px; font-size: 16px; border-radius: 24px; border: 1px solid #555; box-sizing: border-box; outline: none; background: #333; color: var(--text-main); transition: all 0.3s; }
-  body.light-mode #google-search-input { background: #e4e6eb; border-color: #ced0d4; }
-  #google-search-input:focus { background-color: var(--bg-interactive); border-color: #777; }
-  #google-search button { display: none; }
-  #search-suggestions { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #333; border: 1px solid #555; border-top: none; border-radius: 0 0 24px 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); overflow: hidden; }
-  body.light-mode #search-suggestions { background: #fff; }
-  .suggestion-item { display: flex; align-items: center; padding: 10px 20px; cursor: pointer; color: var(--text-main); font-size: 15px; }
-  .suggestion-item:hover, .suggestion-item.selected { background-color: var(--bg-interactive); }
-  .suggestion-item .icon { margin-right: 15px; width: 20px; text-align: center; color: #aaa; }
-  .suggestion-item .text { flex-grow: 1; }
-  .suggestion-item .remove-history { background: none; border: none; color: #aaa; cursor: pointer; font-size: 16px; padding: 2px 5px; }
-  .suggestion-item .remove-history:hover { color: #fff; }
+        #taskbar .task-icon, #taskbar #add-taskbar-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: var(--bg-interactive);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.25s;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 24px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
 
-  /* --- メイン領域 --- */
-  #main { flex: 1; display: flex; height: calc(100vh - 50px - 62px); overflow: hidden; }
+        #taskbar .task-icon:hover, #taskbar #add-taskbar-btn:hover {
+            background: var(--bg-hover);
+        }
 
-  /* --- 左パネル --- */
-  #left-panel { flex: 1.3; background: var(--bg-panel); display: flex; flex-direction: column; position: relative; user-select: none; min-width: 420px; transition: background-color 0.3s; }
-  #genre-title { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; color: var(--text-main); text-align: center; padding: 16px 0; border-bottom: 1px solid var(--bg-interactive); user-select: none; transition: all 0.3s; }
-  #page-left-btn, #page-right-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: var(--bg-interactive); color: var(--text-main); border-radius: 8px; font-size: 24px; line-height: 36px; text-align: center; user-select: none; cursor: pointer; z-index: 10; transition: background-color 0.3s; }
-  #page-left-btn:hover, #page-right-btn:hover { background: var(--bg-hover); }
-  #page-left-btn { left: 10px; } #page-right-btn { right: 10px; }
-  #page-indicator { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; user-select: none; }
-  .indicator-dot { width: 12px; height: 12px; border-radius: 50%; background: #555; cursor: pointer; transition: background-color 0.3s; }
-  body.light-mode .indicator-dot { background: #ccc; }
-  .indicator-dot.active { background: var(--text-main); }
-  #site-pages { flex: 1; position: relative; overflow: hidden; }
-  .page-container { display: flex; height: 100%; position: relative; }
-  .site-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-panel); padding: 20px clamp(10px, 5vw, 60px); box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 18px; justify-content: flex-start; align-content: flex-start; overflow-y: auto; transition: transform 0.5s ease, background-color 0.3s; will-change: transform; }
-  .site-icon { width: 80px; height: 80px; border-radius: 14px; background: var(--bg-interactive); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-subdued); font-size: 14px; text-align: center; cursor: grab; user-select: none; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.7); transition: all 0.3s; }
-  body.light-mode .site-icon { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-  .site-icon.dragging { opacity: 0.4; cursor: grabbing; box-shadow: 0 6px 15px rgba(0,0,0,0.9); }
-  .drag-placeholder { width: 80px; height: 80px; border-radius: 14px; background: rgba(128,128,128, 0.1); border: 2px dashed #888; box-sizing: border-box; }
-  .site-icon img { width: 44px; height: 44px; margin-bottom: 8px; border-radius: 12px; object-fit: cover; box-shadow: 0 1px 3px rgba(0,0,0,0.7); pointer-events: none; }
-  .site-icon .site-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 78px; pointer-events: none; }
-  .site-icon .delete-btn { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; background: var(--accent-red); color: white; font-weight: bold; font-size: 16px; border-radius: 50%; line-height: 20px; text-align: center; cursor: pointer; user-select: none; display: none; transition: background-color 0.3s; z-index: 5; }
-  .site-icon:hover { background-color: #555; box-shadow: 0 4px 12px rgba(255,255,255,0.2); }
-  body.light-mode .site-icon:hover { background-color: var(--bg-hover); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-  .site-icon:hover .delete-btn { display: block; }
-  #add-site-btn { width: 80px; height: 80px; border-radius: 14px; background: #ddd; color: #333; font-size: 48px; display: flex; justify-content: center; align-items: center; cursor: pointer; user-select: none; box-shadow: 0 3px 8px rgba(0,0,0,0.5); transition: all 0.3s; }
-  #add-site-btn:hover { background: #fff; box-shadow: 0 6px 14px rgba(0,0,0,0.7); }
+        #taskbar .task-icon .delete-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-red);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 50%;
+            line-height: 18px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            display: none;
+            transition: background-color 0.3s;
+        }
 
-  /* --- 右パネル --- */
-  #right-panel { flex: 0.75; background: #181818; padding: 20px; box-sizing: border-box; color: var(--text-subdued); display: flex; flex-direction: column; user-select: none; min-width: 380px; transition: background-color 0.3s; }
-  body.light-mode #right-panel { background: #f0f2f5; }
-  #widget-area { flex-grow: 1; display: flex; flex-direction: column; min-height: 0; }
-  #widget-tabs { display: flex; border-bottom: 1px solid var(--bg-interactive); margin-bottom: 15px; flex-shrink: 0; transition: border-color 0.3s;}
-  .widget-tab { padding: 8px 15px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; color: #aaa; font-weight: 600; }
-  .widget-tab.active, .widget-tab:hover { color: var(--text-main); border-bottom-color: var(--text-main); }
-  .widget-content { display: none; flex-direction: column; align-items: center; flex-grow: 1; overflow: hidden; }
-  .widget-content.active { display: flex; }
-  .calendar-widget { width: 100%; background: var(--bg-widget); border-radius: 8px; padding: 12px; box-sizing: border-box; margin-bottom: 10px; flex-shrink: 0; transition: background-color 0.3s; }
-  .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 0 5px 10px; font-size: 1.1rem; font-weight: bold; }
-  .calendar-header button { background: none; border: none; color: var(--text-main); cursor: pointer; font-size: 1.2rem; padding: 5px 10px; border-radius: 4px; }
-  .calendar-header button:hover { background-color: #555; }
-  .calendar-table-container table { width: 100%; border-collapse: collapse; color: var(--text-subdued); }
-  .calendar-table-container th, .calendar-table-container td { text-align: center; border-radius: 50%; font-weight: 600; cursor: pointer; position: relative; transition: background-color 0.2s; }
-  #right-panel-calendar td, #right-panel-calendar th { padding: 4px; font-size: 0.9em; }
-  .calendar-table-container td:hover { background-color: #555; }
-  body.light-mode .calendar-table-container td:hover { background-color: var(--bg-hover); }
-  .calendar-table-container th { color: var(--text-main); }
-  .calendar-table-container td.today { background: var(--bg-interactive); color: var(--text-main); font-weight: 700; }
-  .calendar-table-container td.has-event::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background-color: var(--accent-red); }
-  #monthly-event-display { width: 100%; background: var(--bg-widget); border-radius: 8px; padding: 12px; box-sizing: border-box; flex-grow: 1; min-height: 0; display: flex; flex-direction: column; transition: background-color 0.3s; }
-  #monthly-event-display h4 { margin: 0 0 8px; flex-shrink: 0; }
-  #monthly-event-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; }
-  #monthly-event-list li { display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; border-bottom: 1px solid #333; font-size: 0.9rem; }
-  body.light-mode #monthly-event-list li { border-bottom-color: var(--bg-interactive); }
-  #monthly-event-list li .date-tag { font-weight: bold; margin-right: 10px; }
-  #monthly-event-list li .event-text { flex-grow: 1; }
-  #monthly-event-list li:last-child { border: none; }
-  #monthly-event-list button { background: none; border: none; color: var(--accent-red); cursor: pointer; font-size: 1.1rem; padding: 0 5px; }
+        #taskbar .task-icon:hover .delete-btn {
+            display: block;
+        }
 
-  #clock-area { flex-shrink: 0; padding-top: 15px; text-align: center; border-top: 1px solid #333; transition: border-color 0.3s; }
-  body.light-mode #clock-area { border-top-color: var(--bg-interactive); }
-  #clock { font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 700; letter-spacing: 2px; font-family: 'Courier New', Courier, monospace; }
-  #date { margin-top: 10px; font-size: clamp(1rem, 3vw, 1.3rem); }
-  .widget-container { width: 100%; text-align: center; background: var(--bg-widget); border-radius: 8px; padding: 20px; box-sizing: border-box; transition: background-color 0.3s; }
-  .widget-display { font-size: 3rem; font-family: 'Courier New', Courier, monospace; margin-bottom: 20px; }
-  .widget-controls button { background: var(--bg-interactive); border: none; color: var(--text-main); padding: 10px 20px; margin: 0 5px; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
-  .widget-controls button:hover { background: var(--bg-hover); }
-  .widget-input { background: #333; border: 1px solid #555; color: var(--text-main); padding: 8px; border-radius: 6px; width: 60px; text-align: center; font-size: 1rem; transition: all 0.3s;}
-  body.light-mode .widget-input { background: var(--bg-interactive); border-color: #ccc; }
-  #lap-list, #alarm-list { list-style: none; padding: 0; margin-top: 20px; max-height: 200px; overflow-y: auto; text-align: left; }
-  #lap-list li, #alarm-list li { padding: 8px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
-  body.light-mode #lap-list li, body.light-mode #alarm-list li { border-bottom-color: var(--bg-interactive); }
+        #taskbar-widgets {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.9rem;
+            padding-right: 10px;
+        }
 
-  /* カレンダーモーダル */
-  #calendar-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); z-index: 200; display: none; justify-content: center; align-items: center; }
-  #calendar-modal-content { width: 95%; max-width: 1000px; height: 90%; max-height: 800px; background-color: #181818; border-radius: 12px; padding: 20px; box-sizing: border-box; position: relative; display: flex; flex-direction: column; }
-  body.light-mode #calendar-modal-content { background: var(--bg-panel); }
-  #modal-close-btn { position: absolute; top: 10px; right: 20px; background: none; border: none; color: var(--text-main); font-size: 2rem; cursor: pointer; }
-  #modal-calendar-widget { flex-grow: 1; display: flex; flex-direction: column; }
-  #modal-calendar-widget .calendar-widget { flex-grow: 1; display: flex; flex-direction: column; }
-  #modal-calendar-widget .calendar-table-container { flex-grow: 1; }
-  #modal-calendar-widget .calendar-table-container table { height: 100%; }
-  #modal-calendar td { vertical-align: top; padding: 4px; border: 1px solid #333; transition: background-color 0.2s; }
-  body.light-mode #modal-calendar td { border-color: var(--bg-interactive); }
-  #modal-calendar td.has-event { background-color: rgba(33, 150, 243, 0.2); }
-  #modal-calendar .date-number { font-weight: bold; text-align: right; margin-bottom: 3px; }
-  #modal-calendar ul.modal-event-list { list-style: none; padding: 0; margin: 0; text-align: left; font-size: 11px; }
-  #modal-calendar ul.modal-event-list li { background-color: var(--accent-blue); color: #fff; border-radius: 3px; padding: 2px 4px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .taskbar-widget {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-  /* ハンバーガーメニュー */
-  #hamburger-menu { position: fixed; top: 50px; left: 0; width: 280px; height: calc(100vh - 50px); background: var(--bg-widget); border-right: 1px solid #333; box-shadow: 2px 0 8px rgba(0,0,0,0.8); transform: translateX(-300px); transition: transform 0.3s ease; padding: 15px 16px; box-sizing: border-box; color: var(--text-main); overflow-y: auto; z-index: 100; }
-  #hamburger-menu.open { transform: translateX(0); }
-  #hamburger-menu h2 { margin: 0 0 14px; font-weight: 700; font-size: 1.5rem; }
-  #hamburger-menu label { display: block; margin: 12px 0 6px; font-weight: 600; }
-  #hamburger-menu textarea { width: 100%; height: 120px; background: #333; color: var(--text-main); border: none; border-radius: 6px; padding: 8px; box-sizing: border-box; font-family: monospace; resize: vertical; }
-  #hamburger-menu button { margin-top: 10px; background: #ddd; border: none; color: #333; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; transition: background-color 0.3s; }
-  #hamburger-menu button:hover { background: #fff; }
-  #hamburger-menu input[type="text"] { background: var(--bg-interactive); color: white; border: none; padding: 8px; border-radius: 6px; width: 100%; box-sizing: border-box; }
-  .genre-list { margin-top: 10px; }
-  .genre-list-item { display: flex; justify-content: space-between; align-items: center; background: #333; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-weight: 600; cursor: grab; }
-  .genre-list-item.dragging { opacity: 0.5; }
-  .genre-list-item button { background: var(--accent-red); border: none; color: white; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: background-color 0.3s; }
-  .genre-list-item button:hover { background: #b71c1c; }
-  
-  /* モバイルナビゲーション */
-  #mobile-nav { display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background-color: var(--bg-widget); border-top: 1px solid var(--bg-interactive); z-index: 50; }
-  #mobile-nav .nav-buttons { display: flex; height: 100%; }
-  #mobile-nav button { flex: 1; background: none; border: none; border-top: 3px solid transparent; color: var(--text-subdued); font-size: 1rem; font-family: var(--font-family); font-weight: bold; transition: all 0.3s; }
-  #mobile-nav button.active { color: var(--text-main); border-top-color: var(--text-main); }
+        .taskbar-widget button {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
 
-  /* レスポンシブ対応 */
-  @media (max-width: 800px) {
-    #main { display: none; }
-    body > #left-panel, body > #right-panel {
-      position: fixed; top: 112px; left: 0;
-      width: 100%; height: calc(100% - 112px - 60px);
-      min-width: 0; transform: translateX(100%);
-      transition: transform 0.3s ease-in-out; z-index: 40;
-    }
-    body > #left-panel { transform: translateX(-100%); }
-    body > #left-panel.visible, body > #right-panel.visible { transform: translateX(0); }
-    #left-panel { overflow-y: auto; }
-    .site-page { padding: 20px; justify-content: center; }
-    #page-left-btn, #page-right-btn { display: none; }
-    #genre-title { font-size: 1.5rem; }
-    #mobile-nav { display: block; }
-    #taskbar-widgets { gap: 8px; font-size: 0.8rem; }
-    #speed-test-widget span:first-child, #weather-widget span:first-child, #battery-widget span:first-child { font-size: 1.2rem; }
-  }
+        .taskbar-widget button:hover {
+            background-color: var(--bg-hover);
+        }
 
-</style>
+        #battery-widget {
+            display: none;
+        }
+
+        #theme-toggle-btn {
+            font-size: 1.4rem;
+        }
+
+        /* --- ハンバーガーボタン --- */
+        #hamburger-btn {
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 7px;
+            box-sizing: border-box;
+            margin-right: 12px;
+        }
+
+        #hamburger-btn div {
+            background: var(--text-main);
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        /* --- 検索バーエリア --- */
+        #search-area {
+            background: var(--bg-widget);
+            padding: 10px 20px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 10;
+            flex-shrink: 0;
+            transition: background-color 0.3s;
+        }
+
+        #google-search {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            position: relative;
+        }
+
+        #google-search-input {
+            flex-grow: 1;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 24px;
+            border: 1px solid #555;
+            box-sizing: border-box;
+            outline: none;
+            background: #333;
+            color: var(--text-main);
+            transition: all 0.3s;
+        }
+
+        body.light-mode #google-search-input {
+            background: #e4e6eb;
+            border-color: #ced0d4;
+        }
+
+        #google-search-input:focus {
+            background-color: var(--bg-interactive);
+            border-color: #777;
+        }
+
+        #google-search button {
+            display: none;
+        }
+
+        #search-suggestions {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #333;
+            border: 1px solid #555;
+            border-top: none;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        body.light-mode #search-suggestions {
+            background: #fff;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 15px;
+        }
+
+        .suggestion-item:hover, .suggestion-item.selected {
+            background-color: var(--bg-interactive);
+        }
+
+        .suggestion-item .icon {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+            color: #aaa;
+        }
+
+        .suggestion-item .text {
+            flex-grow: 1;
+        }
+
+        .suggestion-item .remove-history {
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 5px;
+        }
+
+        .suggestion-item .remove-history:hover {
+            color: #fff;
+        }
+
+        /* --- メイン領域 --- */
+        #main {
+            flex: 1;
+            display: flex;
+            height: calc(100vh - 50px - 62px);
+            overflow: hidden;
+        }
+
+        /* --- 左パネル --- */
+        #left-panel {
+            flex: 1.3;
+            background: var(--bg-panel);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            user-select: none;
+            min-width: 420px;
+            transition: background-color 0.3s;
+            /* 背景画像用スタイル */
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* 左パネル背景用オーバーレイ */
+        #left-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
+            z-index: 0;
+        }
+        
+        /* 左パネルのコンテンツをオーバーレイより手前に表示 */
+        #left-panel > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        #genre-title {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 700;
+            color: var(--text-main);
+            text-align: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--bg-interactive);
+            user-select: none;
+            transition: all 0.3s;
+        }
+
+        #page-left-btn, #page-right-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            background: var(--bg-interactive);
+            color: var(--text-main);
+            border-radius: 8px;
+            font-size: 24px;
+            line-height: 36px;
+            text-align: center;
+            user-select: none;
+            cursor: pointer;
+            z-index: 10;
+            transition: background-color 0.3s;
+        }
+
+        #page-left-btn:hover, #page-right-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        #page-left-btn {
+            left: 10px;
+        }
+
+        #page-right-btn {
+            right: 10px;
+        }
+
+        #page-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            user-select: none;
+        }
+
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #555;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        body.light-mode .indicator-dot {
+            background: #ccc;
+        }
+
+        .indicator-dot.active {
+            background: var(--text-main);
+        }
+
+        #site-pages {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-container {
+            display: flex;
+            height: 100%;
+            position: relative;
+        }
+
+        .site-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 背景は親パネルで設定するため透明に */
+            background: transparent;
+            padding: 20px clamp(10px, 5vw, 60px);
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: flex-start;
+            align-content: flex-start;
+            overflow-y: auto;
+            transition: transform 0.5s ease, background-color 0.3s;
+            will-change: transform;
+        }
+
+        .site-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 14px;
+            background: var(--bg-interactive);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-subdued);
+            font-size: 14px;
+            text-align: center;
+            cursor: grab;
+            user-select: none;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.7);
+            transition: all 0.3s;
+        }
+
+        body.light-mode .site-icon {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .site-icon.dragging {
+            opacity: 0.4;
+            cursor: grabbing;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.9);
+        }
+
+        .drag-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 14px;
+            background: rgba(128,128,128, 0.1);
+            border: 2px dashed #888;
+            box-sizing: border-box;
+        }
+
+        .site-icon img {
+            width: 44px;
+            height: 44px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.7);
+            pointer-events: none;
+        }
+
+        .site-icon .site-label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 78px;
+            pointer-events: none;
+        }
+
+        .site-icon .delete-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-red);
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 50%;
+            line-height: 20px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            display: none;
+            transition: background-color 0.3s;
+            z-index: 5;
+        }
+
+        .site-icon:hover {
+            background-color: #555;
+            box-shadow: 0 4px 12px rgba(255,255,255,0.2);
+        }
+
+        body.light-mode .site-icon:hover {
+            background-color: var(--bg-hover);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .site-icon:hover .delete-btn {
+            display: block;
+        }
+
+        #add-site-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 14px;
+            background: #ddd;
+            color: #333;
+            font-size: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+            transition: all 0.3s;
+        }
+
+        #add-site-btn:hover {
+            background: #fff;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.7);
+        }
+
+        /* --- 右パネル --- */
+        #right-panel {
+            flex: 0.75;
+            background: #181818;
+            padding: 20px;
+            box-sizing: border-box;
+            color: var(--text-subdued);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            min-width: 380px;
+            transition: background-color 0.3s;
+        }
+
+        body.light-mode #right-panel {
+            background: #f0f2f5;
+        }
+
+        #widget-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        #widget-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--bg-interactive);
+            margin-bottom: 15px;
+            flex-shrink: 0;
+            transition: border-color 0.3s;
+        }
+
+        .widget-tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            color: #aaa;
+            font-weight: 600;
+        }
+
+        .widget-tab.active, .widget-tab:hover {
+            color: var(--text-main);
+            border-bottom-color: var(--text-main);
+        }
+
+        .widget-content {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .widget-content.active {
+            display: flex;
+        }
+        
+        /* Googleカレンダー埋め込み用 */
+        #widget-clock {
+            padding: 0;
+        }
+        #widget-clock iframe {
+            width: 100%;
+            height: 100%;
+            border: none !important;
+        }
+
+        #clock-area {
+            flex-shrink: 0;
+            padding-top: 15px;
+            text-align: center;
+            border-top: 1px solid #333;
+            transition: border-color 0.3s;
+        }
+
+        body.light-mode #clock-area {
+            border-top-color: var(--bg-interactive);
+        }
+
+        #clock {
+            font-size: clamp(2rem, 6vw, 2.8rem);
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #date {
+            margin-top: 10px;
+            font-size: clamp(1rem, 3vw, 1.3rem);
+        }
+
+        .widget-container {
+            width: 100%;
+            text-align: center;
+            background: var(--bg-widget);
+            border-radius: 8px;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: background-color 0.3s;
+        }
+
+        .widget-display {
+            font-size: 3rem;
+            font-family: 'Courier New', Courier, monospace;
+            margin-bottom: 20px;
+        }
+
+        .widget-controls button {
+            background: var(--bg-interactive);
+            border: none;
+            color: var(--text-main);
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .widget-controls button:hover {
+            background: var(--bg-hover);
+        }
+
+        .widget-input {
+            background: #333;
+            border: 1px solid #555;
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 6px;
+            width: 60px;
+            text-align: center;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        body.light-mode .widget-input {
+            background: var(--bg-interactive);
+            border-color: #ccc;
+        }
+
+        #lap-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        #lap-list li {
+            padding: 8px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        body.light-mode #lap-list li {
+            border-bottom-color: var(--bg-interactive);
+        }
+
+        /* ハンバーガーメニュー */
+        #hamburger-menu {
+            position: fixed;
+            top: 50px;
+            left: 0;
+            width: 280px;
+            height: calc(100vh - 50px);
+            background: var(--bg-widget);
+            border-right: 1px solid #333;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.8);
+            transform: translateX(-300px);
+            transition: transform 0.3s ease;
+            padding: 15px 16px;
+            box-sizing: border-box;
+            color: var(--text-main);
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        #hamburger-menu.open {
+            transform: translateX(0);
+        }
+
+        #hamburger-menu h2 {
+            margin: 0 0 14px;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        #hamburger-menu label {
+            display: block;
+            margin: 12px 0 6px;
+            font-weight: 600;
+        }
+
+        #hamburger-menu textarea {
+            width: 100%;
+            height: 120px;
+            background: #333;
+            color: var(--text-main);
+            border: none;
+            border-radius: 6px;
+            padding: 8px;
+            box-sizing: border-box;
+            font-family: monospace;
+            resize: vertical;
+        }
+
+        #hamburger-menu button {
+            margin-top: 10px;
+            background: #ddd;
+            border: none;
+            color: #333;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        #hamburger-menu button:hover {
+            background: #fff;
+        }
+
+        #hamburger-menu input[type="text"] {
+            background: var(--bg-interactive);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        #hamburger-menu .bg-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        #hamburger-menu .bg-controls button {
+            margin-top: 0;
+            flex-grow: 1;
+        }
+
+        .genre-list {
+            margin-top: 10px;
+        }
+
+        .genre-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #333;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            cursor: grab;
+        }
+
+        .genre-list-item.dragging {
+            opacity: 0.5;
+        }
+
+        .genre-list-item button {
+            background: var(--accent-red);
+            border: none;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.3s;
+        }
+
+        .genre-list-item button:hover {
+            background: #b71c1c;
+        }
+
+    </style>
 </head>
 <body>
+    <div id="taskbar" title="タスクバー">
+        <div id="hamburger-btn" title="設定メニュー開閉">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <!-- サイトショートカットがここに追加される -->
+        <div id="add-taskbar-btn" title="タスクバーにサイト追加">＋</div>
 
-  <div id="taskbar" title="タスクバー">
-    <div id="hamburger-btn" title="設定メニュー開閉"><div></div><div></div><div></div></div>
-    <div id="taskbar-widgets">
-        <div id="speed-test-widget" class="taskbar-widget">
-            <span>🛜</span>
-            <span id="speed-display">- Mbps</span>
-            <button id="speed-test-btn" title="速度テスト実行">🔄</button>
+        <div id="taskbar-widgets">
+            <div id="weather-widget" class="taskbar-widget">
+                <span id="weather-icon">...</span>
+                <span id="weather-temp">--°C</span>
+            </div>
+            <div id="battery-widget" class="taskbar-widget">
+                <span id="battery-icon">🔋</span>
+                <span id="battery-level">--%</span>
+            </div>
+            <button id="theme-toggle-btn" title="テーマ切替">🌙</button>
         </div>
-        <div id="weather-widget" class="taskbar-widget">
-            <span id="weather-icon">...</span>
-            <span id="weather-temp">--°C</span>
-        </div>
-        <div id="battery-widget" class="taskbar-widget">
-            <span id="battery-icon">🔋</span>
-            <span id="battery-level">--%</span>
-        </div>
-        <button id="theme-toggle-btn" title="テーマ切替">🌙</button>
     </div>
-    <div id="add-taskbar-btn" title="タスクバーにサイト追加">＋</div>
-  </div>
-  
-  <div id="search-area">
-    <form id="google-search" onsubmit="event.preventDefault(); googleSearch();" role="search">
-      <input type="text" id="google-search-input" placeholder="Google検索またはURL入力" autocomplete="off" />
-      <button type="submit">検索</button>
-      <div id="search-suggestions"></div>
-    </form>
-  </div>
-
-  <div id="main"></div>
-  <div id="hamburger-menu"></div>
-  <div id="calendar-modal"></div>
-  <div id="mobile-nav">
-    <div class="nav-buttons">
-      <button id="mobile-sites-btn">サイト一覧</button>
-      <button id="mobile-widgets-btn">ウィジェット</button>
+    <div id="search-area">
+        <form id="google-search" onsubmit="event.preventDefault(); googleSearch();" role="search">
+            <input type="text" id="google-search-input" placeholder="Google検索またはURL入力" autocomplete="off"/>
+            <button type="submit">検索</button>
+            <div id="search-suggestions"></div>
+        </form>
     </div>
-  </div>
+    <div id="main"></div>
+    <div id="hamburger-menu"></div>
 
-<script>
-(() => {
-  // === 初期状態と定数 ===
-  const STORAGE_KEY = 'startpage-data-v9';
-  const HISTORY_KEY = 'startpage-search-history';
-  const THEME_KEY = 'startpage-theme';
-  const MAX_HISTORY_COUNT = 10;
-  
-  let data = {
-    genres: [ { id: Date.now(), name: 'Links', sites: [ { id: Date.now()+1, name: 'Google', url: 'https://www.google.com', icon: '' } ] } ],
-    currentGenreIndex: 0,
-    taskbarSites: [],
-    events: {},
-    alarms: [],
-  };
-  let searchHistory = [];
-  let currentDisplayDate = new Date();
-  
-  let isAnimating = false, draggedItem = null, suggestionFetchTimer, selectedSuggestionIndex = -1, draggedGenre = null;
-  let timerInterval, timerTotalSeconds = 0;
-  let stopwatchInterval, stopwatchTime = 0, lapNumber = 1;
-  let audioContext;
+    <script>
+        ( () => {
+            // === 初期状態と定数 ===
+            const STORAGE_KEY = 'startpage-data-v9';
+            const HISTORY_KEY = 'startpage-search-history';
+            const THEME_KEY = 'startpage-theme';
+            const MAX_HISTORY_COUNT = 10;
 
-  function setupHTML() {
-    const mainContainer = document.getElementById('main');
-    const isMobile = window.innerWidth <= 800;
-    const panelContainer = isMobile ? document.body : mainContainer;
+            let data = {
+                genres: [{
+                    id: Date.now(),
+                    name: 'Links',
+                    sites: [{
+                        id: Date.now() + 1,
+                        name: 'Google',
+                        url: 'https://www.google.com',
+                        icon: ''
+                    }]
+                }],
+                currentGenreIndex: 0,
+                taskbarSites: [],
+                leftPanelBg: ''
+            };
+            let searchHistory = [];
+            
+            let isAnimating = false, draggedItem = null, suggestionFetchTimer, selectedSuggestionIndex = -1, draggedGenre = null;
+            let timerInterval, timerTotalSeconds = 0;
+            let stopwatchInterval, stopwatchTime = 0, lapNumber = 1;
+            let audioContext;
 
-    const leftPanelHTML = `<div id="left-panel"><div id="genre-title"></div><div id="page-left-btn">◀</div><div id="site-pages"><div class="page-container"></div></div><div id="page-right-btn">▶</div><div id="page-indicator"></div></div>`;
-    const rightPanelHTML = `<div id="right-panel"><div id="widget-area"><div id="widget-tabs"><div class="widget-tab active" data-tab="clock">カレンダー</div><div class="widget-tab" data-tab="timer">タイマー</div><div class="widget-tab" data-tab="stopwatch">ストップウォッチ</div><div class="widget-tab" data-tab="alarm">アラーム</div></div><div id="widget-clock" class="widget-content active"><div id="calendar-widget" class="calendar-widget"><div class="calendar-header"><button class="prev-month-btn">◀</button><h4 class="calendar-month-year"></h4><button class="next-month-btn">▶</button><button class="fullscreen-calendar-btn">↗</button></div><div id="right-panel-calendar" class="calendar-table-container"></div></div><div id="monthly-event-display"><h4 id="monthly-event-title"></h4><ul id="monthly-event-list"></ul></div></div><div id="widget-timer" class="widget-content"></div><div id="widget-stopwatch" class="widget-content"></div><div id="widget-alarm" class="widget-content"></div></div><div id="clock-area"><div id="clock"></div><div id="date"></div></div></div>`;
+            function setupHTML() {
+                const mainContainer = document.getElementById('main');
+                const panelContainer = mainContainer;
 
-    panelContainer.insertAdjacentHTML('beforeend', leftPanelHTML);
-    panelContainer.insertAdjacentHTML('beforeend', rightPanelHTML);
-    
-    document.getElementById('hamburger-menu').innerHTML = `<h2>設定</h2><label for="new-genre-name">ジャンル追加</label><input type="text" id="new-genre-name" placeholder="ジャンル名を入力" /><button id="add-genre-btn">追加</button><div class="genre-list"></div><label for="import-data">データインポート・エクスポート</label><textarea id="import-data"></textarea><button id="load-import-btn">読み込み</button><button id="copy-export-btn">コピー</button><textarea id="export-data" readonly></textarea>`;
-    document.getElementById('calendar-modal').innerHTML = `<div id="calendar-modal-content"><button id="modal-close-btn">×</button><div id="modal-calendar-widget" class="calendar-widget"><div class="calendar-header"><button class="prev-month-btn">◀</button><h4 class="calendar-month-year"></h4><button class="next-month-btn">▶</button></div><div id="modal-calendar" class="calendar-table-container"></div></div></div>`;
-    
-    document.getElementById('widget-timer').innerHTML = `<div class="widget-container"><div id="timer-display" class="widget-display">00:00</div><div><input type="number" id="timer-minutes" class="widget-input" min="0" max="99" placeholder="分"><input type="number" id="timer-seconds" class="widget-input" min="0" max="59" placeholder="秒"></div><div class="widget-controls" style="margin-top: 15px;"><button id="timer-start">スタート</button><button id="timer-stop">ストップ</button><button id="timer-reset">リセット</button></div></div>`;
-    document.getElementById('widget-stopwatch').innerHTML = `<div class="widget-container"><div id="stopwatch-display" class="widget-display">00:00.00</div><div class="widget-controls"><button id="stopwatch-start">スタート</button><button id="stopwatch-stop">ストップ</button><button id="stopwatch-lap">ラップ</button><button id="stopwatch-reset">リセット</button></div><ul id="lap-list"></ul></div>`;
-    document.getElementById('widget-alarm').innerHTML = `<div class="widget-container"><p>アラーム設定</p><input type="time" id="alarm-time" class="widget-input" style="width: 100px;"><button id="alarm-add" style="background: #444; border: none; color: #eee; padding: 8px 12px; margin-left: 10px; border-radius: 6px; cursor: pointer;">追加</button><ul id="alarm-list"></ul></div>`;
-  }
+                const leftPanelHTML = `<div id="left-panel"><div id="genre-title"></div><div id="page-left-btn">◀</div><div id="site-pages"><div class="page-container"></div></div><div id="page-right-btn">▶</div><div id="page-indicator"></div></div>`;
+                const googleCalendarEmbed = `<iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=UTC&showPrint=0&src=dG93YS5zb2tvMDQwNkBnbWFpbC5jb20&src=Y2xhc3Nyb29tMTA4NDA5NDg3MTIzMDEwMDk2Njc0QGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20&src=ZmFtaWx5MDUwOTI5ODcxODA0NjM3MjQxMzFAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&src=amEuamFwYW5lc2UjaG9saWRheUBncm91cC52LmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23039be5&color=%23e67c73&color=%233f51b5&color=%230b8043" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>`;
+                const rightPanelHTML = `<div id="right-panel"><div id="widget-area"><div id="widget-tabs"><div class="widget-tab active" data-tab="clock">カレンダー</div><div class="widget-tab" data-tab="timer">タイマー</div><div class="widget-tab" data-tab="stopwatch">ストップウォッチ</div></div><div id="widget-clock" class="widget-content active">${googleCalendarEmbed}</div><div id="widget-timer" class="widget-content"></div><div id="widget-stopwatch" class="widget-content"></div></div><div id="clock-area"><div id="clock"></div><div id="date"></div></div></div>`;
 
-  function initialize() {
-    setupHTML();
-    setupEventListeners();
-    loadData();
-    loadTheme();
-    renderAll();
-    initTaskbarWidgets();
-    setInterval(updateTime, 1000);
-  }
+                panelContainer.insertAdjacentHTML('beforeend', leftPanelHTML);
+                panelContainer.insertAdjacentHTML('beforeend', rightPanelHTML);
 
-  function renderAll() {
-    renderTaskbar();
-    renderGenresList();
-    initPages();
-    updateExportArea();
-    updateCalendarViews();
-    renderAlarms();
-  }
+                document.getElementById('hamburger-menu').innerHTML = `<h2>設定</h2><label for="new-genre-name">ジャンル追加</label><input type="text" id="new-genre-name" placeholder="ジャンル名を入力" /><button id="add-genre-btn">追加</button><div class="genre-list"></div><label for="left-panel-bg-url">左パネル背景画像</label><input type="text" id="left-panel-bg-url" placeholder="画像のURLを入力"><div class="bg-controls"><button id="set-bg-btn">設定</button><button id="clear-bg-btn">クリア</button></div><label for="import-data">データインポート・エクスポート</label><textarea id="import-data"></textarea><button id="load-import-btn">読み込み</button><button id="copy-export-btn">コピー</button><textarea id="export-data" readonly></textarea>`;
 
-  function setupEventListeners() {
-    document.body.addEventListener('click', initAudio, { once: true });
-    document.getElementById('hamburger-btn').onclick = () => document.getElementById('hamburger-menu').classList.toggle('open');
-    document.getElementById('page-left-btn').onclick = () => changeGenre(data.currentGenreIndex - 1);
-    document.getElementById('page-right-btn').onclick = () => changeGenre(data.currentGenreIndex + 1);
-    document.getElementById('site-pages').addEventListener('wheel', handleWheelScroll, { passive: false });
-    document.getElementById('add-taskbar-btn').onclick = handleAddTaskbar;
-    document.getElementById('google-search-input').onfocus = handleSearchFocus;
-    document.getElementById('google-search-input').oninput = handleSearchInput;
-    document.getElementById('google-search-input').onkeydown = handleSearchKeyDown;
-    document.onclick = (e) => { if(!document.getElementById('google-search').contains(e.target)) hideSuggestions(); };
-    document.querySelectorAll('.widget-tab').forEach(tab => tab.onclick = handleTabClick);
-    document.querySelectorAll('.prev-month-btn').forEach(btn => btn.onclick = () => { currentDisplayDate.setMonth(currentDisplayDate.getMonth() - 1); updateCalendarViews(); });
-    document.querySelectorAll('.next-month-btn').forEach(btn => btn.onclick = () => { currentDisplayDate.setMonth(currentDisplayDate.getMonth() + 1); updateCalendarViews(); });
-    document.querySelector('.fullscreen-calendar-btn').onclick = () => document.getElementById('calendar-modal').style.display = 'flex';
-    document.getElementById('modal-close-btn').onclick = () => document.getElementById('calendar-modal').style.display = 'none';
-    document.getElementById('calendar-modal').onclick = (e) => { if(e.target === document.getElementById('calendar-modal')) document.getElementById('calendar-modal').style.display = 'none'; };
-    document.getElementById('timer-start').onclick = startTimer; document.getElementById('timer-stop').onclick = stopTimer; document.getElementById('timer-reset').onclick = resetTimer;
-    document.getElementById('stopwatch-start').onclick = startStopwatch; document.getElementById('stopwatch-stop').onclick = stopStopwatch; document.getElementById('stopwatch-lap').onclick = lapStopwatch; document.getElementById('stopwatch-reset').onclick = resetStopwatch;
-    document.getElementById('alarm-add').onclick = addAlarm;
-    document.getElementById('add-genre-btn').onclick = addGenre;
-    document.getElementById('load-import-btn').onclick = loadImportData;
-    document.getElementById('copy-export-btn').onclick = copyExportData;
-    document.getElementById('mobile-sites-btn').onclick = () => toggleMobileView('left-panel');
-    document.getElementById('mobile-widgets-btn').onclick = () => toggleMobileView('right-panel');
-    document.getElementById('speed-test-btn').onclick = runSpeedTest;
-    document.getElementById('theme-toggle-btn').onclick = toggleTheme;
-  }
-  
-  function loadData(){const s=localStorage.getItem(STORAGE_KEY);if(s){try{const p=JSON.parse(s);if(p&&Array.isArray(p.genres))data={...data,...p};}catch(e){}}const h=localStorage.getItem(HISTORY_KEY);if(h){try{searchHistory=JSON.parse(h);}catch(e){}}}
-  function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));updateExportArea();}
-  function saveSearchHistory(){localStorage.setItem(HISTORY_KEY,JSON.stringify(searchHistory));}
-  function updateExportArea(){document.getElementById('export-data').value=JSON.stringify(data,null,2);}
-  function initAudio(){if(!audioContext){try{audioContext=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}}
-  function playBeep(){if(!audioContext)return;const o=audioContext.createOscillator(),g=audioContext.createGain();o.connect(g);g.connect(audioContext.destination);o.type='sine';o.frequency.setValueAtTime(880,audioContext.currentTime);g.gain.setValueAtTime(0.5,audioContext.currentTime);o.start();o.stop(audioContext.currentTime+0.5);}
-  async function checkNotificationPermission(){if(!("Notification" in window))return false;if(Notification.permission==="granted")return true;if(Notification.permission!=="denied"){const p=await Notification.requestPermission();return p==="granted";}return false;}
-  function updateTime(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'});document.getElementById('date').textContent=n.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'long'});checkAlarms(n);}
-  
-  function updateCalendarViews(){renderAllCalendars();renderMonthlyEvents(currentDisplayDate);}
-  function renderAllCalendars(){renderCalendar(currentDisplayDate,document.getElementById('right-panel-calendar'),false);renderCalendar(currentDisplayDate,document.getElementById('modal-calendar'),true);}
-  function renderCalendar(targetDate,containerEl,isModal){if(!containerEl)return;const y=targetDate.getFullYear(),m=targetDate.getMonth(),t=new Date();containerEl.parentElement.querySelector('.calendar-month-year').textContent=`${y}年 ${m+1}月`;const f=new Date(y,m,1).getDay(),l=new Date(y,m+1,0).getDate();let h='<table><thead><tr>'+['日','月','火','水','木','金','土'].map(d=>`<th>${d}</th>`).join('')+'</tr></thead><tbody>',date=1;for(let i=0;i<6;i++){h+='<tr>';for(let j=0;j<7;j++){if(i===0&&j<f||date>l){h+='<td></td>';}else{const s=`${y}-${String(m+1).padStart(2,'0')}-${String(date).padStart(2,'0')}`,iT=date===t.getDate()&&y===t.getFullYear()&&m===t.getMonth(),hE=data.events[s]?.length>0;let eH='';if(isModal&&hE){eH='<ul class="modal-event-list">';data.events[s].slice(0,2).forEach(e=>{eH+=`<li>${escapeHtml(e)}</li>`;});if(data.events[s].length>2)eH+='<li>...</li>';eH+='</ul>';}const aC=!isModal&&hE?' has-event':'';const mAC=isModal&&hE?' has-event':'';h+=`<td data-date="${s}" class="${iT?'today':''}${aC}${mAC}"><div class="date-number">${date}</div>${eH}</td>`;date++;}}h+='</tr>';if(date>l)break;}containerEl.innerHTML=h+'</tbody></table>';containerEl.querySelectorAll('td[data-date]').forEach(c=>c.onclick=()=>handleDateClick(c.dataset.date));}
-  function handleDateClick(dateStr){const e=prompt(`「${dateStr}」の予定を追加:`);if(e?.trim()){if(!data.events[dateStr])data.events[dateStr]=[];data.events[dateStr].push(e.trim());saveData();updateCalendarViews();}}
-  function renderMonthlyEvents(targetDate){const y=targetDate.getFullYear(),m=targetDate.getMonth(),s=`${y}-${String(m+1).padStart(2,'0')}`;document.getElementById('monthly-event-title').textContent=`${y}年 ${m+1}月 の予定`;const l=document.getElementById('monthly-event-list');l.innerHTML='';const e=Object.keys(data.events).filter(k=>k.startsWith(s)).sort().flatMap(d=>data.events[d].map((t,i)=>({date:d,day:parseInt(d.split('-')[2]),text:t,originalIndex:i})));if(e.length===0){l.innerHTML='<li>予定はありません</li>';return;}e.forEach(ev=>{const li=document.createElement('li');li.innerHTML=`<span class="date-tag">${ev.day}日:</span> <span class="event-text">${escapeHtml(ev.text)}</span>`;const b=document.createElement('button');b.textContent='×';b.onclick=()=>{data.events[ev.date].splice(ev.originalIndex,1);if(data.events[ev.date].length===0)delete data.events[ev.date];saveData();updateCalendarViews();};li.appendChild(b);l.appendChild(li);});}
-  function escapeHtml(str){return str.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);}
-  function startTimer(){if(timerInterval)return;if(timerTotalSeconds<=0){timerTotalSeconds=(parseInt(document.getElementById('timer-minutes').value)||0)*60+(parseInt(document.getElementById('timer-seconds').value)||0);}if(timerTotalSeconds<=0)return;timerInterval=setInterval(()=>{timerTotalSeconds--;document.getElementById('timer-display').textContent=`${Math.floor(timerTotalSeconds/60).toString().padStart(2,'0')}:${(timerTotalSeconds%60).toString().padStart(2,'0')}`;if(timerTotalSeconds<=0){clearInterval(timerInterval);timerInterval=null;playBeep();alert('タイマー終了！');}},1000);}
-  function stopTimer(){clearInterval(timerInterval);timerInterval=null;}
-  function resetTimer(){stopTimer();timerTotalSeconds=0;document.getElementById('timer-display').textContent='00:00';document.getElementById('timer-minutes').value='';document.getElementById('timer-seconds').value='';}
-  function startStopwatch(){if(!stopwatchInterval)stopwatchInterval=setInterval(()=>{stopwatchTime+=10;document.getElementById('stopwatch-display').textContent=`${Math.floor(stopwatchTime/60000).toString().padStart(2,'0')}:${Math.floor((stopwatchTime%60000)/1000).toString().padStart(2,'0')}.${Math.floor((stopwatchTime%1000)/10).toString().padStart(2,'0')}`;},10);}
-  function stopStopwatch(){clearInterval(stopwatchInterval);stopwatchInterval=null;}
-  function lapStopwatch(){if(!stopwatchInterval&&stopwatchTime===0)return;const l=document.createElement('li');l.textContent=`Lap ${lapNumber++}: ${document.getElementById('stopwatch-display').textContent}`;document.getElementById('lap-list').prepend(l);}
-  function resetStopwatch(){stopStopwatch();stopwatchTime=0;lapNumber=1;document.getElementById('stopwatch-display').textContent='00:00.00';document.getElementById('lap-list').innerHTML='';}
-  async function addAlarm(){await checkNotificationPermission();const t=document.getElementById('alarm-time').value;if(t&&!data.alarms.some(a=>a.time===t)){data.alarms.push({time:t,enabled:true});data.alarms.sort((a,b)=>a.time.localeCompare(b.time));saveData();renderAlarms();}}
-  function renderAlarms(){const l=document.getElementById('alarm-list');l.innerHTML='';data.alarms.forEach((a,i)=>{const li=document.createElement('li');li.innerHTML=`<span>${a.time}</span><div><input type="checkbox" ${a.enabled?'checked':''}/><button>削除</button></div>`;li.querySelector('input').onchange=e=>{data.alarms[i].enabled=e.target.checked;saveData();};li.querySelector('button').onclick=()=>{data.alarms.splice(i,1);saveData();renderAlarms();};l.appendChild(li);});}
-  function checkAlarms(n){const c=n.toTimeString().slice(0,5);data.alarms.forEach(a=>{if(a.enabled&&a.time===c&&n.getSeconds()===0){playBeep();alert(`アラーム: ${a.time}`);if(Notification.permission==="granted")new Notification("アラーム",{body:`設定時刻 ${a.time} になりました。`,icon:getFaviconUrl(window.location.href)});}});}
-  function handleTabClick(e){document.querySelectorAll('.widget-tab, .widget-content').forEach(el=>el.classList.remove('active'));e.target.classList.add('active');document.getElementById(`widget-${e.target.dataset.tab}`).classList.add('active');}
-  let wheelTimeout;function handleWheelScroll(e){if(Math.abs(e.deltaX)>Math.abs(e.deltaY)){e.preventDefault();if(wheelTimeout)return;if(e.deltaX>20)changeGenre(data.currentGenreIndex+1);else if(e.deltaX<-20)changeGenre(data.currentGenreIndex-1);wheelTimeout=setTimeout(()=>{wheelTimeout=null;},300);}}
-  function handleAddTaskbar(){const g=data.genres[data.currentGenreIndex];if(!g||!g.sites.length)return alert('追加可能なサイトがありません');const n=prompt(`タスクバーに追加:\n`+g.sites.map(s=>s.name).join(', '));if(!n)return;const s=g.sites.find(s=>s.name.toLowerCase()===n.trim().toLowerCase());if(!s)return alert('サイトが見つかりません');if(data.taskbarSites.some(ts=>ts.id===s.id))return alert('既に追加済です');data.taskbarSites.push(JSON.parse(JSON.stringify(s)));renderTaskbar();saveData();}
-  function handleSearchFocus(){if(document.getElementById('google-search-input').value.trim()===''&&searchHistory.length>0)window.handleSuggestions(['',searchHistory]);}
-  function handleSearchInput(){clearTimeout(suggestionFetchTimer);const q=document.getElementById('google-search-input').value.trim();if(q)suggestionFetchTimer=setTimeout(()=>fetchSuggestions(q),300);else hideSuggestions();}
-  function handleSearchKeyDown(e){const i=document.getElementById('search-suggestions').querySelectorAll('.suggestion-item');if(!i.length||document.getElementById('search-suggestions').style.display==='none')return;if(e.key==='ArrowDown'){e.preventDefault();if(selectedSuggestionIndex<i.length-1)selectedSuggestionIndex++;}else if(e.key==='ArrowUp'){e.preventDefault();if(selectedSuggestionIndex>0)selectedSuggestionIndex--;}else if(e.key==='Enter'&&selectedSuggestionIndex>-1){e.preventDefault();i[selectedSuggestionIndex].click();return;}else{return;}i.forEach((item,index)=>item.classList.toggle('selected',index===selectedSuggestionIndex));if(selectedSuggestionIndex>-1)document.getElementById('google-search-input').value=i[selectedSuggestionIndex].querySelector('.text').textContent;}
-  function normalizeUrl(u){u=u.trim();if(!u)return'';if(!/^(https?:\/\/|mailto:)/i.test(u))u='https://'+u;return u;}
-  function getFaviconUrl(u){try{const p=new URL(u);return`https://www.google.com/s2/favicons?sz=64&domain=${p.hostname}`}catch{return''}}
-  function createSiteIcon(s){const d=document.createElement('div');d.className='site-icon';d.dataset.siteId=s.id;d.draggable=true;d.title=s.name;d.innerHTML=`<img src="${s.icon||getFaviconUrl(s.url)}" alt=""><div class="site-label">${s.name}</div><div class="delete-btn">×</div>`;
-  d.addEventListener('click', () => { window.location.href = s.url; }); // ★ 変更: タブ内遷移
-  d.querySelector('.delete-btn').onclick=e=>{e.stopPropagation();if(confirm(`「${s.name}」を削除しますか？`)){const g=data.genres[data.currentGenreIndex];g.sites=g.sites.filter(i=>i.id!==s.id);renderCurrentPage();saveData();}};d.ondragstart=e=>{draggedItem=d;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',s.id);setTimeout(()=>d.classList.add('dragging'),0);};d.ondragend=()=>{if(!draggedItem)return;draggedItem.classList.remove('dragging');draggedItem=null;const p=document.querySelector('.drag-placeholder');if(p)p.remove();};return d;}
-  function handleDragOver(e){e.preventDefault();const p=e.currentTarget;if(!draggedItem)return;const a=getDragAfterElement(p,e.clientY);let h=p.querySelector('.drag-placeholder');if(!h){h=document.createElement('div');h.className='drag-placeholder';}if(a==null)p.appendChild(h);else p.insertBefore(h,a);}
-  function getDragAfterElement(c,y){const d=[...c.querySelectorAll('.site-icon:not(.dragging)')];return d.reduce((t,h)=>{const b=h.getBoundingClientRect(),o=y-b.top-b.height/2;if(o<0&&o>t.offset)return{offset:o,element:h};else return t},{offset:Number.NEGATIVE_INFINITY}).element;}
-  function handleDrop(e){e.preventDefault();const p=e.currentTarget,h=p.querySelector('.drag-placeholder');if(!h)return;const i=Number(e.dataTransfer.getData('text/plain')),g=data.genres[data.currentGenreIndex],x=g.sites.findIndex(s=>s.id===i);if(x===-1)return;const[s]=g.sites.splice(x,1),n=Array.from(p.children).indexOf(h);g.sites.splice(n,0,s);h.remove();renderCurrentPage();saveData();}
-  function renderTaskbar(){const t=document.getElementById('taskbar');[...t.querySelectorAll('.task-icon')].forEach(e=>e.remove());data.taskbarSites.forEach(s=>{const d=document.createElement('div');d.className='task-icon';d.title=s.name;d.style.backgroundImage=`url('${s.icon||getFaviconUrl(s.url)}')`;d.style.backgroundSize='cover';
-  d.addEventListener('click', () => { window.location.href = s.url; }); // ★ 変更: タブ内遷移
-  const b=document.createElement('div');b.className='delete-btn';b.textContent='×';b.onclick=e=>{e.stopPropagation();if(confirm(`タスクバーから「${s.name}」削除しますか？`)){data.taskbarSites=data.taskbarSites.filter(ts=>ts.id!==s.id);renderTaskbar();saveData();}};d.appendChild(b);t.insertBefore(d,document.getElementById('add-taskbar-btn'));});}
-  function renderCurrentPage(){const p=document.querySelector('.page-container')?.querySelector('.site-page');if(!p)return;p.innerHTML='';data.genres[data.currentGenreIndex]?.sites.forEach(s=>p.appendChild(createSiteIcon(s)));const b=document.createElement('div');b.id='add-site-btn';b.textContent='+';b.onclick=openAddSiteDialog;p.appendChild(b);}
-  function createPage(i){const d=document.createElement('div');d.className='site-page';d.dataset.genreIndex=i;d.ondragover=handleDragOver;d.ondrop=handleDrop;const g=data.genres[i];if(g)g.sites.forEach(s=>d.appendChild(createSiteIcon(s)));const b=document.createElement('div');b.id='add-site-btn';b.textContent='+';b.onclick=openAddSiteDialog;d.appendChild(b);return d;}
-  function changeGenre(i){if(i===data.currentGenreIndex||isAnimating||i<0||i>=data.genres.length)return;isAnimating=true;const o=data.currentGenreIndex,d=i>o?1:-1,p=document.querySelector('.page-container').querySelector(`[data-genre-index="${o}"]`),n=createPage(i);n.style.transform=`translateX(${d*100}%)`;document.querySelector('.page-container').appendChild(n);requestAnimationFrame(()=>{if(p)p.style.transform=`translateX(${-d*100}%)`;n.style.transform='translateX(0)';});document.getElementById('genre-title').textContent=data.genres[i].name;data.currentGenreIndex=i;updatePageIndicator();saveData();setTimeout(()=>{if(p&&p.parentNode)p.parentNode.removeChild(p);isAnimating=false;},500);}
-  function initPages(){const p=document.querySelector('.page-container');if(!p)return;p.innerHTML='';if(data.genres.length===0){data.genres.push({id:Date.now(),name:'default',sites:[]});data.currentGenreIndex=0;}if(data.currentGenreIndex>=data.genres.length||data.currentGenreIndex<0)data.currentGenreIndex=0;const i=createPage(data.currentGenreIndex);p.appendChild(i);document.getElementById('genre-title').textContent=data.genres[data.currentGenreIndex]?.name||'';updatePageIndicator();}
-  function updatePageIndicator(){const p=document.getElementById('page-indicator');if(!p)return;p.innerHTML='';data.genres.forEach((g,i)=>{const d=document.createElement('div');d.className=`indicator-dot ${i===data.currentGenreIndex?'active':''}`;d.title=g.name;d.onclick=()=>changeGenre(i);p.appendChild(d);});}
-  function openAddSiteDialog(){const n=prompt('サイト名:');if(!n)return;const u=prompt('URL:');if(!u)return;data.genres[data.currentGenreIndex].sites.push({id:Date.now(),name:n,url:normalizeUrl(u),icon:''});renderCurrentPage();saveData();}
-  function googleSearch(q){let v=q||document.getElementById('google-search-input').value.trim();if(!v)return;addSearchHistory(v);if(v.includes('.')&&!v.includes(' ')){window.location.href = normalizeUrl(v);}else{window.location.href = `https://www.google.com/search?q=${encodeURIComponent(v)}`;}document.getElementById('google-search-input').value='';hideSuggestions();} window.googleSearch=googleSearch; // ★ 変更: タブ内遷移
-  function addSearchHistory(q){searchHistory=searchHistory.filter(i=>i!==q);searchHistory.unshift(q);if(searchHistory.length>MAX_HISTORY_COUNT)searchHistory.pop();saveSearchHistory();}
-  function removeSearchHistory(q){searchHistory=searchHistory.filter(i=>i!==q);saveSearchHistory();}
-  function fetchSuggestions(q){const o=document.getElementById('jsonp-script');if(o)o.remove();const s=document.createElement('script');s.id='jsonp-script';s.src=`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}&callback=window.handleSuggestions`;document.head.appendChild(s);}
-  window.handleSuggestions=(d)=>{const s=d[1],q=document.getElementById('google-search-input').value.trim().toLowerCase(),h=searchHistory.filter(i=>i.toLowerCase().includes(q));document.getElementById('search-suggestions').innerHTML='';const t=[];h.forEach(i=>t.push({type:'history',text:i}));s.forEach(i=>{if(!h.includes(i))t.push({type:'suggestion',text:i});});if(t.length>0){t.forEach(item=>{const v=document.createElement('div');v.className='suggestion-item';v.innerHTML=`<span class="icon">${item.type==='history'?'🕒':'🔍'}</span><span class="text">${item.text}</span>${item.type==='history'?'<button class="remove-history">×</button>':''}`;v.onclick=e=>{if(e.target.classList.contains('remove-history')){e.stopPropagation();removeSearchHistory(item.text);document.getElementById('google-search-input').dispatchEvent(new Event('input'));}else{document.getElementById('google-search-input').value=item.text;googleSearch();}};document.getElementById('search-suggestions').appendChild(v);});showSuggestions();}else hideSuggestions();const o=document.getElementById('jsonp-script');if(o)o.remove();}
-  function showSuggestions(){document.getElementById('search-suggestions').style.display='block';selectedSuggestionIndex=-1;}
-  function hideSuggestions(){document.getElementById('search-suggestions').style.display='none';selectedSuggestionIndex=-1;}
-  function addGenre(){const n=document.getElementById('new-genre-name').value.trim();if(!n)return;if(data.genres.some(g=>g.name===n))return alert('同名ジャンルが存在します');data.genres.push({id:Date.now(),name:n,sites:[]});document.getElementById('new-genre-name').value='';renderGenresList();updatePageIndicator();saveData();}
-  function renderGenresList(){const l=document.querySelector('#hamburger-menu .genre-list');l.innerHTML='';data.genres.forEach((g)=>{const d=document.createElement('div');d.className='genre-list-item';d.textContent=g.name;d.draggable=true;d.dataset.genreId=g.id;d.addEventListener('dragstart',handleGenreDragStart);d.addEventListener('dragover',handleGenreDragOver);d.addEventListener('drop',handleGenreDrop);d.addEventListener('dragend',handleGenreDragEnd);const b=document.createElement('button');b.textContent='削除';b.onclick=()=>{if(data.genres.length<=1)return alert('最後のジャンルは削除できません');if(confirm(`「${g.name}」を削除しますか？`)){const i=data.genres.findIndex(genre=>genre.id===g.id);data.genres.splice(i,1);if(data.currentGenreIndex>=i)data.currentGenreIndex=Math.max(0,data.currentGenreIndex-1);renderGenresList();initPages();saveData();}};d.appendChild(b);l.appendChild(d);});}
-  function handleGenreDragStart(e){draggedGenre=e.target;setTimeout(()=>e.target.classList.add('dragging'),0);}
-  function handleGenreDragOver(e){e.preventDefault();const t=e.target.closest('.genre-list-item');if(t&&t!==draggedGenre){const r=t.getBoundingClientRect(),o=e.clientY-r.top-r.height/2;if(o<0){t.parentNode.insertBefore(draggedGenre,t);}else{t.parentNode.insertBefore(draggedGenre,t.nextSibling);}}}
-  function handleGenreDragEnd(e){if(draggedGenre)draggedGenre.classList.remove('dragging');draggedGenre=null;}
-  function handleGenreDrop(e){e.preventDefault();if(!draggedGenre)return;const n=[...document.querySelectorAll('#hamburger-menu .genre-list-item')].map(d=>d.dataset.genreId);const o=[];n.forEach(id=>{const g=data.genres.find(g=>g.id==id);if(g)o.push(g);});data.genres=o;if(data.genres[data.currentGenreIndex]){const cI=data.genres.findIndex(g=>g.id==data.genres[data.currentGenreIndex].id);if(cI!==-1)data.currentGenreIndex=cI;}else{data.currentGenreIndex=0;}saveData();updatePageIndicator();initPages();}
-  function loadImportData(){try{const d=JSON.parse(document.getElementById('import-data').value);if(d&&Array.isArray(d.genres)){data=d;saveData();alert('読込成功');location.reload();}else alert('無効な形式');}catch(e){alert('解析失敗');}}
-  function copyExportData(){const a=document.getElementById('export-data');a.select();navigator.clipboard.writeText(a.value).then(()=>alert('コピーしました'));}
-  function toggleMobileView(p){const panel=document.getElementById(p),other=document.getElementById(p==='left-panel'?'right-panel':'left-panel'),sitesBtn=document.getElementById('mobile-sites-btn'),widgetsBtn=document.getElementById('mobile-widgets-btn');if(panel.classList.contains('visible')){panel.classList.remove('visible');sitesBtn.classList.remove('active');widgetsBtn.classList.remove('active');}else{panel.classList.add('visible');other.classList.remove('visible');if(p==='left-panel'){sitesBtn.classList.add('active');widgetsBtn.classList.remove('active');}else{sitesBtn.classList.remove('active');widgetsBtn.classList.add('active');}}}
+                document.getElementById('widget-timer').innerHTML = `<div class="widget-container"><div id="timer-display" class="widget-display">00:00</div><div><input type="number" id="timer-minutes" class="widget-input" min="0" max="99" placeholder="分"><input type="number" id="timer-seconds" class="widget-input" min="0" max="59" placeholder="秒"></div><div class="widget-controls" style="margin-top: 15px;"><button id="timer-start">スタート</button><button id="timer-stop">ストップ</button><button id="timer-reset">リセット</button></div></div>`;
+                document.getElementById('widget-stopwatch').innerHTML = `<div class="widget-container"><div id="stopwatch-display" class="widget-display">00:00.00</div><div class="widget-controls"><button id="stopwatch-start">スタート</button><button id="stopwatch-stop">ストップ</button><button id="stopwatch-lap">ラップ</button><button id="stopwatch-reset">リセット</button></div><ul id="lap-list"></ul></div>`;
+            }
 
-  function initTaskbarWidgets() {
-    initWeather();
-    initBattery();
-    runSpeedTest();
-    setInterval(runSpeedTest, 10 * 60 * 1000);
-  }
-  
-  function toggleTheme() {
-      document.body.classList.toggle('light-mode');
-      const isLight = document.body.classList.contains('light-mode');
-      localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark');
-      document.getElementById('theme-toggle-btn').textContent = isLight ? '☀️' : '🌙';
-  }
-  function loadTheme() {
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      if (savedTheme === 'light') {
-          document.body.classList.add('light-mode');
-          document.getElementById('theme-toggle-btn').textContent = '☀️';
-      }
-  }
-  
-  async function runSpeedTest() {
-      const display = document.getElementById('speed-display');
-      display.textContent = '...';
-      const imageUrl = `https://via.placeholder.com/500x500.png?t=${Date.now()}`;
-      try {
-          const startTime = performance.now();
-          const response = await fetch(imageUrl, { cache: "no-store" });
-          const blob = await response.blob();
-          const fileSize = blob.size;
-          const endTime = performance.now();
-          const duration = (endTime - startTime) / 1000;
-          const speedBps = fileSize / duration;
-          const speedMbps = (speedBps * 8) / 1024 / 1024;
-          display.textContent = `${speedMbps.toFixed(2)} Mbps`;
-      } catch (e) {
-          display.textContent = 'Error';
-      }
-  }
+            function initialize() {
+                setupHTML();
+                setupEventListeners();
+                loadData();
+                loadTheme();
+                renderAll();
+                initTaskbarWidgets();
+                setInterval(updateTime, 1000);
+            }
 
-  function initWeather() {
-      const iconEl = document.getElementById('weather-icon');
-      const tempEl = document.getElementById('weather-temp');
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-          const { latitude, longitude } = pos.coords;
-          try {
-              const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
-              const weatherData = await res.json();
-              const { temperature, weathercode } = weatherData.current_weather;
-              iconEl.textContent = getWeatherIcon(weathercode);
-              tempEl.textContent = `${Math.round(temperature)}°C`;
-          } catch {
-              iconEl.textContent = '⚠️';
-          }
-      }, () => {
-          iconEl.textContent = '📍';
-          tempEl.textContent = '許可なし';
-      });
-  }
-  function getWeatherIcon(code) { const icons = {'0':'☀️','1':'🌤️','2':'⛅️','3':'☁️','45':'🌫️','48':'🌫️','51':'🌦️','53':'🌦️','55':'🌦️','56':'🌨️','57':'🌨️','61':'🌧️','63':'🌧️','65':'🌧️','66':'🌨️','67':'🌨️','71':'❄️','73':'❄️','75':'❄️','77':'❄️','80':'⛈️','81':'⛈️','82':'⛈️','85':'🌨️','86':'🌨️','95':'⛈️','96':'⛈️','99':'⛈️'}; return icons[code] || '❓'; }
+            function renderAll() {
+                renderTaskbar();
+                renderGenresList();
+                initPages();
+                updateExportArea();
+                setLeftPanelBg(data.leftPanelBg);
+                if (data.leftPanelBg) {
+                    document.getElementById('left-panel-bg-url').value = data.leftPanelBg;
+                }
+            }
 
-  function initBattery() {
-      if ('getBattery' in navigator) {
-          navigator.getBattery().then(battery => {
-              document.getElementById('battery-widget').style.display = 'flex';
-              updateBatteryStatus(battery);
-              battery.addEventListener('levelchange', () => updateBatteryStatus(battery));
-              battery.addEventListener('chargingchange', () => updateBatteryStatus(battery));
-          });
-      }
-  }
-  function updateBatteryStatus(battery) {
-      const level = Math.floor(battery.level * 100);
-      const iconEl = document.getElementById('battery-icon');
-      const levelEl = document.getElementById('battery-level');
-      levelEl.textContent = `${level}%`;
-      if (battery.charging) {
-          iconEl.textContent = '⚡️';
-      } else if (level < 20) {
-          iconEl.textContent = '⚠️';
-      } else {
-          iconEl.textContent = '🔋';
-      }
-  }
+            function setupEventListeners() {
+                document.body.addEventListener('click', initAudio, {
+                    once: true
+                });
+                document.getElementById('hamburger-btn').onclick = () => document.getElementById('hamburger-menu').classList.toggle('open');
+                document.getElementById('page-left-btn').onclick = () => changeGenre(data.currentGenreIndex - 1);
+                document.getElementById('page-right-btn').onclick = () => changeGenre(data.currentGenreIndex + 1);
+                document.getElementById('site-pages').addEventListener('wheel', handleWheelScroll, {
+                    passive: false
+                });
+                document.getElementById('add-taskbar-btn').onclick = handleAddTaskbar;
+                document.getElementById('google-search-input').onfocus = handleSearchFocus;
+                document.getElementById('google-search-input').oninput = handleSearchInput;
+                document.getElementById('google-search-input').onkeydown = handleSearchKeyDown;
+                document.onclick = (e) => {
+                    if (!document.getElementById('google-search').contains(e.target))
+                        hideSuggestions();
+                }
+                ;
+                document.querySelectorAll('.widget-tab').forEach(tab => tab.onclick = handleTabClick);
+                document.getElementById('timer-start').onclick = startTimer;
+                document.getElementById('timer-stop').onclick = stopTimer;
+                document.getElementById('timer-reset').onclick = resetTimer;
+                document.getElementById('stopwatch-start').onclick = startStopwatch;
+                document.getElementById('stopwatch-stop').onclick = stopStopwatch;
+                document.getElementById('stopwatch-lap').onclick = lapStopwatch;
+                document.getElementById('stopwatch-reset').onclick = resetStopwatch;
+                document.getElementById('add-genre-btn').onclick = addGenre;
+                document.getElementById('load-import-btn').onclick = loadImportData;
+                document.getElementById('copy-export-btn').onclick = copyExportData;
+                document.getElementById('set-bg-btn').onclick = () => {
+                    const url = document.getElementById('left-panel-bg-url').value.trim();
+                    setLeftPanelBg(url);
+                };
+                document.getElementById('clear-bg-btn').onclick = () => {
+                    document.getElementById('left-panel-bg-url').value = '';
+                    setLeftPanelBg('');
+                };
+                document.getElementById('theme-toggle-btn').onclick = toggleTheme;
+            }
 
-  initialize();
-})();
-</script>
+            function loadData() {
+                const s = localStorage.getItem(STORAGE_KEY);
+                if (s) {
+                    try {
+                        const p = JSON.parse(s);
+                        if (p && Array.isArray(p.genres))
+                            data = {
+                                ...data,
+                                ...p
+                            };
+                    } catch (e) {}
+                }
+                const h = localStorage.getItem(HISTORY_KEY);
+                if (h) {
+                    try {
+                        searchHistory = JSON.parse(h);
+                    } catch (e) {}
+                }
+            }
+            function saveData() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                updateExportArea();
+            }
+            function saveSearchHistory() {
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory));
+            }
+            function updateExportArea() {
+                document.getElementById('export-data').value = JSON.stringify(data, null, 2);
+            }
+            function initAudio() {
+                if (!audioContext) {
+                    try {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch (e) {}
+                }
+            }
+            function playBeep() {
+                if (!audioContext)
+                    return;
+                const o = audioContext.createOscillator()
+                  , g = audioContext.createGain();
+                o.connect(g);
+                g.connect(audioContext.destination);
+                o.type = 'sine';
+                o.frequency.setValueAtTime(880, audioContext.currentTime);
+                g.gain.setValueAtTime(0.5, audioContext.currentTime);
+                o.start();
+                o.stop(audioContext.currentTime + 0.5);
+            }
+            
+            function updateTime() {
+                const n = new Date();
+                document.getElementById('clock').textContent = n.toLocaleTimeString('ja-JP', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('date').textContent = n.toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                });
+            }
 
+            function escapeHtml(str) {
+                return str.replace(/[&<>"']/g, m => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                })[m]);
+            }
+            function startTimer() {
+                if (timerInterval)
+                    return;
+                if (timerTotalSeconds <= 0) {
+                    timerTotalSeconds = (parseInt(document.getElementById('timer-minutes').value) || 0) * 60 + (parseInt(document.getElementById('timer-seconds').value) || 0);
+                }
+                if (timerTotalSeconds <= 0)
+                    return;
+                timerInterval = setInterval( () => {
+                    timerTotalSeconds--;
+                    document.getElementById('timer-display').textContent = `${Math.floor(timerTotalSeconds / 60).toString().padStart(2, '0')}:${(timerTotalSeconds % 60).toString().padStart(2, '0')}`;
+                    if (timerTotalSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        playBeep();
+                        alert('タイマー終了！');
+                    }
+                }
+                , 1000);
+            }
+            function stopTimer() {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            function resetTimer() {
+                stopTimer();
+                timerTotalSeconds = 0;
+                document.getElementById('timer-display').textContent = '00:00';
+                document.getElementById('timer-minutes').value = '';
+                document.getElementById('timer-seconds').value = '';
+            }
+            function startStopwatch() {
+                if (!stopwatchInterval)
+                    stopwatchInterval = setInterval( () => {
+                        stopwatchTime += 10;
+                        document.getElementById('stopwatch-display').textContent = `${Math.floor(stopwatchTime / 60000).toString().padStart(2, '0')}:${Math.floor((stopwatchTime % 60000) / 1000).toString().padStart(2, '0')}.${Math.floor((stopwatchTime % 1000) / 10).toString().padStart(2, '0')}`;
+                    }
+                    , 10);
+            }
+            function stopStopwatch() {
+                clearInterval(stopwatchInterval);
+                stopwatchInterval = null;
+            }
+            function lapStopwatch() {
+                if (!stopwatchInterval && stopwatchTime === 0)
+                    return;
+                const l = document.createElement('li');
+                l.textContent = `Lap ${lapNumber++}: ${document.getElementById('stopwatch-display').textContent}`;
+                document.getElementById('lap-list').prepend(l);
+            }
+            function resetStopwatch() {
+                stopStopwatch();
+                stopwatchTime = 0;
+                lapNumber = 1;
+                document.getElementById('stopwatch-display').textContent = '00:00.00';
+                document.getElementById('lap-list').innerHTML = '';
+            }
+            
+            function handleTabClick(e) {
+                document.querySelectorAll('.widget-tab, .widget-content').forEach(el => el.classList.remove('active'));
+                e.target.classList.add('active');
+                document.getElementById(`widget-${e.target.dataset.tab}`).classList.add('active');
+            }
+            let wheelTimeout;
+            function handleWheelScroll(e) {
+                if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                    e.preventDefault();
+                    if (wheelTimeout)
+                        return;
+                    if (e.deltaX > 20)
+                        changeGenre(data.currentGenreIndex + 1);
+                    else if (e.deltaX < -20)
+                        changeGenre(data.currentGenreIndex - 1);
+                    wheelTimeout = setTimeout( () => {
+                        wheelTimeout = null;
+                    }
+                    , 300);
+                }
+            }
+            function handleAddTaskbar() {
+                const g = data.genres[data.currentGenreIndex];
+                if (!g || !g.sites.length)
+                    return alert('追加可能なサイトがありません');
+                const n = prompt(`タスクバーに追加:\n` + g.sites.map(s => s.name).join(', '));
+                if (!n)
+                    return;
+                const s = g.sites.find(s => s.name.toLowerCase() === n.trim().toLowerCase());
+                if (!s)
+                    return alert('サイトが見つかりません');
+                if (data.taskbarSites.some(ts => ts.id === s.id))
+                    return alert('既に追加済です');
+                data.taskbarSites.push(JSON.parse(JSON.stringify(s)));
+                renderTaskbar();
+                saveData();
+            }
+            function handleSearchFocus() {
+                if (document.getElementById('google-search-input').value.trim() === '' && searchHistory.length > 0)
+                    window.handleSuggestions(['', searchHistory]);
+            }
+            function handleSearchInput() {
+                clearTimeout(suggestionFetchTimer);
+                const q = document.getElementById('google-search-input').value.trim();
+                if (q)
+                    suggestionFetchTimer = setTimeout( () => fetchSuggestions(q), 300);
+                else
+                    hideSuggestions();
+            }
+            function handleSearchKeyDown(e) {
+                const i = document.getElementById('search-suggestions').querySelectorAll('.suggestion-item');
+                if (!i.length || document.getElementById('search-suggestions').style.display === 'none')
+                    return;
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (selectedSuggestionIndex < i.length - 1)
+                        selectedSuggestionIndex++;
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (selectedSuggestionIndex > 0)
+                        selectedSuggestionIndex--;
+                } else if (e.key === 'Enter' && selectedSuggestionIndex > -1) {
+                    e.preventDefault();
+                    i[selectedSuggestionIndex].click();
+                    return;
+                } else {
+                    return;
+                }
+                i.forEach( (item, index) => item.classList.toggle('selected', index === selectedSuggestionIndex));
+                if (selectedSuggestionIndex > -1)
+                    document.getElementById('google-search-input').value = i[selectedSuggestionIndex].querySelector('.text').textContent;
+            }
+            function normalizeUrl(u) {
+                u = u.trim();
+                if (!u)
+                    return '';
+                if (!/^(https?:\/\/|mailto:)/i.test(u))
+                    u = 'https://' + u;
+                return u;
+            }
+            function getFaviconUrl(u) {
+                try {
+                    const p = new URL(u);
+                    return `https://www.google.com/s2/favicons?sz=64&domain=${p.hostname}`
+                } catch {
+                    return ''
+                }
+            }
+            function createSiteIcon(s) {
+                const d = document.createElement('div');
+                d.className = 'site-icon';
+                d.dataset.siteId = s.id;
+                d.draggable = true;
+                d.title = s.name;
+                d.innerHTML = `<img src="${s.icon || getFaviconUrl(s.url)}" alt=""><div class="site-label">${s.name}</div><div class="delete-btn">×</div>`;
+                d.addEventListener('click', () => {
+                    window.location.href = s.url;
+                }
+                );
+                // ★ 変更: タブ内遷移
+                d.querySelector('.delete-btn').onclick = e => {
+                    e.stopPropagation();
+                    if (confirm(`「${s.name}」を削除しますか？`)) {
+                        const g = data.genres[data.currentGenreIndex];
+                        g.sites = g.sites.filter(i => i.id !== s.id);
+                        renderCurrentPage();
+                        saveData();
+                    }
+                }
+                ;
+                d.ondragstart = e => {
+                    draggedItem = d;
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', s.id);
+                    setTimeout( () => d.classList.add('dragging'), 0);
+                }
+                ;
+                d.ondragend = () => {
+                    if (!draggedItem)
+                        return;
+                    draggedItem.classList.remove('dragging');
+                    draggedItem = null;
+                    const p = document.querySelector('.drag-placeholder');
+                    if (p)
+                        p.remove();
+                }
+                ;
+                return d;
+            }
+            function handleDragOver(e) {
+                e.preventDefault();
+                const p = e.currentTarget;
+                if (!draggedItem)
+                    return;
+                const a = getDragAfterElement(p, e.clientY);
+                let h = p.querySelector('.drag-placeholder');
+                if (!h) {
+                    h = document.createElement('div');
+                    h.className = 'drag-placeholder';
+                }
+                if (a == null)
+                    p.appendChild(h);
+                else
+                    p.insertBefore(h, a);
+            }
+            function getDragAfterElement(c, y) {
+                const d = [...c.querySelectorAll('.site-icon:not(.dragging)')];
+                return d.reduce( (t, h) => {
+                    const b = h.getBoundingClientRect()
+                      , o = y - b.top - b.height / 2;
+                    if (o < 0 && o > t.offset)
+                        return {
+                            offset: o,
+                            element: h
+                        };
+                    else
+                        return t
+                }
+                , {
+                    offset: Number.NEGATIVE_INFINITY
+                }).element;
+            }
+            function handleDrop(e) {
+                e.preventDefault();
+                const p = e.currentTarget
+                  , h = p.querySelector('.drag-placeholder');
+                if (!h)
+                    return;
+                const i = Number(e.dataTransfer.getData('text/plain'))
+                  , g = data.genres[data.currentGenreIndex]
+                  , x = g.sites.findIndex(s => s.id === i);
+                if (x === -1)
+                    return;
+                const [s] = g.sites.splice(x, 1)
+                  , n = Array.from(p.children).indexOf(h);
+                g.sites.splice(n, 0, s);
+                h.remove();
+                renderCurrentPage();
+                saveData();
+            }
+            function renderTaskbar() {
+                const t = document.getElementById('taskbar');
+                [...t.querySelectorAll('.task-icon')].forEach(e => e.remove());
+                data.taskbarSites.forEach(s => {
+                    const d = document.createElement('div');
+                    d.className = 'task-icon';
+                    d.title = s.name;
+                    d.style.backgroundImage = `url('${s.icon || getFaviconUrl(s.url)}')`;
+                    d.style.backgroundSize = 'cover';
+                    d.addEventListener('click', () => {
+                        window.location.href = s.url;
+                    }
+                    );
+                    // ★ 変更: タブ内遷移
+                    const b = document.createElement('div');
+                    b.className = 'delete-btn';
+                    b.textContent = '×';
+                    b.onclick = e => {
+                        e.stopPropagation();
+                        if (confirm(`タスクバーから「${s.name}」削除しますか？`)) {
+                            data.taskbarSites = data.taskbarSites.filter(ts => ts.id !== s.id);
+                            renderTaskbar();
+                            saveData();
+                        }
+                    }
+                    ;
+                    d.appendChild(b);
+                    t.insertBefore(d, document.getElementById('add-taskbar-btn'));
+                }
+                );
+            }
+            function renderCurrentPage() {
+                const p = document.querySelector('.page-container')?.querySelector('.site-page');
+                if (!p)
+                    return;
+                p.innerHTML = '';
+                data.genres[data.currentGenreIndex]?.sites.forEach(s => p.appendChild(createSiteIcon(s)));
+                const b = document.createElement('div');
+                b.id = 'add-site-btn';
+                b.textContent = '+';
+                b.onclick = openAddSiteDialog;
+                p.appendChild(b);
+            }
+            function createPage(i) {
+                const d = document.createElement('div');
+                d.className = 'site-page';
+                d.dataset.genreIndex = i;
+                d.ondragover = handleDragOver;
+                d.ondrop = handleDrop;
+                const g = data.genres[i];
+                if (g)
+                    g.sites.forEach(s => d.appendChild(createSiteIcon(s)));
+                const b = document.createElement('div');
+                b.id = 'add-site-btn';
+                b.textContent = '+';
+                b.onclick = openAddSiteDialog;
+                d.appendChild(b);
+                return d;
+            }
+            function changeGenre(i) {
+                if (i === data.currentGenreIndex || isAnimating || i < 0 || i >= data.genres.length)
+                    return;
+                isAnimating = true;
+                const o = data.currentGenreIndex
+                  , d = i > o ? 1 : -1
+                  , p = document.querySelector('.page-container').querySelector(`[data-genre-index="${o}"]`)
+                  , n = createPage(i);
+                n.style.transform = `translateX(${d * 100}%)`;
+                document.querySelector('.page-container').appendChild(n);
+                requestAnimationFrame( () => {
+                    if (p)
+                        p.style.transform = `translateX(${-d * 100}%)`;
+                    n.style.transform = 'translateX(0)';
+                }
+                );
+                document.getElementById('genre-title').textContent = data.genres[i].name;
+                data.currentGenreIndex = i;
+                updatePageIndicator();
+                saveData();
+                setTimeout( () => {
+                    if (p && p.parentNode)
+                        p.parentNode.removeChild(p);
+                    isAnimating = false;
+                }
+                , 500);
+            }
+            function initPages() {
+                const p = document.querySelector('.page-container');
+                if (!p)
+                    return;
+                p.innerHTML = '';
+                if (data.genres.length === 0) {
+                    data.genres.push({
+                        id: Date.now(),
+                        name: 'default',
+                        sites: []
+                    });
+                    data.currentGenreIndex = 0;
+                }
+                if (data.currentGenreIndex >= data.genres.length || data.currentGenreIndex < 0)
+                    data.currentGenreIndex = 0;
+                const i = createPage(data.currentGenreIndex);
+                p.appendChild(i);
+                document.getElementById('genre-title').textContent = data.genres[data.currentGenreIndex]?.name || '';
+                updatePageIndicator();
+            }
+            function updatePageIndicator() {
+                const p = document.getElementById('page-indicator');
+                if (!p)
+                    return;
+                p.innerHTML = '';
+                data.genres.forEach( (g, i) => {
+                    const d = document.createElement('div');
+                    d.className = `indicator-dot ${i === data.currentGenreIndex ? 'active' : ''}`;
+                    d.title = g.name;
+                    d.onclick = () => changeGenre(i);
+                    p.appendChild(d);
+                }
+                );
+            }
+            function openAddSiteDialog() {
+                const n = prompt('サイト名:');
+                if (!n)
+                    return;
+                const u = prompt('URL:');
+                if (!u)
+                    return;
+                data.genres[data.currentGenreIndex].sites.push({
+                    id: Date.now(),
+                    name: n,
+                    url: normalizeUrl(u),
+                    icon: ''
+                });
+                renderCurrentPage();
+                saveData();
+            }
+            function googleSearch(q) {
+                let v = q || document.getElementById('google-search-input').value.trim();
+                if (!v)
+                    return;
+                addSearchHistory(v);
+                if (v.includes('.') && !v.includes(' ')) {
+                    window.location.href = normalizeUrl(v);
+                } else {
+                    window.location.href = `https://www.google.com/search?q=${encodeURIComponent(v)}`;
+                }
+                document.getElementById('google-search-input').value = '';
+                hideSuggestions();
+            }
+            window.googleSearch = googleSearch;
+            // ★ 変更: タブ内遷移
+            function addSearchHistory(q) {
+                searchHistory = searchHistory.filter(i => i !== q);
+                searchHistory.unshift(q);
+                if (searchHistory.length > MAX_HISTORY_COUNT)
+                    searchHistory.pop();
+                saveSearchHistory();
+            }
+            function removeSearchHistory(q) {
+                searchHistory = searchHistory.filter(i => i !== q);
+                saveSearchHistory();
+            }
+            function fetchSuggestions(q) {
+                const o = document.getElementById('jsonp-script');
+                if (o)
+                    o.remove();
+                const s = document.createElement('script');
+                s.id = 'jsonp-script';
+                s.src = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}&callback=window.handleSuggestions`;
+                document.head.appendChild(s);
+            }
+            window.handleSuggestions = (d) => {
+                const s = d[1]
+                  , q = document.getElementById('google-search-input').value.trim().toLowerCase()
+                  , h = searchHistory.filter(i => i.toLowerCase().includes(q));
+                document.getElementById('search-suggestions').innerHTML = '';
+                const t = [];
+                h.forEach(i => t.push({
+                    type: 'history',
+                    text: i
+                }));
+                s.forEach(i => {
+                    if (!h.includes(i))
+                        t.push({
+                            type: 'suggestion',
+                            text: i
+                        });
+                }
+                );
+                if (t.length > 0) {
+                    t.forEach(item => {
+                        const v = document.createElement('div');
+                        v.className = 'suggestion-item';
+                        v.innerHTML = `<span class="icon">${item.type === 'history' ? '🕒' : '🔍'}</span><span class="text">${item.text}</span>${item.type === 'history' ? '<button class="remove-history">×</button>' : ''}`;
+                        v.onclick = e => {
+                            if (e.target.classList.contains('remove-history')) {
+                                e.stopPropagation();
+                                removeSearchHistory(item.text);
+                                document.getElementById('google-search-input').dispatchEvent(new Event('input'));
+                            } else {
+                                document.getElementById('google-search-input').value = item.text;
+                                googleSearch();
+                            }
+                        }
+                        ;
+                        document.getElementById('search-suggestions').appendChild(v);
+                    }
+                    );
+                    showSuggestions();
+                } else
+                    hideSuggestions();
+                const o = document.getElementById('jsonp-script');
+                if (o)
+                    o.remove();
+            }
+            function showSuggestions() {
+                document.getElementById('search-suggestions').style.display = 'block';
+                selectedSuggestionIndex = -1;
+            }
+            function hideSuggestions() {
+                document.getElementById('search-suggestions').style.display = 'none';
+                selectedSuggestionIndex = -1;
+            }
+            function addGenre() {
+                const n = document.getElementById('new-genre-name').value.trim();
+                if (!n)
+                    return;
+                if (data.genres.some(g => g.name === n))
+                    return alert('同名ジャンルが存在します');
+                data.genres.push({
+                    id: Date.now(),
+                    name: n,
+                    sites: []
+                });
+                document.getElementById('new-genre-name').value = '';
+                renderGenresList();
+                updatePageIndicator();
+                saveData();
+            }
+            function renderGenresList() {
+                const l = document.querySelector('#hamburger-menu .genre-list');
+                l.innerHTML = '';
+                data.genres.forEach( (g) => {
+                    const d = document.createElement('div');
+                    d.className = 'genre-list-item';
+                    d.textContent = g.name;
+                    d.draggable = true;
+                    d.dataset.genreId = g.id;
+                    d.addEventListener('dragstart', handleGenreDragStart);
+                    d.addEventListener('dragover', handleGenreDragOver);
+                    d.addEventListener('drop', handleGenreDrop);
+                    d.addEventListener('dragend', handleGenreDragEnd);
+                    const b = document.createElement('button');
+                    b.textContent = '削除';
+                    b.onclick = () => {
+                        if (data.genres.length <= 1)
+                            return alert('最後のジャンルは削除できません');
+                        if (confirm(`「${g.name}」を削除しますか？`)) {
+                            const i = data.genres.findIndex(genre => genre.id === g.id);
+                            data.genres.splice(i, 1);
+                            if (data.currentGenreIndex >= i)
+                                data.currentGenreIndex = Math.max(0, data.currentGenreIndex - 1);
+                            renderGenresList();
+                            initPages();
+                            saveData();
+                        }
+                    }
+                    ;
+                    d.appendChild(b);
+                    l.appendChild(d);
+                }
+                );
+            }
+            function handleGenreDragStart(e) {
+                draggedGenre = e.target;
+                setTimeout( () => e.target.classList.add('dragging'), 0);
+            }
+            function handleGenreDragOver(e) {
+                e.preventDefault();
+                const t = e.target.closest('.genre-list-item');
+                if (t && t !== draggedGenre) {
+                    const r = t.getBoundingClientRect()
+                      , o = e.clientY - r.top - r.height / 2;
+                    if (o < 0) {
+                        t.parentNode.insertBefore(draggedGenre, t);
+                    } else {
+                        t.parentNode.insertBefore(draggedGenre, t.nextSibling);
+                    }
+                }
+            }
+            function handleGenreDragEnd(e) {
+                if (draggedGenre)
+                    draggedGenre.classList.remove('dragging');
+                draggedGenre = null;
+            }
+            function handleGenreDrop(e) {
+                e.preventDefault();
+                if (!draggedGenre)
+                    return;
+                const n = [...document.querySelectorAll('#hamburger-menu .genre-list-item')].map(d => d.dataset.genreId);
+                const o = [];
+                n.forEach(id => {
+                    const g = data.genres.find(g => g.id == id);
+                    if (g)
+                        o.push(g);
+                }
+                );
+                data.genres = o;
+                if (data.genres[data.currentGenreIndex]) {
+                    const cI = data.genres.findIndex(g => g.id == data.genres[data.currentGenreIndex].id);
+                    if (cI !== -1)
+                        data.currentGenreIndex = cI;
+                } else {
+                    data.currentGenreIndex = 0;
+                }
+                saveData();
+                updatePageIndicator();
+                initPages();
+            }
+            function loadImportData() {
+                try {
+                    const d = JSON.parse(document.getElementById('import-data').value);
+                    if (d && Array.isArray(d.genres)) {
+                        data = d;
+                        saveData();
+                        alert('読込成功');
+                        location.reload();
+                    } else
+                        alert('無効な形式');
+                } catch (e) {
+                    alert('解析失敗');
+                }
+            }
+            function copyExportData() {
+                const a = document.getElementById('export-data');
+                a.select();
+                navigator.clipboard.writeText(a.value).then( () => alert('コピーしました'));
+            }
+
+            function initTaskbarWidgets() {
+                initWeather();
+                initBattery();
+            }
+
+            function toggleTheme() {
+                document.body.classList.toggle('light-mode');
+                const isLight = document.body.classList.contains('light-mode');
+                localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark');
+                document.getElementById('theme-toggle-btn').textContent = isLight ? '☀️' : '🌙';
+            }
+            function loadTheme() {
+                const savedTheme = localStorage.getItem(THEME_KEY);
+                if (savedTheme === 'light') {
+                    document.body.classList.add('light-mode');
+                    document.getElementById('theme-toggle-btn').textContent = '☀️';
+                }
+            }
+            
+            function setLeftPanelBg(url = '') {
+                const panel = document.getElementById('left-panel');
+                if (url) {
+                    panel.style.backgroundImage = `url(${url})`;
+                    panel.style.backgroundColor = 'transparent'; // 背景画像があるときは元の背景色を消す
+                } else {
+                    panel.style.backgroundImage = 'none';
+                    panel.style.backgroundColor = 'var(--bg-panel)'; // 背景画像を消したら元の色に戻す
+                }
+                data.leftPanelBg = url;
+                saveData();
+            }
+
+            function initWeather() {
+                const iconEl = document.getElementById('weather-icon');
+                const tempEl = document.getElementById('weather-temp');
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const {latitude, longitude} = pos.coords;
+                    try {
+                        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+                        const weatherData = await res.json();
+                        const {temperature, weathercode} = weatherData.current_weather;
+                        iconEl.textContent = getWeatherIcon(weathercode);
+                        tempEl.textContent = `${Math.round(temperature)}°C`;
+                    } catch {
+                        iconEl.textContent = '⚠️';
+                    }
+                }
+                , () => {
+                    iconEl.textContent = '📍';
+                    tempEl.textContent = '許可なし';
+                }
+                );
+            }
+            function getWeatherIcon(code) {
+                const icons = {
+                    '0': '☀️', '1': '🌤️', '2': '⛅️', '3': '☁️', '45': '🌫️', '48': '🌫️', '51': '🌦️',
+                    '53': '🌦️', '55': '🌦️', '56': '🌨️', '57': '🌨️', '61': '🌧️', '63': '🌧️', '65': '🌧️',
+                    '66': '🌨️', '67': '🌨️', '71': '❄️', '73': '❄️', '75': '❄️', '77': '❄️', '80': '⛈️',
+                    '81': '⛈️', '82': '⛈️', '85': '🌨️', '86': '🌨️', '95': '⛈️', '96': '⛈️', '99': '⛈️'
+                };
+                return icons[code] || '❓';
+            }
+
+            function initBattery() {
+                if ('getBattery'in navigator) {
+                    navigator.getBattery().then(battery => {
+                        document.getElementById('battery-widget').style.display = 'flex';
+                        updateBatteryStatus(battery);
+                        battery.addEventListener('levelchange', () => updateBatteryStatus(battery));
+                        battery.addEventListener('chargingchange', () => updateBatteryStatus(battery));
+                    }
+                    );
+                }
+            }
+            function updateBatteryStatus(battery) {
+                const level = Math.floor(battery.level * 100);
+                const iconEl = document.getElementById('battery-icon');
+                const levelEl = document.getElementById('battery-level');
+                levelEl.textContent = `${level}%`;
+                if (battery.charging) {
+                    iconEl.textContent = '⚡️';
+                } else if (level < 20) {
+                    iconEl.textContent = '⚠️';
+                } else {
+                    iconEl.textContent = '🔋';
+                }
+            }
+
+            initialize();
+        }
+        )();
+    </script>
 </body>
 </html>
