@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>ホーム画面 v4</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+
+        :root {
+            --bg-body: #000000;
+            --panel-bg: #1c1c1e;
+            --panel-border: #333333;
+            --text-main: #ffffff;
+            --text-sub: #a0a0a0;
+            --accent: #ffffff;
+            --icon-fill: #ffffff;
+            --danger: #ff453a;
+            
+            --font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            --radius-l: 28px;
+            --radius-m: 18px;
+            --taskbar-height: 72px;
+            --icon-size: 26px;
+            --panel-padding: 24px;
+            --shadow-panel: 0 8px 30px rgba(0, 0, 0, 0.5);
+            --body-bg-image: none;
+        }
+
+        body.light-mode {
+            --bg-body: #f5f5f7;
+            --panel-bg: #ffffff;
+            --panel-border: #e5e5ea;
+            --text-main: #1d1d1f;
+            --text-sub: #86868b;
+            --accent: #000000;
+            --icon-fill: #1d1d1f;
+            --shadow-panel: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            margin: 0; font-family: var(--font-family);
+            background-color: var(--bg-body); color: var(--text-main);
+            height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
+            transition: color 0.3s, background-color 0.3s;
+        }
+
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background-image: var(--body-bg-image);
+            background-size: cover; background-position: center;
+            z-index: -2; transition: background-image 0.5s;
+        }
+        body::after {
+            content: ''; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4); z-index: -1;
+        }
+
+        /* 透明(グラス)効果を廃止したソリッドパネル */
+        .solid-panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--shadow-panel);
+            position: relative; overflow: hidden;
+            border-radius: var(--radius-m);
+        }
+
+        .icon-svg {
+            width: var(--icon-size); height: var(--icon-size);
+            fill: var(--icon-fill); transition: fill 0.3s;
+        }
+        button:hover .icon-svg, .clickable:hover .icon-svg, a:hover .icon-svg { opacity: 0.7; }
+
+        /* --- タスクバー --- */
+        #taskbar {
+            height: var(--taskbar-height); margin: 20px 24px 0; padding: 0 20px;
+            border-radius: var(--radius-l); display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0; z-index: 50;
+        }
+        #taskbar-left, #taskbar-right { display: flex; align-items: center; gap: 12px; }
+
+        .bar-btn {
+            width: 48px; height: 48px; border-radius: var(--radius-m);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s; position: relative;
+        }
+        .bar-btn:hover { background: rgba(128, 128, 128, 0.2); transform: translateY(-2px); }
+
+        .mini-delete {
+            position: absolute; top: -6px; right: -6px;
+            width: 22px; height: 22px;
+            background: var(--danger); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s, transform 0.2s; z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .mini-delete svg { width: 14px; height: 14px; fill: white; stroke: white; stroke-width: 2; }
+        .bar-btn:hover .mini-delete, .site-card:hover .mini-delete { opacity: 1; transform: scale(1.1); }
+
+        .widget-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 14px; border-radius: var(--radius-m);
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: background 0.2s;
+            height: 48px; box-sizing: border-box;
+        }
+        .widget-item:hover { background: rgba(128, 128, 128, 0.2); }
+        .widget-text-group { display: flex; flex-direction: column; line-height: 1.2; text-align: right; }
+        .widget-sub-text { font-size: 10px; color: var(--text-sub); display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+
+        /* --- 検索エリア --- */
+        #search-container {
+            margin: 24px auto; width: 100%; max-width: 760px;
+            position: relative; z-index: 40;
+        }
+        #search-box-wrapper { display: flex; align-items: center; gap: 12px; height: 60px; }
+        #search-box {
+            display: flex; align-items: center; flex: 1; height: 100%;
+            border-radius: var(--radius-l); padding: 0 20px; transition: box-shadow 0.3s;
+        }
+        #search-box:focus-within { box-shadow: 0 0 0 3px var(--text-sub); }
+        #search-icon-wrapper { margin-right: 16px; display: flex; align-items: center; }
+        #google-search-input {
+            flex: 1; background: transparent; border: none;
+            color: var(--text-main); font-size: 18px; outline: none;
+        }
+        
+        .ai-search-btn {
+            height: 60px; border-radius: var(--radius-l); padding: 0 20px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: background 0.2s, transform 0.2s; cursor: pointer; text-decoration: none;
+            font-weight: 600; font-size: 15px; color: var(--text-main);
+        }
+        .ai-search-btn:hover { background: rgba(128, 128, 128, 0.2); transform: translateY(-2px); }
+
+        #search-suggestions {
+            position: absolute; top: 70px; left: 0; right: 0;
+            border-radius: var(--radius-m); display: none; padding: 10px 0; z-index: 100;
+        }
+        .suggestion-item {
+            padding: 12px 20px; display: flex; align-items: center;
+            cursor: pointer; font-size: 16px; transition: background 0.2s;
+        }
+        .suggestion-item:hover { background: rgba(128, 128, 128, 0.2); }
+        .suggestion-icon { margin-right: 16px; opacity: 0.5; }
+        .suggestion-delete { opacity: 0.4; cursor: pointer; padding: 6px; border-radius: 6px; margin-left: auto; }
+        .suggestion-delete:hover { opacity: 1; background: rgba(255, 59, 48, 0.2); }
+
+        /* --- メインコンテンツ --- */
+        #main-area {
+            flex: 1; display: flex; gap: 24px;
+            padding: 0 24px 24px; overflow: hidden; box-sizing: border-box;
+        }
+
+        #left-panel {
+            flex: 1.6; border-radius: var(--radius-l); display: flex; flex-direction: column;
+            padding: var(--panel-padding); position: relative;
+        }
+        #genre-header {
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 24px; position: relative; height: 40px;
+        }
+        #genre-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(128,128,128,0.2);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .nav-btn:hover { background: rgba(128,128,128,0.5); }
+        .nav-left { left: 0; } .nav-right { right: 0; }
+
+        #pages-viewport { flex: 1; position: relative; overflow: hidden; border-radius: var(--radius-m); }
+        .page-slider { display: flex; height: 100%; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .site-page {
+            min-width: 100%; padding: 10px; box-sizing: border-box;
+            display: flex; flex-wrap: wrap; align-content: flex-start;
+            gap: 24px; overflow-y: auto;
+        }
+        .site-page::-webkit-scrollbar { display: none; }
+
+        .site-card {
+            width: 90px; height: 110px; display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-start; cursor: pointer;
+            position: relative; transition: transform 0.2s;
+        }
+        .site-card:hover { transform: translateY(-5px); }
+        .site-card.dragging { opacity: 0.4; }
+        .site-icon-box {
+            width: 64px; height: 64px; background: rgba(128,128,128,0.2);
+            border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .site-icon-box img { width: 36px; height: 36px; border-radius: 8px; }
+        .site-name {
+            font-size: 13px; text-align: center; color: var(--text-main);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; font-weight: 500;
+        }
+        .add-card-btn {
+            width: 64px; height: 64px; border-radius: 18px;
+            border: 2px dashed rgba(128,128,128,0.5);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; opacity: 0.6; transition: opacity 0.2s;
+        }
+        .add-card-btn:hover { opacity: 1; }
+
+        /* 名前表示復活 */
+        #page-indicator {
+            display: flex; justify-content: center; gap: 12px;
+            margin-top: 16px; padding: 10px;
+        }
+        .dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--text-sub); opacity: 0.4;
+            transition: all 0.3s; cursor: pointer; position: relative;
+        }
+        .dot:hover { opacity: 0.7; transform: scale(1.2); }
+        .dot.active { background: var(--text-main); opacity: 1; transform: scale(1.3); }
+        .dot::after {
+            content: attr(data-title);
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--text-main); color: var(--bg-body); padding: 4px 8px;
+            border-radius: 4px; font-size: 11px; font-weight: bold; white-space: nowrap;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .dot:hover::after { opacity: 1; }
+        
+        #right-panel {
+            flex: 1; border-radius: var(--radius-l);
+            display: flex; flex-direction: column; padding: var(--panel-padding);
+        }
+        #clock-area {
+            text-align: center; margin-bottom: 16px; padding-bottom: 16px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+        /* 時計の秒数復活 */
+        #clock-time { font-size: 58px; font-weight: 200; line-height: 1; margin-bottom: 6px; letter-spacing: -2px; }
+        #clock-date { font-size: 16px; color: var(--text-sub); }
+        
+        #calendar-container {
+            flex: 1; border-radius: var(--radius-m); overflow: hidden;
+            background: rgba(128,128,128,0.1); position: relative;
+        }
+        #calendar-iframe { width: 100%; height: 100%; border: none; }
+        
+        #schedule-link-btn {
+            display: block; margin-top: 12px;
+            background: rgba(128,128,128,0.2); color: var(--text-main);
+            text-decoration: none; padding: 10px; text-align: center;
+            border-radius: 12px; font-size: 14px; font-weight: bold;
+            transition: background 0.2s;
+        }
+        #schedule-link-btn:hover { background: rgba(128,128,128,0.4); }
+
+        /* --- ニュースパネル (スライドアップ) --- */
+        #news-panel {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 70vh;
+            transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 200; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box;
+            display: flex; flex-direction: column; border-bottom: none;
+        }
+        #news-panel.open { transform: translateY(0); }
+        #news-handle {
+            width: 60px; height: 6px; background: var(--text-sub); border-radius: 3px;
+            margin: 0 auto 20px; opacity: 0.5;
+        }
+        #news-content { flex: 1; overflow-y: auto; display: grid; gap: 12px; padding-bottom: 24px; }
+        .news-item {
+            padding: 16px; background: rgba(128,128,128,0.1); border-radius: 12px;
+            text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 6px;
+        }
+        .news-item:hover { background: rgba(128,128,128,0.2); }
+        .news-date { font-size: 12px; color: var(--text-sub); }
+        .news-title { font-size: 16px; font-weight: bold; line-height: 1.4; }
+
+        /* --- モーダル全般 --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-window {
+            width: 550px; max-height: 85vh; padding: 32px;
+            border-radius: var(--radius-l); display: flex; flex-direction: column;
+            transform: scale(0.95); transition: transform 0.3s; overflow-y: auto;
+        }
+        .modal-overlay.open .modal-window { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-header h2 { margin: 0; font-size: 24px; font-weight: 700; }
+        .close-modal-btn {
+            background: rgba(128,128,128,0.2); border: none; cursor: pointer; color: var(--text-main);
+            width: 36px; height: 36px; border-radius: 50%; font-size: 18px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .close-modal-btn:hover { background: rgba(128,128,128,0.5); }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-sub); font-weight: 600; }
+        .form-input {
+            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--panel-border);
+            background: var(--bg-body); color: var(--text-main); box-sizing: border-box; font-size: 15px; outline: none;
+        }
+        .form-input:focus { border-color: var(--text-sub); }
+        .btn-primary {
+            background: var(--text-main); color: var(--bg-body); border: none;
+            padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
+        }
+        .btn-primary:hover { opacity: 0.8; }
+        
+        #genre-settings-list { display: flex; flex-direction: column; gap: 8px; }
+        .genre-setting-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(128,128,128,0.1); padding: 12px 16px; border-radius: 10px;
+            cursor: grab; transition: background 0.2s;
+        }
+
+        /* --- 複数メモ機能 --- */
+        .memo-list-item {
+            padding: 12px; border-radius: 8px; cursor: pointer; transition: background 0.2s;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; color: var(--text-sub);
+        }
+        .memo-list-item:hover { background: rgba(128,128,128,0.1); }
+        .memo-list-item.active { background: rgba(128,128,128,0.2); color: var(--text-main); font-weight: bold; }
+
+        #data-area { height: 100px; margin-top: 12px; display: block; font-family: monospace; font-size: 12px; opacity: 1; }
+
+        /* --- 放置モード (スクリーンセーバー) --- */
+        #screensaver {
+            position: fixed; inset: 0; z-index: 9999;
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+            background-size: 400% 400%; animation: rainbowBg 15s ease infinite;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.5s; cursor: none;
+        }
+        #screensaver.active { display: flex; opacity: 1; }
+        @keyframes rainbowBg { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        #ss-clock { font-size: 15vw; font-weight: 200; color: rgba(255,255,255,0.9); mix-blend-mode: overlay; }
+
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        .measuring { animation: pulse 1s infinite; }
+    </style>
+</head>
+<body>
+    <!-- 放置モード (全画面) -->
+    <div id="screensaver">
+        <div id="ss-clock">00:00:00</div>
+    </div>
+
+    <!-- ニュースパネル -->
+    <div id="news-panel" class="solid-panel">
+        <div id="news-handle"></div>
+        <h2 style="margin-top:0;">最新ニュース</h2>
+        <div id="news-content">取得中...</div>
+    </div>
+
+    <!-- アプリ追加モーダル -->
+    <div id="add-app-modal" class="modal-overlay">
+        <div class="modal-window solid-panel" style="width: 400px;">
+            <div class="modal-header">
+                <h2>アプリを追加</h2>
+                <button class="close-modal-btn" onclick="toggleModal('add-app-modal')">✖</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">サイト名</label>
+                <input type="text" id="add-app-name" class="form-input" placeholder="Google">
+            </div>
+            <div class="form-group">
+                <label class="form-label">URL</label>
+                <input type="text" id="add-app-url" class="form-input" placeholder="https://www.google.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label">追加先</label>
+                <select id="add-app-target" class="form-input"></select>
+            </div>
+            <button id="submit-add-app-btn" class="btn-primary" style="width: 100%;">追加する</button>
+        </div>
+    </div>
+
+    <!-- 設定モーダル -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-window solid-panel">
+            <div class="modal-header">
+                <h2>設定</h2>
+                <button class="close-modal-btn" onclick="toggleModal('settings-modal')">✖</button>
+            </div>
+            <div id="settings-content">
+                <div class="form-group">
+                    <label class="form-label">ジャンル管理</label>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <input type="text" id="new-genre-input" class="form-input" placeholder="ジャンル名">
+                        <button id="add-genre-btn" class="btn-primary">追加</button>
+                    </div>
+                    <div id="genre-settings-list"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">カレンダーURL (埋め込み用src)</label>
+                    <input type="text" id="calendar-url-input" class="form-input" placeholder="https://calendar.google.com/calendar/embed?...">
+                    <button id="save-calendar-btn" class="btn-primary" style="margin-top:10px; width:100%;">更新</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">背景画像 (URL または ファイル)</label>
+                    <div style="display:flex; gap:10px; margin-bottom:8px;">
+                        <input type="text" id="bg-url-input" class="form-input" placeholder="https://...">
+                        <button id="set-bg-url-btn" class="btn-primary">URL設定</button>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="file" id="bg-file-input" accept="image/*" class="form-input" style="padding:8px;">
+                        <button id="set-bg-file-btn" class="btn-primary">ファイル設定</button>
+                    </div>
+                    <button id="clear-bg-btn" style="margin-top:10px; width:100%; padding:10px; border-radius:8px; border:1px solid var(--text-sub); background:none; color:var(--text-sub); cursor:pointer;">リセット</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">データ管理</label>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <button id="paste-import-btn" class="btn-primary" style="flex:1;">📋 読み込み</button>
+                        <button id="copy-btn" class="btn-primary" style="flex:1; background:var(--panel-border);">コピー(書き出し)</button>
+                    </div>
+                    <textarea id="data-area" class="form-input"></textarea>
+                    <button id="text-import-btn" class="btn-primary" style="margin-top:8px; width:100%;">テキストエリアから読み込み</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 複数メモモーダル -->
+    <div id="memo-modal" class="modal-overlay">
+        <div class="modal-window solid-panel" style="width: 800px; height: 60vh; flex-direction: row; padding: 0;">
+            <div style="width: 250px; border-right: 1px solid var(--panel-border); display: flex; flex-direction: column;">
+                <div class="modal-header" style="padding: 16px; margin: 0; border-bottom: 1px solid var(--panel-border);">
+                    <h2 style="font-size: 18px;">メモ帳</h2>
+                    <button id="add-memo-btn" class="close-modal-btn" style="width:32px;height:32px;">+</button>
+                </div>
+                <div id="memo-list" style="flex: 1; overflow-y: auto; padding: 8px;"></div>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; position: relative;">
+                <div style="position: absolute; top: 16px; right: 16px; z-index: 10;">
+                    <button class="close-modal-btn" onclick="toggleModal('memo-modal')">✖</button>
+                </div>
+                <input type="text" id="memo-title-input" placeholder="タイトル" style="background: none; border: none; padding: 20px 60px 10px 20px; font-size: 20px; font-weight: bold; color: var(--text-main); outline: none;">
+                <textarea id="memo-textarea" placeholder="ここにメモを入力... (自動保存されます)" style="flex: 1; background: none; border: none; padding: 10px 20px 20px; color: var(--text-main); font-size: 16px; resize: none; outline: none;"></textarea>
+                <button id="delete-memo-btn" style="position: absolute; bottom: 16px; right: 16px; background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; display: none;">削除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- タスクバー -->
+    <div id="taskbar" class="solid-panel">
+        <div id="taskbar-left">
+            <div id="hamburger-btn" class="bar-btn" title="設定"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.04.17 0 .36.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.04-.22 0-.41-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+            <div id="memo-btn" class="bar-btn" title="メモ"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></div>
+            <div id="add-taskbar-btn" class="bar-btn" title="サイトを追加"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
+        </div>
+        <div id="taskbar-right">
+            <div id="battery-widget" class="widget-item" title="バッテリー残量">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+                <div class="widget-text-group">
+                    <span id="battery-level">--%</span><span id="battery-status" class="widget-sub-text"></span>
+                </div>
+            </div>
+
+            <div id="network-widget" class="widget-item" title="クリックで速度計測">
+                <span id="network-icon" style="font-size:20px; width:26px; text-align:center;">📶</span>
+                <div class="widget-text-group">
+                    <span id="network-speed">--</span><span class="widget-sub-text">Mbps</span>
+                </div>
+            </div>
+            
+            <!-- 放置モード手動ボタン追加 -->
+            <div id="screensaver-btn" class="bar-btn" title="放置モード起動 (全画面)"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-2-2H5V7h14v10z"/></svg></div>
+            
+            <div id="theme-toggle" class="bar-btn" title="テーマ切替"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg></div>
+        </div>
+    </div>
+
+    <!-- 検索とAI -->
+    <div id="search-container">
+        <div id="search-box-wrapper">
+            <div id="search-box" class="solid-panel">
+                <div id="search-icon-wrapper"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
+                <input type="text" id="google-search-input" placeholder="検索 または URL" autocomplete="off"/>
+            </div>
+            <!-- Google AI ボタン (テキスト追加) -->
+            <a href="https://www.google.com/search?q=&sxsrf=ANbL-n4CaJRaTLFXkafIYP5XKIUle0O-YQ%3A1774596836497&aep=22&udm=50&oq=" target="_blank" class="ai-search-btn solid-panel" title="Google AI">
+                <svg viewBox="0 0 24 24" style="width:24px; height:24px; fill:var(--text-main);">
+                    <path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/>
+                </svg>
+                <span>AIモード</span>
+            </a>
+        </div>
+        <div id="search-suggestions" class="solid-panel"></div>
+    </div>
+
+    <!-- メイン -->
+    <div id="main-area">
+        <div id="left-panel" class="solid-panel">
+            <div id="genre-header">
+                <div class="nav-btn nav-left" id="page-left-btn"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></div>
+                <div id="genre-title">Links</div>
+                <div class="nav-btn nav-right" id="page-right-btn"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+            </div>
+            <div id="pages-viewport"><div class="page-slider"></div></div>
+            <div id="page-indicator"></div>
+        </div>
+
+        <div id="right-panel" class="solid-panel">
+            <div id="clock-area">
+                <div id="clock-time">00:00:00</div>
+                <div id="clock-date">--</div>
+            </div>
+            <div id="calendar-container">
+                <iframe id="calendar-iframe" src=""></iframe>
+            </div>
+            <a id="schedule-link-btn" href="https://calendar.google.com/calendar/r/day" target="_blank">今日の予定 (Google Calendar)</a>
+        </div>
+    </div>
+
+    <script>
+        ( () => {
+            const ICONS = {
+                trash: '<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>', 
+                history: '<path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 6v5l4.28 2.54.72-1.21-3.5-2.08V9H12z"/>',
+                search: '<path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>'
+            };
+            const STORAGE_KEY = 'liquid-startpage-unique-2024'; 
+            const HISTORY_KEY = 'liquid-history-unique-2024';
+            const THEME_KEY   = 'liquid-theme-unique-2024';
+            const BG_KEY      = 'liquid-bg-unique-2024';
+            const MEMO_KEY    = 'liquid-memo-unique-2024';
+            const CALENDAR_DEFAULT = 'https://calendar.google.com/calendar/embed?src=ja.japanese%23holiday%40group.v.calendar.google.com&ctz=Asia%2FTokyo&showTitle=0&showNav=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=MONTH';
+
+            let data = { genres: [ { id: Date.now(), name: 'メイン', sites: [ { id: Date.now()+1, name: 'Google', url: 'https://www.google.com', icon: '' } ] } ], currentGenreIndex: 0, taskbarSites: [], memos: [], calendarUrl: CALENDAR_DEFAULT };
+            let searchHistory = [], suggestionTimer, wheelCooldown = false, draggedGenreItem = null;
+            let currentMemoId = null, newsLoaded = false, isMeasuring = false;
+            let idleTimeout;
+
+function init() {
+    loadData(); 
+    loadTheme(); 
+    loadBg();
+    renderAll(); 
+    setupEvents(); 
+    initClock(); 
+    initBattery(); 
+    setupScreensaver();
+    document.getElementById('calendar-iframe').src = data.calendarUrl || CALENDAR_DEFAULT;
+
+    // --- 2. データの競合・同期対策を追加 ---
+    window.addEventListener('storage', (e) => {
+        // 他のタブでデータが保存されたら、このページも最新状態に更新する
+        if (e.key === STORAGE_KEY) {
+            loadData();
+            renderAll();
+        }
+        if (e.key === THEME_KEY) loadTheme();
+        if (e.key === BG_KEY) loadBg();
+    });
+}
+
+            function loadData() {
+                const s = localStorage.getItem(STORAGE_KEY); if(s) { try{ data = { ...data, ...JSON.parse(s) }; } catch(e){} }
+                const h = localStorage.getItem(HISTORY_KEY); if(h) { try{ searchHistory = JSON.parse(h); } catch(e){} }
+                if(!data.memos || data.memos.length === 0) {
+                    const oldMemo = localStorage.getItem(MEMO_KEY) || '';
+                    data.memos = [{ id: Date.now(), title: oldMemo ? '引き継いだメモ' : '新しいメモ', content: oldMemo }];
+                }
+            }
+            function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); document.getElementById('data-area').value = JSON.stringify(data); }
+
+            function renderAll() { renderGenrePages(); renderTaskbar(); renderGenreSettings(); }
+
+            function renderGenrePages() {
+                const slider = document.querySelector('.page-slider'); slider.innerHTML = '';
+                if(data.currentGenreIndex >= data.genres.length) data.currentGenreIndex = 0;
+                data.genres.forEach((genre, idx) => {
+                    const page = document.createElement('div'); page.className = 'site-page';
+                    const addBtn = document.createElement('div'); addBtn.className = 'add-card-btn';
+                    addBtn.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`;
+                    addBtn.onclick = () => window.openAddAppModal(idx);
+                    genre.sites.forEach(site => page.appendChild(createSiteCard(site, idx)));
+                    page.appendChild(addBtn); slider.appendChild(page);
+                });
+                updateSliderPos(); updateGenreTitle(); updateIndicators();
+            }
+
+            function createSiteCard(site, genreIdx) {
+                const card = document.createElement('div'); card.className = 'site-card'; card.draggable = true;
+                const iconBox = document.createElement('div'); iconBox.className = 'site-icon-box';
+                const img = document.createElement('img');
+                img.src = site.icon || `https://www.google.com/s2/favicons?sz=64&domain=${new URL(site.url).hostname}`;
+                img.onerror = () => { img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23aaa"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>'; };
+                iconBox.appendChild(img);
+                const nameDiv = document.createElement('div'); nameDiv.className = 'site-name'; nameDiv.textContent = site.name;
+                const delBtn = document.createElement('div'); delBtn.className = 'mini-delete'; delBtn.innerHTML = `<svg viewBox="0 0 24 24">${ICONS.trash}</svg>`;
+                delBtn.onclick = (e) => { e.stopPropagation(); if(confirm(`「${site.name}」を削除しますか？`)) { data.genres[genreIdx].sites = data.genres[genreIdx].sites.filter(s => s.id !== site.id); saveData(); renderGenrePages(); } };
+                card.appendChild(iconBox); card.appendChild(nameDiv); card.appendChild(delBtn);
+                card.onclick = () => window.location.href = site.url;
+                card.ondragstart = (e) => { card.classList.add('dragging'); e.dataTransfer.setData('text/plain', JSON.stringify({siteId: site.id, genreIdx})); };
+                card.ondragend = () => card.classList.remove('dragging');
+                card.ondragover = e => e.preventDefault();
+                card.ondrop = (e) => { e.preventDefault(); handleSiteDrop(e, genreIdx, site.id); };
+                return card;
+            }
+
+            function handleSiteDrop(e, targetGenreIdx, targetSiteId) {
+                try {
+                    const d = JSON.parse(e.dataTransfer.getData('text/plain'));
+                    if(d.genreIdx !== targetGenreIdx) return;
+                    const g = data.genres[targetGenreIdx];
+                    const f = g.sites.findIndex(s => s.id === d.siteId);
+                    const t = g.sites.findIndex(s => s.id === targetSiteId);
+                    if(f<0 || t<0) return;
+                    const [m] = g.sites.splice(f, 1); g.sites.splice(t, 0, m);
+                    saveData(); renderGenrePages();
+                } catch(err){}
+            }
+
+            window.openAddAppModal = (target) => {
+                document.getElementById('add-app-name').value = '';
+                document.getElementById('add-app-url').value = '';
+                const sel = document.getElementById('add-app-target');
+                sel.innerHTML = '<option value="taskbar">タスクバー</option>';
+                data.genres.forEach((g, i) => sel.innerHTML += `<option value="${i}">ジャンル: ${g.name}</option>`);
+                sel.value = target;
+                toggleModal('add-app-modal');
+            };
+
+            document.getElementById('submit-add-app-btn').onclick = () => {
+                const name = document.getElementById('add-app-name').value.trim();
+                let url = document.getElementById('add-app-url').value.trim();
+                if(!name || !url) return alert('入力してください');
+                if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+                
+                const target = document.getElementById('add-app-target').value;
+                const newApp = { id: Date.now(), name, url, icon: '' };
+                
+                if(target === 'taskbar') { data.taskbarSites.push(newApp); renderTaskbar(); }
+                else { data.genres[parseInt(target)].sites.push(newApp); renderGenrePages(); }
+                saveData(); toggleModal('add-app-modal');
+            };
+
+            function updateSliderPos() { document.querySelector('.page-slider').style.transform = `translateX(-${data.currentGenreIndex * 100}%)`; }
+            function updateGenreTitle() { const t = document.getElementById('genre-title'); if(data.genres[data.currentGenreIndex]) t.textContent = data.genres[data.currentGenreIndex].name; }
+            function updateIndicators() {
+                const c = document.getElementById('page-indicator'); c.innerHTML = '';
+                data.genres.forEach((g, i) => {
+                    const d = document.createElement('div'); d.className = `dot ${i === data.currentGenreIndex ? 'active' : ''}`;
+                    d.setAttribute('data-title', g.name); // 名前表示用データ属性付与
+                    d.onclick = () => { data.currentGenreIndex = i; updatePage(); };
+                    c.appendChild(d);
+                });
+            }
+            function prevPage() { if(data.currentGenreIndex > 0) { data.currentGenreIndex--; updatePage(); } }
+            function nextPage() { if(data.currentGenreIndex < data.genres.length - 1) { data.currentGenreIndex++; updatePage(); } }
+            function updatePage() { updateSliderPos(); updateGenreTitle(); updateIndicators(); saveData(); }
+
+            function renderTaskbar() {
+                const l = document.getElementById('taskbar-left');
+                const ham = document.getElementById('hamburger-btn');
+                const memo = document.getElementById('memo-btn');
+                const add = document.getElementById('add-taskbar-btn');
+                l.innerHTML = ''; l.appendChild(ham); l.appendChild(memo);
+                data.taskbarSites.forEach(s => {
+                    const b = document.createElement('div'); b.className = 'bar-btn'; b.title = s.name;
+                    b.onclick = () => window.location.href = s.url;
+                    const i = document.createElement('img');
+                    i.src = s.icon || `https://www.google.com/s2/favicons?sz=64&domain=${new URL(s.url).hostname}`;
+                    i.style.width='24px'; i.style.height='24px'; i.style.borderRadius='6px';
+                    const d = document.createElement('div'); d.className = 'mini-delete'; d.innerHTML = `<svg viewBox="0 0 24 24">${ICONS.trash}</svg>`;
+                    d.onclick = (e) => { e.stopPropagation(); data.taskbarSites = data.taskbarSites.filter(x=>x.id!==s.id); saveData(); renderTaskbar(); };
+                    b.appendChild(i); b.appendChild(d); l.appendChild(b);
+                });
+                l.appendChild(add);
+            }
+
+            function setupEvents() {
+                document.getElementById('page-left-btn').onclick = prevPage;
+                document.getElementById('page-right-btn').onclick = nextPage;
+                
+                document.getElementById('left-panel').addEventListener('wheel', (e) => {
+                    if(wheelCooldown) return;
+                    if(Math.abs(e.deltaX) > 20) {
+                        if(e.deltaX > 20) nextPage(); else prevPage();
+                        wheelCooldown = true; setTimeout(() => wheelCooldown = false, 500);
+                    }
+                }, { passive: true });
+
+                // ニュースパネル用スクロール検知
+                let isNewsScroll = false;
+                window.addEventListener('wheel', (e) => {
+                    if(document.querySelector('.modal-overlay.open')) return;
+                    const newsPanel = document.getElementById('news-panel');
+                    if(e.deltaY > 50) { newsPanel.classList.add('open'); if(!newsLoaded) fetchNews(); } 
+                    else if (e.deltaY < -50) { if(newsPanel.contains(e.target) && document.getElementById('news-content').scrollTop > 0) return; newsPanel.classList.remove('open'); }
+                }, { passive: true });
+
+                let touchStartY = 0;
+                window.addEventListener('touchstart', e => { 
+                    touchStartY = e.touches[0].clientY; isNewsScroll = e.target.closest('#news-content') !== null;
+                }, {passive:true});
+                window.addEventListener('touchmove', e => {
+                    if(document.querySelector('.modal-overlay.open')) return;
+                    const diffY = touchStartY - e.touches[0].clientY;
+                    const newsPanel = document.getElementById('news-panel');
+                    if(diffY > 50) { newsPanel.classList.add('open'); if(!newsLoaded) fetchNews(); } 
+                    else if (diffY < -50) { if(isNewsScroll && document.getElementById('news-content').scrollTop > 0) return; newsPanel.classList.remove('open'); }
+                }, {passive:true});
+
+                const si = document.getElementById('google-search-input');
+                si.oninput = (e) => { clearTimeout(suggestionTimer); suggestionTimer = setTimeout(()=>fetchSuggestions(e.target.value), 300); };
+                si.onfocus = () => { if(!si.value.trim() && searchHistory.length) showHistory(); };
+                si.onkeydown = (e) => { if(e.key === 'Enter') performSearch(si.value); };
+                document.onclick = (e) => { if(!document.getElementById('search-container').contains(e.target)) document.getElementById('search-suggestions').style.display='none'; };
+
+                document.getElementById('add-taskbar-btn').onclick = () => window.openAddAppModal('taskbar');
+                document.getElementById('theme-toggle').onclick = () => {
+                    document.body.classList.toggle('light-mode');
+                    localStorage.setItem(THEME_KEY, document.body.classList.contains('light-mode') ? 'light' : 'dark');
+                };
+
+                // 放置モード手動ボタン
+                document.getElementById('screensaver-btn').onclick = () => {
+                    startScreensaver();
+                };
+
+                document.getElementById('hamburger-btn').onclick = () => { toggleModal('settings-modal'); document.getElementById('calendar-url-input').value = data.calendarUrl || ''; renderGenreSettings(); };
+                
+                document.getElementById('memo-btn').onclick = () => {
+                    if(data.memos.length > 0) openMemo(data.memos[0].id);
+                    toggleModal('memo-modal');
+                };
+                document.getElementById('add-memo-btn').onclick = () => {
+                    const newMemo = { id: Date.now(), title: '新しいメモ', content: '' };
+                    data.memos.unshift(newMemo); openMemo(newMemo.id);
+                };
+                document.getElementById('delete-memo-btn').onclick = () => {
+                    if(data.memos.length <= 1) return;
+                    data.memos = data.memos.filter(x => x.id !== currentMemoId);
+                    openMemo(data.memos[0].id);
+                };
+                const saveCurrentMemo = () => {
+                    if(!currentMemoId) return;
+                    const m = data.memos.find(x => x.id === currentMemoId);
+                    if(m) { m.title = document.getElementById('memo-title-input').value; m.content = document.getElementById('memo-textarea').value; saveData(); renderMemoList(); }
+                };
+                document.getElementById('memo-title-input').oninput = saveCurrentMemo;
+                document.getElementById('memo-textarea').oninput = saveCurrentMemo;
+                
+                document.getElementById('network-widget').onclick = runSpeedTest;
+
+                document.getElementById('add-genre-btn').onclick = () => {
+                    const n = document.getElementById('new-genre-input').value.trim();
+                    if(n) { data.genres.push({id:Date.now(), name:n, sites:[]}); document.getElementById('new-genre-input').value=''; saveData(); renderAll(); }
+                };
+                
+                document.getElementById('set-bg-url-btn').onclick = () => setBg(document.getElementById('bg-url-input').value.trim());
+                document.getElementById('set-bg-file-btn').onclick = () => {
+                    const file = document.getElementById('bg-file-input').files[0];
+                    if(file) {
+                        if(file.size > 3000000) return alert('ファイルサイズが大きすぎます(3MB以下推奨)');
+                        const r = new FileReader(); r.onload = e => setBg(e.target.result); r.readAsDataURL(file);
+                    }
+                };
+                document.getElementById('clear-bg-btn').onclick = () => setBg('none');
+                
+                document.getElementById('save-calendar-btn').onclick = () => {
+                    const u = document.getElementById('calendar-url-input').value.trim();
+                    if(u) { data.calendarUrl = u; document.getElementById('calendar-iframe').src = u; saveData(); alert('更新しました'); }
+                };
+                
+                document.getElementById('paste-import-btn').onclick = async () => {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        if(!text) return alert('クリップボードが空です');
+                        try {
+                            const d = JSON.parse(text);
+                            if(confirm('読み込みますか？現在のデータは上書きされます。')) { data = d; saveData(); location.reload(); }
+                        } catch(e) { alert('正しいデータ形式ではありません'); }
+                    } catch(err) { alert('読み取りに失敗しました。下の枠に貼り付けてください。'); }
+                };
+                document.getElementById('text-import-btn').onclick = () => {
+                    try{ data=JSON.parse(document.getElementById('data-area').value); saveData(); location.reload(); } catch(e){alert('読み込み失敗(JSON形式エラー)');}
+                };
+                document.getElementById('copy-btn').onclick = async () => { 
+                    try { await navigator.clipboard.writeText(JSON.stringify(data)); alert('データをコピーしました'); }
+                    catch(e) { document.getElementById('data-area').select(); document.execCommand('copy'); alert('データをコピーしました'); }
+                };
+            }
+
+            function renderMemoList() {
+                const list = document.getElementById('memo-list'); list.innerHTML = '';
+                data.memos.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = `memo-list-item ${m.id === currentMemoId ? 'active' : ''}`;
+                    div.textContent = m.title || '無題のメモ';
+                    div.onclick = () => openMemo(m.id);
+                    list.appendChild(div);
+                });
+            }
+            function openMemo(id) {
+                currentMemoId = id; const m = data.memos.find(x => x.id === id);
+                document.getElementById('memo-title-input').value = m.title;
+                document.getElementById('memo-textarea').value = m.content;
+                document.getElementById('delete-memo-btn').style.display = data.memos.length > 1 ? 'block' : 'none';
+                renderMemoList();
+            }
+
+            function fetchNews() {
+                newsLoaded = true; const content = document.getElementById('news-content');
+                fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.google.com%2Frss%3Fhl%3Dja%26gl%3DJP%26ceid%3DJP%3Aja')
+                .then(r => r.json()).then(d => {
+                    if(d.status === 'ok') {
+                        content.innerHTML = '';
+                        d.items.forEach(item => {
+                            const a = document.createElement('a'); a.className = 'news-item'; a.href = item.link; a.target = '_blank';
+                            a.innerHTML = `<span class="news-date">${new Date(item.pubDate).toLocaleString('ja-JP')}</span><span class="news-title">${item.title}</span>`;
+                            content.appendChild(a);
+                        });
+                    } else content.innerHTML = 'ニュースの取得に失敗しました';
+                }).catch(() => content.innerHTML = 'エラーが発生しました');
+            }
+
+            function fetchSuggestions(q) {
+                if(!q.trim()) { showHistory(); return; }
+                const s = document.createElement('script');
+                s.src = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}&callback=handleSuggestions`;
+                document.body.appendChild(s); s.onload = () => s.remove();
+            }
+            window.handleSuggestions = (res) => renderSuggestions(res[1], false);
+            function showHistory() { if(searchHistory.length) renderSuggestions(searchHistory, true); }
+            function renderSuggestions(list, isHist) {
+                const b = document.getElementById('search-suggestions'); b.innerHTML = '';
+                if(!list.length) { b.style.display='none'; return; }
+                list.forEach(t => {
+                    const i = document.createElement('div'); i.className = 'suggestion-item';
+                    i.innerHTML = `<span class="suggestion-icon">${isHist?ICONS.history:ICONS.search}</span><span>${t}</span>`;
+                    if(isHist) {
+                        const d = document.createElement('span'); d.className='suggestion-delete'; d.innerHTML=`<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor">${ICONS.trash}</svg>`;
+                        d.onclick = (e) => { e.stopPropagation(); searchHistory=searchHistory.filter(h=>h!==t); localStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory)); showHistory(); };
+                        i.appendChild(d);
+                    }
+                    i.onclick = () => performSearch(t); b.appendChild(i);
+                });
+                b.style.display = 'block';
+            }
+            function performSearch(q) {
+                if(!q.trim()) return;
+                searchHistory = searchHistory.filter(x=>x!==q); searchHistory.unshift(q); if(searchHistory.length>20) searchHistory.pop();
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(searchHistory));
+                if(/^https?:\/\//.test(q) || (q.includes('.') && !q.includes(' '))) window.location.href = /^https?:\/\//.test(q)?q:'https://'+q;
+                else window.location.href = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+            }
+
+            function initClock() {
+                const upd = () => {
+                    const d = new Date();
+                    // 秒数表示の復活
+                    document.getElementById('clock-time').textContent = d.toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+                    document.getElementById('clock-date').textContent = d.toLocaleDateString('ja-JP', {year:'numeric', month:'long', day:'numeric', weekday:'short'});
+                };
+                setInterval(upd, 1000); upd();
+            }
+
+            function initBattery() {
+                if(navigator.getBattery) {
+                    navigator.getBattery().then(bat => {
+                        const updateBat = () => {
+                            document.getElementById('battery-level').textContent = `${Math.round(bat.level * 100)}%`;
+                            document.getElementById('battery-status').textContent = bat.charging ? '充電中' : '';
+                        };
+                        updateBat(); bat.addEventListener('levelchange', updateBat); bat.addEventListener('chargingchange', updateBat);
+                    });
+                } else document.getElementById('battery-level').textContent = '--';
+            }
+
+            function runSpeedTest() {
+                if(isMeasuring) return; isMeasuring = true;
+                const icon = document.getElementById('network-icon'), speedText = document.getElementById('network-speed');
+                icon.classList.add('measuring'); speedText.textContent = '計測中...';
+                const imageAddr = "https://upload.wikimedia.org/wikipedia/commons/2/2d/Snake_River_%285mb%29.jpg"; 
+                const startTime = (new Date()).getTime(); const download = new Image();
+                download.onload = () => {
+                    const duration = ((new Date()).getTime() - startTime) / 1000, speedMbps = ((5245329 * 8) / duration / (1024*1024)).toFixed(1);
+                    speedText.textContent = speedMbps; icon.classList.remove('measuring');
+                    const s = parseFloat(speedMbps);
+                    if(s > 100) icon.textContent = '🚀'; else if(s > 30) icon.textContent = '🐇'; else if(s > 5) icon.textContent = '🐢'; else icon.textContent = '🐌';
+                    isMeasuring = false;
+                };
+                download.onerror = () => { speedText.textContent = 'Err'; icon.textContent = '💀'; icon.classList.remove('measuring'); isMeasuring = false; };
+                download.src = imageAddr + "?nnn=" + startTime;
+            }
+
+            // 放置モード制御 (全画面対応)
+            function startScreensaver() {
+                const ss = document.getElementById('screensaver');
+                ss.style.display = 'flex'; void ss.offsetWidth; ss.classList.add('active');
+                try {
+                    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen().catch(()=>{});
+                    }
+                } catch(e){}
+            }
+            function stopScreensaver() {
+                const ss = document.getElementById('screensaver');
+                if(ss.classList.contains('active')) {
+                    ss.classList.remove('active'); setTimeout(() => ss.style.display = 'none', 500);
+                    try {
+                        if (document.fullscreenElement && document.exitFullscreen) {
+                            document.exitFullscreen().catch(()=>{});
+                        }
+                    } catch(e){}
+                }
+            }
+
+            function setupScreensaver() {
+                const resetIdle = () => {
+                    stopScreensaver();
+                    clearTimeout(idleTimeout);
+                    idleTimeout = setTimeout(startScreensaver, 60000); // 1分で起動
+                };
+                ['mousemove','keydown','touchstart','wheel','click'].forEach(evt => window.addEventListener(evt, resetIdle, {passive:true}));
+                resetIdle();
+                setInterval(() => { if(document.getElementById('screensaver').classList.contains('active')) document.getElementById('ss-clock').textContent = new Date().toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }, 1000);
+            }
+
+            window.toggleModal = (id) => document.getElementById(id).classList.toggle('open');
+            function loadTheme() { if(localStorage.getItem(THEME_KEY)==='light') document.body.classList.add('light-mode'); }
+            
+            function loadBg() { setBg(localStorage.getItem(BG_KEY)); }
+            function setBg(u) {
+                if(u && u!=='none') { 
+                    const bgVal = u.startsWith('url(') ? u : `url("${u}")`;
+                    document.documentElement.style.setProperty('--body-bg-image', bgVal); localStorage.setItem(BG_KEY, u); 
+                }
+                else { document.documentElement.style.setProperty('--body-bg-image', 'none'); localStorage.setItem(BG_KEY, 'none'); }
+            }
+
+            function renderGenreSettings() {
+                const list = document.getElementById('genre-settings-list'); list.innerHTML = '';
+                data.genres.forEach((g, idx) => {
+                    const item = document.createElement('div'); item.className = 'genre-setting-item'; item.draggable = true;
+                    item.innerHTML = `<span>${g.name}</span> <button style="background:var(--danger); border:none; color:white; border-radius:4px; cursor:pointer; padding:4px 8px;" onclick="deleteGenre(${idx})">削除</button>`;
+                    item.ondragstart = (e) => { draggedGenreItem = idx; item.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; };
+                    item.ondragend = () => { draggedGenreItem = null; item.classList.remove('dragging'); };
+                    item.ondragover = (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+                    item.ondrop = (e) => {
+                        e.preventDefault(); if (draggedGenreItem === null || draggedGenreItem === idx) return;
+                        const moved = data.genres.splice(draggedGenreItem, 1)[0]; data.genres.splice(idx, 0, moved);
+                        data.currentGenreIndex = 0; saveData(); renderGenreSettings(); renderAll();
+                    };
+                    list.appendChild(item);
+                });
+            }
+            window.deleteGenre = (idx) => {
+                if(data.genres.length <= 1) return alert('削除できません');
+                if(confirm('削除しますか？')) { data.genres.splice(idx, 1); data.currentGenreIndex=0; saveData(); renderAll(); renderGenreSettings(); }
+            };
+
+            init();
+        })();
+    </script>
+</body>
+</html>
